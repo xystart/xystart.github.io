@@ -16,17 +16,29 @@ export const siteConfig: SiteConfig = {
 		fixed: false, // 对访问者隐藏主题色选择器
 	},
 
-	// 特色页面开关配置（关闭未使用的页面有助于提升 SEO，关闭后请记得在 navbarConfig 中移除对应链接）
-	featurePages: {
-		anime: true, // 番剧页面开关
-		diary: true, // 日记页面开关
-		friends: true, // 友链页面开关
-		projects: true, // 项目页面开关
-		skills: true, // 技能页面开关
-		timeline: true, // 时间线页面开关
-		albums: true, // 相册页面开关
-		devices: true, // 设备页面开关
-	},
+	// // 特色页面开关配置（关闭未使用的页面有助于提升 SEO，关闭后请记得在 navbarConfig 中移除对应链接）
+	// featurePages: {
+	// 	anime: true, // 番剧页面开关
+	// 	diary: true, // 日记页面开关
+	// 	friends: true, // 友链页面开关
+	// 	projects: true, // 项目页面开关
+	// 	skills: true, // 技能页面开关
+	// 	timeline: true, // 时间线页面开关
+	// 	albums: true, // 相册页面开关
+	// 	devices: true, // 设备页面开关
+	// },
+
+	// 特色页面开关配置（关闭未使用的页面有助于提升 SEO）
+    featurePages: {
+        anime: false,    // 关闭番剧页面
+        diary: false,    // 关闭日记页面
+        friends: true,   // 留着友链（以后和其他技术大佬互换链接）
+        projects: true,  // 留着项目页面（展示你自己的开源 AI 项目！）
+        skills: true,    // 留着技能页面（秀出你的 PyTorch、CUDA 熟练度）
+        timeline: true,  // 留着时间线
+        albums: false,   // 关闭相册页面
+        devices: true,   // 留着设备页面（可以晒你的显卡、Mac硬件配置）
+    },
 
 	// 顶栏标题配置
 	navbarTitle: {
@@ -35,8 +47,10 @@ export const siteConfig: SiteConfig = {
 		// 顶栏标题文本
 		text: "AI Infra",
 		// 顶栏标题图标路径，默认使用 public/assets/home/home.webp
-		icon: "assets/home/home.webp",
+		// icon: "assets/home/home.webp",
+		icon: "assets/home/macos.jpg",
 		// 网站Logo图片路径
+		// logo: "assets/home/default-logo.webp",
 		logo: "assets/home/macos.jpg",
 	},
 
@@ -147,16 +161,13 @@ export const siteConfig: SiteConfig = {
 
 		homeText: {
 			enable: true,
-			title: "わたしの部屋",
+			title: "AI Infra",
 			switchable: true,
 
 			subtitle: [
-				"特別なことはないけど、君がいると十分です",
-				"今でもあなたは私の光",
-				"君ってさ、知らないうちに私の毎日になってたよ",
-				"君と話すと、なんか毎日がちょっと楽しくなるんだ",
-				"今日はなんでもない日。でも、ちょっとだけいい日",
-			],
+				"From Transformer Principles to LLM Scalability.",
+                "Keep cloning, keep training, keep learning."
+            ],
 			typewriter: {
 				enable: true, // 启用副标题打字机效果
 
@@ -196,26 +207,44 @@ export const siteConfig: SiteConfig = {
 		// }
 	],
 
+	// // 字体配置
+	// font: {
+	// 	// 注意：自定义字体需要在 src/styles/main.css 中引入字体文件
+	// 	// 注意：字体子集优化功能目前仅支持 TTF 格式字体,开启后需要在生产环境才能看到效果,在Dev环境下显示的是浏览器默认字体!
+	// 	asciiFont: {
+	// 		// 英文字体 - 优先级最高
+	// 		// 指定为英文字体则无论字体包含多大范围，都只会保留 ASCII 字符子集
+	// 		fontFamily: "ZenMaruGothic-Medium",
+	// 		fontWeight: "400",
+	// 		localFonts: ["ZenMaruGothic-Medium.ttf"],
+	// 		enableCompress: true, // 启用字体子集优化，减少字体文件大小
+	// 	},
+	// 	cjkFont: {
+	// 		// 中日韩字体 - 作为回退字体
+	// 		fontFamily: "萝莉体 第二版",
+	// 		fontWeight: "500",
+	// 		localFonts: ["loli.ttf"],
+	// 		enableCompress: true, // 启用字体子集优化，减少字体文件大小
+	// 	},
+	// },
+
 	// 字体配置
-	font: {
-		// 注意：自定义字体需要在 src/styles/main.css 中引入字体文件
-		// 注意：字体子集优化功能目前仅支持 TTF 格式字体,开启后需要在生产环境才能看到效果,在Dev环境下显示的是浏览器默认字体!
-		asciiFont: {
-			// 英文字体 - 优先级最高
-			// 指定为英文字体则无论字体包含多大范围，都只会保留 ASCII 字符子集
-			fontFamily: "ZenMaruGothic-Medium",
-			fontWeight: "400",
-			localFonts: ["ZenMaruGothic-Medium.ttf"],
-			enableCompress: true, // 启用字体子集优化，减少字体文件大小
-		},
-		cjkFont: {
-			// 中日韩字体 - 作为回退字体
-			fontFamily: "萝莉体 第二版",
-			fontWeight: "500",
-			localFonts: ["loli.ttf"],
-			enableCompress: true, // 启用字体子集优化，减少字体文件大小
-		},
-	},
+    font: {
+        // 彻底切换为大厂极客系统黑体，不加载第三方萌系字体
+        asciiFont: {
+            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            fontWeight: "400",
+            localFonts: [],
+            enableCompress: false, 
+        },
+        cjkFont: {
+            fontFamily: "'Helvetica Neue', Arial, 'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif",
+            fontWeight: "400",
+            localFonts: [],
+            enableCompress: false, 
+        },
+    },
+
 	showLastModified: true, // 控制"上次编辑"卡片显示的开关
 	pageProgressBar: {
 		enable: true, // 启用页面顶部进度条

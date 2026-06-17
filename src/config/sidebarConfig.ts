@@ -97,12 +97,23 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 		},
 	],
 
+	// // 侧栏组件布局配置
+	// components: {
+	// 	left: ["profile", "announcement", "tags", "card-toc"],
+	// 	right: ["site-stats", "calendar", "categories", "music-sidebar"],
+	// 	drawer: ["profile", "announcement", "music-sidebar", "categories", "tags"],
+	// },
+
 	// 侧栏组件布局配置
-	components: {
-		left: ["profile", "announcement", "tags", "card-toc"],
-		right: ["site-stats", "calendar", "categories", "music-sidebar"],
-		drawer: ["profile", "announcement", "music-sidebar", "categories", "tags"],
-	},
+    components: {
+        // 左侧保留最核心的：个人资料、公告、文章卡片式目录
+        right: [],
+        // 右侧保留纯技术极客风的：站点统计、分类导航、技术标签
+        // left: ["profile", "announcement", "card-toc", "site-stats", "categories", "tags"],
+		left: ["profile", "card-toc", "site-stats", "categories", "tags"],
+        // drawer 是手机端从侧边划出来的抽屉菜单，也可以同步精简掉音乐
+        drawer: ["profile", "announcement", "categories", "tags"],
+    },
 
 	// 默认动画配置
 	defaultAnimation: {

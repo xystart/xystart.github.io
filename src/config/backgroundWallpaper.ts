@@ -1,7 +1,8 @@
 import type { FullscreenWallpaperConfig } from "../types/config";
 
 export const fullscreenWallpaperConfig: FullscreenWallpaperConfig = {
-	enable: true,
+	// enable: true,
+	enable: false,
 	src: {
 		desktop: [
 			"/assets/desktop-banner/1.webp",

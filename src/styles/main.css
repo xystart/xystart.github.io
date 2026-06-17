@@ -18,12 +18,39 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* Migrate from v3 config */
-@theme {
+/* @theme {
   --font-sans: "Roboto", "sans-serif", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
   --breakpoint-md: 768px;
   --breakpoint-lg: 1280px;
   --breakpoint-xl: 1920px;
+} */
+
+/* Migrate from v3 config */
+@theme {
+  /* 注入工业级高可读性系统字体序列 */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans CJK SC", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1280px;
+  --breakpoint-xl: 1920px;
+}
+
+导入 ZenMaruGothic-Medium 字体
+@font-face {
+  font-family: "ZenMaruGothic-Medium";
+  src: url("/assets/font/ZenMaruGothic-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-display: swap;
+}
+
+/* 导入 萝莉体 第二版 字体 */
+@font-face {
+  font-family: "萝莉体 第二版";
+  src: url("/assets/font/loli.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
 }
 
 /* 导入 ZenMaruGothic-Medium 字体 */
@@ -41,6 +68,11 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
+}
+
+/* 🔒 极客风补丁：强制全局剥离萌系字体 */
+*, *::before, *::after {
+  font-family: var(--font-sans) !important;
 }
 
 /* 确保平滑滚动，并稳定滚动条宽度以避免布局左右抖动 */
@@ -739,4 +771,9 @@ html {
 }
 :root:not(.dark) .custom-md spoiler {
   --_spoiler-mask: color-mix(in oklch, var(--primary) 55%, white 45%);
+}
+
+/* 💻 让 PyTorch/Transformer 的代码块呈现出极客等宽质感 */
+code, pre, .expressive-code * {
+  font-family: "JetBrains Mono", "Fira Code", Menlo, Monaco, Consolas, monospace !important;
 }
