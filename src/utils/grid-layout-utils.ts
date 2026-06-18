@@ -19,8 +19,6 @@ export interface BannerImages {
 export interface GridLayoutConfig {
 	siteConfig: SiteConfig;
 	widgetManager: typeof widgetManager;
-	/** 文章详情页-slug，用于判断是否隐藏左侧边栏 */
-	postSlug?: string;
 }
 
 /**
@@ -88,7 +86,7 @@ export function getSidebarPresence(wm: typeof widgetManager): SidebarPresence {
 export function calculateGridLayout(
 	config: GridLayoutConfig,
 ): GridLayoutResult {
-	const { siteConfig, widgetManager: wm, postSlug } = config;
+	const { siteConfig, widgetManager: wm } = config;
 	const presence = getSidebarPresence(wm);
 
 	const {
@@ -98,17 +96,14 @@ export function calculateGridLayout(
 		hasTabletLeftSidebarComponents,
 	} = presence;
 
-	// 文章详情页：隐藏左侧边栏，让主内容区域更宽
-	const isPostPage = !!postSlug;
-
 	// 检查侧边栏是否启用，动态调整网格布局
 	const mobileShowSidebar = hasMobileDrawerComponents;
 	const tabletShowSidebar = hasTabletLeftSidebarComponents;
 	const desktopShowSidebar =
 		hasLeftSidebarComponents || hasRightSidebarComponents;
 
-	// 桌面端侧边栏最终显示状态（考虑是否有组件，以及是否为文章详情页）
-	const desktopShowLeftSidebar = hasLeftSidebarComponents && !isPostPage;
+	// 桌面端侧边栏最终显示状态（考虑是否有组件）
+	const desktopShowLeftSidebar = hasLeftSidebarComponents;
 	const desktopShowRightSidebar = hasRightSidebarComponents;
 
 	// 平板端侧边栏最终显示状态
