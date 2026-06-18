@@ -773,8 +773,39 @@ html {
   --_spoiler-mask: color-mix(in oklch, var(--primary) 55%, white 45%);
 }
 
-/* 💻 让 PyTorch/Transformer 的代码块呈现出极客等宽质感
+/* 💻 让 PyTorch/Transformer 的代码块呈现出极客等宽质感 */
 code, pre, .expressive-code * {
   font-family: "JetBrains Mono", "Fira Code", Menlo, Monaco, Consolas, monospace !important;
-} */
+}
 
+/* ==========================================================================
+   🔒 极客风专栏骨架修正补丁：彻底根治正文右偏，解锁黄金对称比例
+   ========================================================================== */
+@media (min-width: 1280px) {
+  /* 1. 强行把两列不对称布局，重置为单列纯净的技术文档骨架 */
+  #main-grid[data-layout-mode="grid"] {
+    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important; /* 确保主体在父级中水平居中 */
+    gap: 2rem !important;
+    margin: 0 auto !important;
+    max-width: 85rem !important; /* 限制大屏幕下的最大宽度，防止拉得太宽 */
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+
+  /* 2. 把强行塞进第二列的正文容器解放出来，恢复正常文档流 */
+  #main-grid[data-layout-mode="grid"] #swup-container {
+    grid-column: unset !important;
+    flex: 1 !important;
+    max-width: 55rem !important; /* 给文章正文区域一个极其舒适的黄金阅读宽度 */
+    min-width: 0 !important;
+  }
+
+  /* 3. 让左侧边栏（头像卡片和标签区）优雅地贴在正文左侧，达成视觉天平 */
+  #main-grid[data-layout-mode="grid"] #sidebar {
+    width: 18rem !important;
+    flex-shrink: 0 !important;
+  }
+}
