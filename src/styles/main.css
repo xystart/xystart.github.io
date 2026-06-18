@@ -777,3 +777,15 @@ html {
 code, pre, .expressive-code * {
   font-family: "JetBrains Mono", "Fira Code", Menlo, Monaco, Consolas, monospace !important;
 }
+
+/* 强行修正去娱乐化后的左侧偏位，让极客风专栏完美居中对齐 */
+.max-w-\[85rem\] {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/* 如果你的文章主容器在宽屏下偏右，确保它的 flex/grid 布局是 center 居中的 */
+main, .main-grid {
+    justify-content: center !important;
+    margin: 0 auto !important;
+}

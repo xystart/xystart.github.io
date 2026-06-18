@@ -130,6 +130,29 @@ export const navBarConfig: NavBarConfig = {
 	links: [
 		// 预设链接：首页
 		LinkPreset.Home,
+
+        // 直接平铺，一键肉眼直达
+        {
+            name: "CUDA",
+            url: "/posts/cuda/",
+            icon: "simple-icons:nvidia",
+        },
+        {
+            name: "Triton",
+            url: "/posts/triton-first-kernel/",
+            icon: "material-symbols:bolt",
+        },
+        {
+            name: "Transformer",
+            url: "/posts/transformer/", // 未来你写了 Triton 文章，路径对齐即可
+            icon: "material-symbols:hub",
+        },
+        {
+            name: "Inference", // 主流推理框架专题（vLLM / TensorRT-LLM 等）
+            url: "/posts/inference/", // 以后你在 content/posts/ 下建个 inference 文件夹即可
+            icon: "material-symbols:rocket-launch", // 火箭吞吐量图标
+        },
+
 		// 预设链接：归档
 		LinkPreset.Archive,
 
@@ -141,97 +164,107 @@ export const navBarConfig: NavBarConfig = {
 			children: [
 				{
 					name: "GitHub",
-					url: "https://github.com/LyraVoid/Mizuki",
+					url: "https://github.com/xystart",
 					external: true, // 外部链接，新标签页打开
 					icon: "fa7-brands:github",
 				},
-				{
-					name: "Bilibili",
-					url: "https://space.bilibili.com/701864046",
-					external: true,
-					icon: "fa7-brands:bilibili",
+
+                {
+					name: "深度学习",
+					url: "https://github.com/guo1218",
+					external: true, // 外部链接，新标签页打开
+					icon: "fa7-brands:github",
 				},
-				{
-					name: "Gitee",
-					url: "https://gitee.com/matsuzakayuki/Mizuki",
-					external: true,
-					icon: "mdi:git",
-				},
+
+				// {
+				// 	name: "Bilibili",
+				// 	url: "https://space.bilibili.com/701864046",
+				// 	external: true,
+				// 	icon: "fa7-brands:bilibili",
+				// },
+				// {
+				// 	name: "Gitee",
+				// 	url: "https://gitee.com/matsuzakayuki/Mizuki",
+				// 	external: true,
+				// 	icon: "mdi:git",
+				// },
 			],
 		},
 
-		// 自定义一级下拉菜单示例：个人内容页面
-		{
-			name: "My",
-			url: "/content/",
-			icon: "material-symbols:person",
-			children: [
-				{
-					name: "Anime",
-					url: "/anime/",
-					icon: "material-symbols:movie",
-				},
-				{
-					name: "Diary",
-					url: "/diary/",
-					icon: "material-symbols:book",
-				},
-				{
-					name: "Gallery",
-					url: "/albums/",
-					icon: "material-symbols:photo-library",
-				},
-				{
-					name: "Devices",
-					url: "/devices/",
-					icon: "material-symbols:devices",
-					external: false, // 内部链接，当前页导航
-				},
-			],
-		},
+        
+
+		// // 自定义一级下拉菜单示例：个人内容页面
+		// {
+		// 	name: "My",
+		// 	url: "/content/",
+		// 	icon: "material-symbols:person",
+		// 	children: [
+		// 		{
+		// 			name: "Anime",
+		// 			url: "/anime/",
+		// 			icon: "material-symbols:movie",
+		// 		},
+		// 		{
+		// 			name: "Diary",
+		// 			url: "/diary/",
+		// 			icon: "material-symbols:book",
+		// 		},
+		// 		{
+		// 			name: "Gallery",
+		// 			url: "/albums/",
+		// 			icon: "material-symbols:photo-library",
+		// 		},
+		// 		{
+		// 			name: "Devices",
+		// 			url: "/devices/",
+		// 			icon: "material-symbols:devices",
+		// 			external: false, // 内部链接，当前页导航
+		// 		},
+		// 	],
+		// },
 
 		// 自定义一级下拉菜单示例：关于相关
-		{
-			name: "About",
-			url: "/content/",
-			icon: "material-symbols:info",
-			children: [
-				{
-					name: "About",
-					url: "/about/",
-					icon: "material-symbols:person",
-				},
-				{
-					name: "Friends",
-					url: "/friends/",
-					icon: "material-symbols:group",
-				},
-			],
-		},
+		// {
+		// 	name: "About",
+		// 	url: "/content/",
+		// 	icon: "material-symbols:info",
+		// 	children: [
+		// 		{
+		// 			name: "About",
+		// 			url: "/about/",
+		// 			icon: "material-symbols:person",
+		// 		},
+		// 		{
+		// 			name: "Friends",
+		// 			url: "/friends/",
+		// 			icon: "material-symbols:group",
+		// 		},
+		// 	],
+		// },
 
 		// 自定义一级下拉菜单示例：其他页面
-		{
-			name: "Others",
-			url: "#", // "#" 作为占位 URL，点击不会跳转
-			icon: "material-symbols:more-horiz",
-			children: [
-				{
-					name: "Projects",
-					url: "/projects/",
-					icon: "material-symbols:work",
-				},
-				{
-					name: "Skills",
-					url: "/skills/",
-					icon: "material-symbols:psychology",
-				},
-				{
-					name: "Timeline",
-					url: "/timeline/",
-					icon: "material-symbols:timeline",
-				},
-			],
-		},
+		// {
+		// 	name: "Others",
+		// 	url: "#", // "#" 作为占位 URL，点击不会跳转
+		// 	icon: "material-symbols:more-horiz",
+		// 	children: [
+		// 		{
+		// 			name: "Projects",
+		// 			url: "/projects/",
+		// 			icon: "material-symbols:work",
+		// 		},
+		// 		{
+		// 			name: "Skills",
+		// 			url: "/skills/",
+		// 			icon: "material-symbols:psychology",
+		// 		},
+		// 		{
+		// 			name: "Timeline",
+		// 			url: "/timeline/",
+		// 			icon: "material-symbols:timeline",
+		// 		},
+		// 	],
+		// },
 	],
 };
 
