@@ -784,7 +784,7 @@ code, pre, .expressive-code * {
    ========================================================================== */
 .custom-md, .prose, .post-content {
     /* 1. 段落正文字体：默认是 1rem (16px)，改大一点点会非常舒展高级 */
-    font-size: 1.0625rem !important; /* 想要更大可以改成 1.125rem */
+    font-size: 1.125rem !important; /* 想要更大可以改成 1.125rem */
     
     /* 2. 完美的黄金阅读行高：防止字号变大后密密麻麻挤在一块 */
     line-height: 1.8 !important; 
