@@ -381,3 +381,27 @@ Thanks to all contributors for their contributions to this project. If you have 
 ## [![Star History Chart](https://api.star-history.com/svg?repos=LyraVoid/Mizuki&type=Date)](https://star-history.com/#LyraVoid/Mizuki&Date)
 
 ⭐ If you find this project helpful, please consider giving it a star!
+
+
+"scripts": {
+    "sync-content": "node scripts/sync-content.js",
+    "init-content": "node scripts/init-content-repo.js",
+    "predev": "node scripts/sync-content.js || true",
+    "prebuild": "node scripts/sync-content.js || true",
+    "dev": "astro dev",
+    "start": "astro dev",
+    "check": "astro check",
+    "update-anime": "node scripts/update-anime.mjs",
+    "update-bangumi": "node scripts/update-bangumi.mjs",
+    "update-bilibili": "node scripts/update-bilibili.mjs",
+    "build": "node scripts/update-anime.mjs && astro build && pagefind --site dist && node scripts/compress-fonts/index.js",
+    "submit": "node scripts/indexnow-submit.js",
+    "preview": "astro preview",
+    "astro": "astro",
+    "type-check": "tsc --noEmit",
+    "new-post": "node scripts/new-post.js",
+    "format": "biome format --write ./src",
+    "lint": "biome check --write ./src",
+    "preinstall": "npx only-allow pnpm",
+    "compress-fonts": "node scripts/compress-fonts/index.js"
+  },
