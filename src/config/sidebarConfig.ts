@@ -119,7 +119,8 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 		left: [],
 
         // 2. 右侧：把技术统计、分类导航、硬核标签全部挪到右边，作为专栏的右翼屏障
-        right: ["site-stats", "categories", "tags"],
+        // right: ["site-stats", "categories", "tags"],
+		right: [],
 
         // 3. 手机端侧边划出抽屉：保持原样，提供全面的快捷导航
         drawer: ["profile", "categories", "tags"],
