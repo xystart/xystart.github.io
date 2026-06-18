@@ -778,3 +778,31 @@ code, pre, .expressive-code * {
   font-family: "JetBrains Mono", "Fira Code", Menlo, Monaco, Consolas, monospace !important;
 }
 
+
+/* ==========================================================================
+   📄 文章正文部分字体大小与行高精准微调补丁
+   ========================================================================== */
+.custom-md, .prose, .post-content {
+    /* 1. 段落正文字体：默认是 1rem (16px)，改大一点点会非常舒展高级 */
+    font-size: 1.0625rem !important; /* 想要更大可以改成 1.125rem */
+    
+    /* 2. 完美的黄金阅读行高：防止字号变大后密密麻麻挤在一块 */
+    line-height: 1.8 !important; 
+    
+    /* 3. 增强字符间距，让中文阅读更具有呼吸感 */
+    letter-spacing: 0.02em !important;
+}
+
+/* 精准微调正文内部的所有层级标题，保持视觉梯度的威严感 */
+.custom-md h1 { font-size: 2.25rem !important; line-height: 1.3 !important; }
+.custom-md h2 { font-size: 1.65rem !important; line-height: 1.4 !important; margin-top: 2.25rem !important; }
+.custom-md h3 { font-size: 1.35rem !important; line-height: 1.4 !important; }
+
+/* 让硬核的 CUDA / Triton 代码块字体保持恰当的比例，等宽质感拉满 */
+.custom-md pre, 
+.custom-md code, 
+.expressive-code pre {
+    font-size: 0.875rem !important; /* 代码稍稍收紧，保证一长行代码不易折行 */
+    line-height: 1.6 !important;
+}
+
