@@ -106,13 +106,22 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 
 	// 侧栏组件布局配置
     components: {
-        // 左侧保留最核心的：个人资料、公告、文章卡片式目录
-        right: [],
-        // 右侧保留纯技术极客风的：站点统计、分类导航、技术标签
-        // left: ["profile", "announcement", "card-toc", "site-stats", "categories", "tags"],
-		left: ["profile", "card-toc", "site-stats", "categories", "tags"],
-        // drawer 是手机端从侧边划出来的抽屉菜单，也可以同步精简掉音乐
-        drawer: ["profile", "announcement", "categories", "tags"],
+        // // 左侧保留最核心的：个人资料、公告、文章卡片式目录
+        // right: [],
+        // // 右侧保留纯技术极客风的：站点统计、分类导航、技术标签
+        // // left: ["profile", "announcement", "card-toc", "site-stats", "categories", "tags"],
+		// left: ["profile", "card-toc", "site-stats", "categories", "tags"],
+        // // drawer 是手机端从侧边划出来的抽屉菜单，也可以同步精简掉音乐
+        // drawer: ["profile", "announcement", "categories", "tags"],
+
+		// 1. 左侧：只保留你最干练的个人名片（xystart 极客头像与 GitHub 链接）
+        left: ["profile"],
+
+        // 2. 右侧：把技术统计、分类导航、硬核标签全部挪到右边，作为专栏的右翼屏障
+        right: ["site-stats", "categories", "tags"],
+
+        // 3. 手机端侧边划出抽屉：保持原样，提供全面的快捷导航
+        drawer: ["profile", "categories", "tags"],
     },
 
 	// 默认动画配置
