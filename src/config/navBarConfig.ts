@@ -170,7 +170,7 @@ export const navBarConfig: NavBarConfig = {
 				},
 
                 {
-					name: "深度学习",
+					name: "GitHub",
 					url: "https://github.com/guo1218",
 					external: true, // 外部链接，新标签页打开
 					icon: "fa7-brands:github",

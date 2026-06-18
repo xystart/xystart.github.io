@@ -115,7 +115,8 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
         // drawer: ["profile", "announcement", "categories", "tags"],
 
 		// 1. 左侧：只保留你最干练的个人名片（xystart 极客头像与 GitHub 链接）
-        left: ["profile"],
+        // left: ["profile"],
+		left: [],
 
         // 2. 右侧：把技术统计、分类导航、硬核标签全部挪到右边，作为专栏的右翼屏障
         right: ["site-stats", "categories", "tags"],
