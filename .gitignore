@@ -59,3 +59,7 @@ src/data/bilibili-data.json
 *.psd~
 *.cmo3
 *.vtube.json
+
+# 🟢 强行放行本地文章目录，绝对不允许任何规则拦截
+!src/content/posts/
+!src/content/posts/**/*
