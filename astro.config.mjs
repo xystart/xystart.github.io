@@ -221,16 +221,26 @@ export default defineConfig({
 				],
 			},
 		},
+		// build: {
+		// 	// 静态资源处理优化，防止小图片转 base64 导致 HTML 体积过大
+		// 	assetsInlineLimit: 4096,
+		// 	// CSS 代码分割
+		// 	cssCodeSplit: true,
+		// 	cssMinify: "esbuild",
+		// 	// 内联小型 CSS 文件以减少网络请求
+		// 	inlineStylesheets: "auto",
+		// 	// 生产环境移除 console 和 debugger
+		// 	minify: "esbuild",
 		build: {
-			// 静态资源处理优化，防止小图片转 base64 导致 HTML 体积过大
-			assetsInlineLimit: 4096,
-			// CSS 代码分割
-			cssCodeSplit: true,
-			cssMinify: "esbuild",
-			// 内联小型 CSS 文件以减少网络请求
-			inlineStylesheets: "auto",
-			// 生产环境移除 console 和 debugger
-			minify: "esbuild",
+            // 静态资源处理优化，防止小图片转 base64 导致 HTML 体积过大
+            assetsInlineLimit: 4096,
+            // ❌ 关闭 CSS 代码分割，强制合并成单文件，确保线上绝不漏掉样式
+            cssCodeSplit: false, 
+            cssMinify: "esbuild",
+            // ❌ 彻底关闭自动内联样式表，让它生成标准的物理文件
+            inlineStylesheets: "never", 
+            // 生产环境移除 console 和 debugger
+            minify: "esbuild",
 			rollupOptions: {
 				onwarn(warning, warn) {
 					if (
