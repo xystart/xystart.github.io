@@ -1,0 +1,232 @@
+{
+  "main": {
+    "id": "06d4a3fd2a846631",
+    "type": "split",
+    "children": [
+      {
+        "id": "2dc330d60ec2fab3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "41492856a6a5eb4f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "cuda/index.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "index"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "42849991352192dd",
+    "type": "split",
+    "children": [
+      {
+        "id": "e73c978439a97fa7",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "8268c9c1cadf6b82",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "ff9473865da1cc59",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "234240e04084db86",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 296.5026054382324,
+    "collapsed": true
+  },
+  "right": {
+    "id": "f74f3aeec96f9cf9",
+    "type": "split",
+    "children": [
+      {
+        "id": "4231875d11f69668",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6528b9b76b952a53",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "transformer/index.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "index 的反向链接列表"
+            }
+          },
+          {
+            "id": "00606d778fd240f7",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "transformer/index.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "index 的出链列表"
+            }
+          },
+          {
+            "id": "d1bf3bb9a9e408eb",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "d83c7dd3dc37a2a4",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "8e0234924a2d9c7c",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "transformer/index.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "index 的大纲"
+            }
+          },
+          {
+            "id": "c44a908e50c788fd",
+            "type": "leaf",
+            "state": {
+              "type": "file-properties",
+              "state": {
+                "file": "transformer/index.md"
+              },
+              "icon": "lucide-info",
+              "title": "index的笔记属性"
+            }
+          }
+        ],
+        "currentTab": 5
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false
+    }
+  },
+  "active": "41492856a6a5eb4f",
+  "lastOpenFiles": [
+    "cuda/img/Pasted image 20260527153541.png",
+    "cuda/img/Pasted image 20260520210105.png",
+    "cuda/img/Pasted image 20260520205632.png",
+    "cuda/img/Pasted image 20260520205041.png",
+    "cuda/img/Pasted image 20260520204939.png",
+    "cuda/img/Pasted image 20260520204905.png",
+    "cuda/img",
+    "pytorch/index.md",
+    "cuda/index.md",
+    "transformer_code/index.md",
+    "transformer_code/img",
+    "transformer/index.md",
+    "transformer_code",
+    "transformer-to-llm/index.md",
+    "transformer-to-llm/img/Pasted image 20260417202117.png",
+    "transformer-to-llm/img",
+    "transformer/img/Pasted image 20260412165901.png",
+    "transformer-to-llm/img/Pasted image 20260421185722.png",
+    "transformer-to-llm/img/Pasted image 20260418231502.png",
+    "transformer-to-llm/img/Pasted image 20260418225155.png",
+    "2026-04-30.md",
+    "transformer-prefill-decode-kv-cache/index.md",
+    "transformer-to-llm",
+    "transformer/index copy.md",
+    "triton-first-kernel/img",
+    "transformer-prefill-decode-kv-cache/img",
+    "transformer/img",
+    "shortcodes/img",
+    "math-typesetting/img"
+  ]
+}
