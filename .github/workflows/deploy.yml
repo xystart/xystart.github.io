@@ -38,7 +38,10 @@ jobs:
       - name: Build site
         run: pnpm run build
         env:
-          ENABLE_CONTENT_SYNC: false #
+          # 1. 锁死生产环境，激活全局样式的打包与合并
+          NODE_ENV: production
+          # 2. 彻底禁用前置的分离拉取脚本，避免任何路径混乱
+          ENABLE_CONTENT_SYNC: false
         # env:
           # 如果需要启用内容分离,取消以下注释并配置
           # ENABLE_CONTENT_SYNC: true
