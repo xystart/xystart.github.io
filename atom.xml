@@ -5,7 +5,7 @@
   <link href="https://xystart.github.io/" rel="alternate" type="text/html"/>
   <link href="https://xystart.github.io/atom.xml" rel="self" type="application/atom+xml"/>
   <id>https://xystart.github.io/</id>
-  <updated>2026-06-20T15:12:11.315Z</updated>
+  <updated>2026-06-20T15:25:39.766Z</updated>
   <language>en</language>
   <entry>
     <title>Pytorch</title>
@@ -7648,26 +7648,6 @@ $$</p>
 <p><strong>闭环评估</strong>：使用 EvalScope 框架进行模型压测（并发量、吞吐量、延迟）与综合能力评估。</p>
 </li>
 </ul>
-]]></content>
-    <author>
-      <name>xystart</name>
-    </author>
-  </entry>
-  <entry>
-    <title>AI Infra 学习记录</title>
-    <link href="https://xystart.github.io/posts/getting-started/" rel="alternate" type="text/html"/>
-    <id>https://xystart.github.io/posts/getting-started/</id>
-    <published>2026-06-16T00:00:00.000Z</published>
-    <updated>2026-06-16T00:00:00.000Z</updated>
-    <summary>这个博客会记录自己的学习过程。</summary>
-    <content type="html"><![CDATA[<p>这个博客主要记录我在 <strong>AI Infra</strong> 方向的学习与实践过程。</p>
-<h2>学习路线</h2>
-<ul>
-<li><strong>Transformer 基础</strong>：prefill/decode、KV cache、指标（TTFT/TPOT）怎么落到系统观测</li>
-<li><strong>推理引擎拆解</strong>：调度与 batching、KV/显存管理、多卡通信、可观测与调试闭环</li>
-<li><strong>CUDA / Triton 实战</strong>：从推理瓶颈出发写/改算子（例如 RMSNorm、RoPE、attention 相关）</li>
-</ul>
-<p>由于自己是初学，更新博客内容可能会有误解，如有发现，欢迎沟通：<code>https://github.com/xystart</code></p>
 ]]></content>
     <author>
       <name>xystart</name>

@@ -7584,12 +7584,4 @@ $$&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;闭环评估&lt;/strong&gt;：使用 EvalScope 框架进行模型压测（并发量、吞吐量、延迟）与综合能力评估。&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-</content:encoded></item><item><title>AI Infra 学习记录</title><link>https://xystart.github.io/posts/getting-started/</link><guid isPermaLink="true">https://xystart.github.io/posts/getting-started/</guid><description>这个博客会记录自己的学习过程。</description><pubDate>Tue, 16 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;这个博客主要记录我在 &lt;strong&gt;AI Infra&lt;/strong&gt; 方向的学习与实践过程。&lt;/p&gt;
-&lt;h2&gt;学习路线&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Transformer 基础&lt;/strong&gt;：prefill/decode、KV cache、指标（TTFT/TPOT）怎么落到系统观测&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;推理引擎拆解&lt;/strong&gt;：调度与 batching、KV/显存管理、多卡通信、可观测与调试闭环&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;CUDA / Triton 实战&lt;/strong&gt;：从推理瓶颈出发写/改算子（例如 RMSNorm、RoPE、attention 相关）&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;由于自己是初学，更新博客内容可能会有误解，如有发现，欢迎沟通：&lt;code&gt;https://github.com/xystart&lt;/code&gt;&lt;/p&gt;
 </content:encoded></item></channel></rss>
