@@ -1,0 +1,2149 @@
+<!DOCTYPE html><html lang="en" class="bg-[var(--page-bg)] text-[14px] md:text-[16px]" data-overlayscrollbars-initialize data-waves-config-enabled="true" data-banner-title-config-enabled="true" data-post-list-layout-enabled="true" data-astro-cid-sckkx6r4 style="--configHue: 240;--page-width: 90rem;--bannerOffset: 15vh;--banner-height-home: 65vh;--banner-height: 35vh;"> <head><meta charset="UTF-8"><script>
+			(function() {
+				try {
+					var html = document.documentElement;
+					var cw = html.getAttribute("data-waves-config-enabled");
+					if (cw === "false") {
+						html.setAttribute("data-waves-enabled", "false");
+					} else {
+						var w = localStorage.getItem("wavesEnabled");
+						if (w !== null) html.setAttribute("data-waves-enabled", w);
+					}
+					var ct = html.getAttribute("data-banner-title-config-enabled");
+					if (ct === "false") {
+						html.setAttribute("data-banner-title-enabled", "false");
+					} else {
+						var t = localStorage.getItem("bannerTitleEnabled");
+						if (t !== null) html.setAttribute("data-banner-title-enabled", t);
+					}
+				} catch(e) {}
+			})();
+		</script><!-- 第三方分析脚本 --><!-- 第三方分析脚本 - 仅在用户交互后延迟加载 --><script>(function(){const gtmId = "GTM-KRX3XGVH";
+const clarityEnable = false;
+const clarityId = "";
+
+	(function () {
+		// 标记脚本是否已加载
+		window.analyticsLoaded = window.analyticsLoaded || false;
+
+		function loadAnalytics() {
+			if (window.analyticsLoaded) {
+				return;
+			}
+			window.analyticsLoaded = true;
+
+			// Google Tag Manager
+			(function (w, d, s, l, i) {
+				w[l] = w[l] || [];
+				w[l].push({
+					"gtm.start": new Date().getTime(),
+					event: "gtm.js",
+				});
+				const f = d.getElementsByTagName(s)[0],
+					j = d.createElement(s);
+				j.async = true;
+				j.src = "https://www.googletagmanager.com/gtm.js?id=" + i;
+				f.parentNode.insertBefore(j, f);
+			})(window, document, "script", "dataLayer", gtmId);
+
+			// Clarity (仅在启用时加载)
+			if (clarityEnable && clarityId) {
+				(function (c, l, a, r, i, t, y) {
+					c[a] =
+						c[a] ||
+						function () {
+							(c[a].q = c[a].q || []).push(arguments);
+						};
+					t = l.createElement(r);
+					t.async = 1;
+					t.src = "https://www.clarity.ms/tag/" + i;
+					y = l.getElementsByTagName(r)[0];
+					y.parentNode.insertBefore(t, y);
+				})(window, document, "clarity", "script", clarityId);
+			}
+		}
+
+		// 仅在用户交互后加载分析脚本，减少初始页面加载负担
+		const events = [
+			"scroll",
+			"mousemove",
+			"keydown",
+			"touchstart",
+			"click",
+		];
+		let loaded = false;
+
+		function onInteraction() {
+			if (loaded) {
+				return;
+			}
+			loaded = true;
+			events.forEach(function (event) {
+				window.removeEventListener(event, onInteraction);
+			});
+			loadAnalytics();
+		}
+
+		events.forEach(function (event) {
+			window.addEventListener(event, onInteraction, {
+				once: true,
+				passive: true,
+			});
+		});
+
+		// 备用：如果用户 10 秒内没有交互，则在 idle 时加载
+		setTimeout(function () {
+			if (!loaded) {
+				loadAnalytics();
+			}
+		}, 10000);
+	})();
+})();</script><!-- SEO Meta Tags, Open Graph, Twitter Card, Favicons, Theme Init --><!-- SEO Meta Tags --><title>Triton - AI Infra</title><meta name="description" content="推理链路算子（待更新）"><meta name="author" content="xystart"><!-- Open Graph Tags --><meta property="og:site_name" content="AI Infra"><meta property="og:url" content="https://xystart.github.io/posts/triton-first-kernel/"><meta property="og:title" content="Triton - AI Infra"><meta property="og:description" content="推理链路算子（待更新）"><meta property="og:image" content="https://xystart.github.io/assets/desktop-banner/4.webp"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:type" content="article"><!-- Twitter Card Tags --><meta name="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://xystart.github.io/posts/triton-first-kernel/"><meta name="twitter:title" content="Triton - AI Infra"><meta name="twitter:description" content="推理链路算子（待更新）"><meta name="twitter:image" content="https://xystart.github.io/assets/desktop-banner/4.webp"><!-- Viewport and Generator --><meta name="viewport" content="width=device-width"><meta name="generator" content="Astro v6.4.6"><!-- Favicons --><link rel="icon" href="/favicon/macos.jpg" sizes="64x64" media="(prefers-color-scheme: light)"><link rel="icon" href="/favicon/macos.jpg" sizes="64x64" media="(prefers-color-scheme: dark)"><!-- 字体通过构建脚本压缩到 /assets/font/ 目录，此处不再预加载以避免 404 --><!-- 字体在构建时通过 scripts/compress-fonts.js 处理并复制到 dist/ --><!-- 预连接 Iconify API 以减少图标加载延迟 --><link rel="preconnect" href="https://api.iconify.design" crossorigin><!-- Set the theme before the page is rendered to avoid a flash --><script>(function(){const DEFAULT_THEME = "light";
+const LIGHT_MODE = "light";
+const DARK_MODE = "dark";
+const BANNER_HEIGHT_EXTEND = 30;
+const configHue = 240;
+const themeColorFixed = false;
+const pageScaling = {"enable":true,"targetWidth":2000};
+
+	// Load the theme from local storage
+	const theme = localStorage.getItem("theme") || DEFAULT_THEME;
+	let isDark = false;
+	switch (theme) {
+		case LIGHT_MODE:
+			document.documentElement.classList.remove("dark");
+			isDark = false;
+			break;
+		case DARK_MODE:
+			document.documentElement.classList.add("dark");
+			isDark = true;
+			break;
+	}
+
+	// Set the theme for Expressive Code based on current mode
+	const expressiveTheme = isDark ? "github-dark" : "github-light";
+	const currentTheme = document.documentElement.getAttribute("data-theme");
+	// 只在主题不同时才更新，避免触发不必要的重绘
+	if (currentTheme !== expressiveTheme) {
+		document.documentElement.setAttribute("data-theme", expressiveTheme);
+	}
+
+	// Load the hue from local storage
+	const hue = themeColorFixed ? configHue : (localStorage.getItem("hue") || configHue);
+	document.documentElement.style.setProperty("--hue", hue);
+
+	// calculate the --banner-height-extend, which needs to be a multiple of 4 to avoid blurry text
+	let offset = Math.floor(window.innerHeight * (BANNER_HEIGHT_EXTEND / 100));
+	offset = offset - (offset % 4);
+	document.documentElement.style.setProperty(
+		"--banner-height-extend",
+		`${offset}px`,
+	);
+
+	// 自动缩放逻辑 (Moved from MainGridLayout to here for earlier execution)
+	(function () {
+		if (pageScaling && pageScaling.enable) {
+			function adjustPageScale() {
+				const isTouch =
+					(window.matchMedia &&
+						(window.matchMedia("(pointer:coarse)").matches ||
+							window.matchMedia("(hover: none)").matches)) ||
+					"ontouchstart" in window;
+				const isPortrait =
+					window.matchMedia &&
+					window.matchMedia("(orientation: portrait)").matches;
+				const isTabletLike = isTouch || window.innerWidth <= 1280;
+				if (isTabletLike || isPortrait) {
+					document.documentElement.style.fontSize = "";
+					return;
+				}
+				const targetWidth = pageScaling.targetWidth || 2000;
+				const currentWidth = document.documentElement.clientWidth;
+				let scale = currentWidth / targetWidth;
+				if (scale > 1) {
+					scale = 1;
+				}
+				if (scale < 0.85) {
+					scale = 0.85;
+				}
+				document.documentElement.style.fontSize = `${scale * 100}%`;
+			}
+
+			// 立即执行一次
+			adjustPageScale();
+
+			// 监听窗口大小变化
+			window.addEventListener("resize", adjustPageScale);
+
+			// Swup 页面切换后也需要检查
+			document.addEventListener("swup:page:view", adjustPageScale);
+			window.addEventListener("orientationchange", adjustPageScale);
+		}
+	})();
+})();</script><!-- Dev mode script - avoid swup replacing head styles --><script>(function(){const IS_DEV = false;
+
+	// Dev 模式下，避免 swup 在页面切换时反复替换 head 中的样式标签，导致偶发样式丢失
+	if (IS_DEV) {
+		document.addEventListener("swup:enable", () => {
+			if (window?.swup?.options) {
+				window.swup.options.updateHead = false;
+			}
+		});
+		if (window?.swup?.options) {
+			window.swup.options.updateHead = false;
+		}
+	}
+})();</script><!-- defines global css variables. This will be applied to <html> <body> and some other elements idk why --><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Triton","description":"推理链路算子（待更新）","keywords":["CUDA","Triton","Kernel","Profiling"],"author":{"@type":"Person","name":"xystart","url":"https://xystart.github.io/"},"datePublished":"2026-06-17","inLanguage":"en"}</script><!-- Global CSS variables for page width and hue --><link rel="alternate" type="application/rss+xml" title="xystart" href="https://xystart.github.io/rss.xml"><link rel="stylesheet" href="/_astro/style.BiZUnrzQ.css">
+<link rel="stylesheet" href="/_astro/style.BQKXnmPB.css"><script type="module" src="/_astro/page.B4XSkO9y.js"></script></head> <body class="min-h-screen enable-banner enable-card-border" style="font-family: &quot;-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif&quot;, &quot;'Helvetica Neue', Arial, 'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif&quot;, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;; --configHue: 240;--page-width: 90rem;--bannerOffset: 15vh;--banner-height-home: 65vh;--banner-height: 35vh;" data-overlayscrollbars-initialize data-astro-cid-sckkx6r4> <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KRX3XGVH" height="0" width="0" style="display:none;visibility:hidden; --configHue: 240;--page-width: 90rem;--bannerOffset: 15vh;--banner-height-home: 65vh;--banner-height: 35vh;" data-astro-cid-sckkx6r4></iframe></noscript> <!-- 页面顶部渐变高光效果 - 只在full和semifull模式下显示 --> <div class="top-gradient-highlight" data-astro-cid-sckkx6r4 style="--configHue: 240;--page-width: 90rem;--bannerOffset: 15vh;--banner-height-home: 65vh;--banner-height: 35vh;"></div> <div id="config-carrier" data-hue="240" data-hide-code-blocks-during-transition="true" data-overlay-opacity="0.8" data-overlay-blur="1.5" data-overlay-card-opacity="0.8" data-fullscreen-opacity="0.8" data-fullscreen-blur="1" data-default-wallpaper-mode="banner" data-sakura-enabled="false" data-waves-enabled="true" data-banner-title-enabled="true" data-banner-carousel-enabled="true"></div> <script>(function(){const tocEnable = true;
+const tocDepth = 2;
+const tocUseJapaneseBadge = true;
+
+	window.siteConfig = window.siteConfig || {};
+	window.siteConfig.toc = {
+		enable: tocEnable,
+		depth: tocDepth,
+		useJapaneseBadge: tocUseJapaneseBadge,
+	};
+
+	console.log("TOC Config:", window.siteConfig.toc);
+})();</script> <div id="page-progress-bar" style="--page-progress-bar-height: 3px; --page-progress-bar-duration: 6000ms;"></div><script>(function(){const enable = true;
+
+			if (!enable) {
+				const el = document.getElementById("page-progress-bar");
+			if (el) {el.remove();}
+			}
+
+			function setupProgressBar() {
+				if (!window.swup) {return;}
+
+				window.swup.hooks.on("visit:start", () => {
+					const bar = document.getElementById("page-progress-bar");
+					if (bar) {
+						bar.classList.remove("finishing", "done");
+						void bar.offsetWidth;
+						bar.classList.add("loading");
+					}
+				});
+
+				window.swup.hooks.on("visit:end", () => {
+					const bar = document.getElementById("page-progress-bar");
+					if (bar) {
+						bar.classList.remove("loading");
+						bar.classList.add("finishing");
+						setTimeout(() => {
+							bar.classList.remove("finishing");
+							bar.classList.add("done");
+							setTimeout(() => bar.classList.remove("done"), 300);
+						}, 200);
+					}
+				});
+			}
+
+			if (window.swup) {
+				setupProgressBar();
+			} else {
+				document.addEventListener("swup:enable", setupProgressBar);
+			}
+		})();</script>  <script type="module">const navbarTransparentMode = "semifull";
+const defaultWallpaperMode = "banner";
+const defaultPostListLayout = "list";
+const BANNER_HEIGHT = 35;
+const BANNER_HEIGHT_FULLSCREEN = 100;
+const pageScaling = {"enable":true,"targetWidth":2000};
+const wavesEnabled = true;
+const bannerTitleEnabled = true;
+const wallpaperEnabled = false;
+const postListLayoutEnabled = true;
+
+	function getCarrierNumber(key, fallback) {
+		const carrier = document.getElementById("config-carrier");
+		const value = carrier && carrier.dataset ? carrier.dataset[key] : null;
+		const parsed = Number(value ?? fallback);
+		return Number.isFinite(parsed) ? parsed : fallback;
+	}
+
+	function getStoredNumber(key, fallback) {
+		const value = localStorage.getItem(key);
+		const parsed = Number(value ?? fallback);
+		return Number.isFinite(parsed) ? parsed : fallback;
+	}
+
+	function syncMainContentPosition(mode) {
+		const mainContent = document.querySelector(
+			".absolute.w-full.z-30.pointer-events-none",
+		);
+		const bannerWrapper = document.getElementById("banner-wrapper");
+		if (!mainContent) {
+			return;
+		}
+
+		const isMobile = window.innerWidth < 1280;
+		const isHomePage =
+			window.location.pathname === "/" || window.location.pathname === "";
+
+		mainContent.classList.remove("mobile-main-no-banner", "no-banner-layout");
+		mainContent.style.removeProperty("min-height");
+		mainContent.style.removeProperty("transition");
+
+		if (mode === "fullscreen") {
+			if (isMobile && !isHomePage) {
+				mainContent.classList.add("mobile-main-no-banner", "no-banner-layout");
+				mainContent.style.position = "";
+				mainContent.style.zIndex = "";
+				mainContent.style.setProperty("top", "5.5rem", "important");
+				mainContent.style.setProperty("margin-top", "0", "important");
+				bannerWrapper?.classList.add("mobile-hide-banner");
+				return;
+			}
+
+			bannerWrapper?.classList.remove("mobile-hide-banner");
+			mainContent.classList.add("no-banner-layout");
+			mainContent.style.position = "relative";
+			mainContent.style.zIndex = "30";
+			mainContent.style.setProperty("top", "0", "important");
+			mainContent.style.setProperty("margin-top", "1rem", "important");
+			return;
+		}
+
+		mainContent.style.position = "";
+		mainContent.style.zIndex = "";
+		mainContent.style.setProperty("margin-top", "0", "important");
+
+		if (mode === "banner") {
+			if (isMobile && !isHomePage) {
+				mainContent.classList.add("mobile-main-no-banner");
+				mainContent.style.setProperty("top", "5.5rem", "important");
+				bannerWrapper?.classList.add("mobile-hide-banner");
+				return;
+			}
+
+			if (isMobile) {
+				bannerWrapper?.classList.remove("mobile-hide-banner");
+				mainContent.style.removeProperty("top");
+				mainContent.style.removeProperty("min-height");
+				return;
+			}
+
+			bannerWrapper?.classList.remove("mobile-hide-banner");
+			mainContent.style.setProperty("top", `${BANNER_HEIGHT}vh`, "important");
+			return;
+		}
+
+		bannerWrapper?.classList.remove("mobile-hide-banner");
+		mainContent.classList.add("no-banner-layout");
+		mainContent.style.setProperty("top", "5.5rem", "important");
+	}
+
+	function applyWallpaperVisualSettings(mode) {
+		const wallpaper = document.querySelector("[data-fullscreen-wallpaper]");
+		const root = document.documentElement;
+
+		if (!wallpaper) {
+			return;
+		}
+
+		if (mode === "overlay") {
+			wallpaper.style.setProperty(
+				"--wallpaper-opacity",
+				String(
+					getStoredNumber(
+						"overlayOpacity",
+						getCarrierNumber("overlayOpacity", 0.8),
+					),
+				),
+			);
+			wallpaper.style.setProperty(
+				"--wallpaper-blur",
+				`${getStoredNumber(
+					"overlayBlur",
+					getCarrierNumber("overlayBlur", 10),
+				)}px`,
+			);
+			root.style.setProperty(
+				"--card-transparent-opacity",
+				String(
+					getStoredNumber(
+						"overlayCardOpacity",
+						getCarrierNumber("overlayCardOpacity", 0.5),
+					),
+				),
+			);
+			return;
+		}
+
+		wallpaper.style.removeProperty("--wallpaper-opacity");
+		wallpaper.style.removeProperty("--wallpaper-blur");
+		root.style.removeProperty("--card-transparent-opacity");
+	}
+
+	// 立即执行，在页面渲染前应用壁纸模式和布局模式，避免闪烁
+	(function () {
+		const wallpaperMode =
+			wallpaperEnabled ? (localStorage.getItem("wallpaperMode") || defaultWallpaperMode) : defaultWallpaperMode;
+		const body = document.body;
+		applyWallpaperVisualSettings(wallpaperMode);
+
+		// 立即应用 body 类，确保首次渲染就是正确的状态
+		switch (wallpaperMode) {
+			case "banner":
+				body.classList.add("enable-banner");
+				body.classList.remove(
+					"wallpaper-transparent",
+					"fullscreen-banner",
+					"no-banner-mode",
+				);
+				break;
+			case "fullscreen":
+				body.classList.remove("wallpaper-transparent", "no-banner-mode");
+				body.classList.add("enable-banner", "fullscreen-banner");
+				break;
+			case "overlay":
+				body.classList.remove("enable-banner", "fullscreen-banner");
+				body.classList.add("wallpaper-transparent", "no-banner-mode");
+				break;
+			case "none":
+				body.classList.remove(
+					"enable-banner",
+					"wallpaper-transparent",
+					"fullscreen-banner",
+				);
+				body.classList.add("no-banner-mode");
+				break;
+		}
+
+		// 立即调整主内容区域位置和布局模式（避免闪烁和位置错误）
+		// 使用 requestAnimationFrame 确保 DOM 准备好
+		requestAnimationFrame(function () {
+			const mainContent = document.querySelector(
+				".absolute.w-full.z-30.pointer-events-none",
+			);
+			if (mainContent) {
+				syncMainContentPosition(wallpaperMode);
+			}
+
+			// 立即应用布局模式，避免闪烁
+			const mainGrid = document.getElementById("main-grid");
+			if (mainGrid) {
+				const savedLayout = postListLayoutEnabled ? localStorage.getItem("postListLayout") : null;
+				const currentLayout = savedLayout || defaultPostListLayout;
+				mainGrid.setAttribute("data-layout-mode", currentLayout);
+
+				// 根据布局模式显示或隐藏右侧边栏
+				const rightSidebar = document.querySelector(
+					".right-sidebar-container",
+				);
+				if (rightSidebar) {
+					if (currentLayout === "grid") {
+						rightSidebar.classList.add("hidden-in-grid-mode");
+					} else {
+						rightSidebar.classList.remove("hidden-in-grid-mode");
+					}
+				}
+
+				// 同时更新文章列表容器的CSS类
+				const postListContainer = document.getElementById(
+					"post-list-container",
+				);
+				if (postListContainer) {
+					postListContainer.classList.remove(
+						"list-mode",
+						"grid-mode",
+					);
+
+					if (currentLayout === "grid") {
+						postListContainer.classList.add("grid-mode");
+						postListContainer.classList.add(
+							"grid",
+							"grid-cols-1",
+							"lg:grid-cols-2",
+							"gap-6",
+						);
+						postListContainer.classList.remove("flex", "flex-col");
+					} else {
+						postListContainer.classList.add("list-mode");
+						postListContainer.classList.add("flex", "flex-col");
+						postListContainer.classList.remove(
+							"grid",
+							"grid-cols-1",
+							"lg:grid-cols-2",
+							"gap-6",
+						);
+					}
+				}
+			}
+		});
+	})();
+
+	// 根据壁纸模式动态设置 banner 和全屏壁纸的显示
+	function applyWallpaperMode() {
+		const wallpaperMode =
+			wallpaperEnabled ? (localStorage.getItem("wallpaperMode") || defaultWallpaperMode) : defaultWallpaperMode;
+
+		// 同步波浪状态：配置 enable 优先，其次 localStorage
+		if (!wavesEnabled) {
+			document.documentElement.setAttribute("data-waves-enabled", "false");
+		} else {
+			var _wavesStored = localStorage.getItem("wavesEnabled");
+			if (_wavesStored !== null) {
+				document.documentElement.setAttribute("data-waves-enabled", _wavesStored);
+			} else if (document.documentElement.hasAttribute("data-waves-enabled")) {
+				document.documentElement.removeAttribute("data-waves-enabled");
+			}
+		}
+		// 同步 banner 标题状态：配置 enable 优先，其次 localStorage
+		if (!bannerTitleEnabled) {
+			document.documentElement.setAttribute("data-banner-title-enabled", "false");
+		} else {
+			var _titleStored = localStorage.getItem("bannerTitleEnabled");
+			if (_titleStored !== null) {
+				document.documentElement.setAttribute("data-banner-title-enabled", _titleStored);
+			} else if (document.documentElement.hasAttribute("data-banner-title-enabled")) {
+				document.documentElement.removeAttribute("data-banner-title-enabled");
+			}
+		}
+
+		const bannerWrapper = document.getElementById("banner-wrapper");
+		const fullscreenWallpaper = document.querySelector(
+			"[data-fullscreen-wallpaper]",
+		);
+		const navbar = document.getElementById("navbar");
+		const body = document.body;
+		const mainContent = document.querySelector(
+			".absolute.w-full.z-30.pointer-events-none",
+		);
+		const tocWrapper = document.getElementById("toc-wrapper");
+
+		// 强制重排以确保样式正确应用
+		const forceReflow = function () {
+			void document.body.offsetHeight;
+		};
+
+		applyWallpaperVisualSettings(wallpaperMode);
+		syncMainContentPosition(wallpaperMode);
+
+		switch (wallpaperMode) {
+			case "banner":
+				// 显示 banner，隐藏全屏壁纸
+				if (bannerWrapper) {
+					bannerWrapper.style.display = "block";
+				}
+				if (fullscreenWallpaper) {
+					fullscreenWallpaper.style.display = "none";
+				}
+				// 恢复 TOC 在 banner 模式下的隐藏状态，让滚动逻辑接管
+				if (tocWrapper) {
+					const scrollTop = document.documentElement.scrollTop;
+					const bannerHeight =
+						window.innerHeight * (BANNER_HEIGHT / 100);
+					if (scrollTop <= bannerHeight) {
+						tocWrapper.classList.add("toc-hide");
+					}
+				}
+				// 先移除body类，避免CSS冲突
+				body.classList.remove("wallpaper-transparent");
+				body.classList.remove("fullscreen-banner");
+				body.classList.remove("no-banner-mode");
+				// 强制重排
+				forceReflow();
+				// 移除内联样式，让CSS完全接管
+				if (mainContent) {
+					mainContent.style.removeProperty("top");
+				}
+				// 再添加enable-banner类
+				body.classList.add("enable-banner");
+				// navbar 恢复原始透明模式（从 config 读取）
+				if (navbar) {
+					navbar.removeAttribute("data-dynamic-transparent");
+					// 恢复 config 中设置的 data-transparent-mode
+					navbar.setAttribute(
+						"data-transparent-mode",
+						navbarTransparentMode,
+					);
+					// 如果是 semifull 模式，重新初始化滚动检测
+					if (
+						navbarTransparentMode === "semifull" &&
+						window.initSemifullScrollDetection
+					) {
+						window.initSemifullScrollDetection();
+					}
+				}
+				// 强制重排以确保CSS变量正确更新
+				forceReflow();
+				break;
+
+			case "fullscreen":
+				if (bannerWrapper) {
+					bannerWrapper.style.display = "block";
+				}
+				if (fullscreenWallpaper) {
+					fullscreenWallpaper.style.display = "none";
+				}
+				if (tocWrapper) {
+					const scrollTop = document.documentElement.scrollTop;
+					const bannerHeight =
+						window.innerHeight * (BANNER_HEIGHT_FULLSCREEN / 100);
+					if (scrollTop <= bannerHeight) {
+						tocWrapper.classList.add("toc-hide");
+					}
+				}
+				body.classList.remove("wallpaper-transparent");
+				body.classList.remove("no-banner-mode");
+				forceReflow();
+				body.classList.add("enable-banner");
+				body.classList.add("fullscreen-banner");
+				if (navbar) {
+					navbar.removeAttribute("data-dynamic-transparent");
+					navbar.setAttribute(
+						"data-transparent-mode",
+						navbarTransparentMode,
+					);
+					if (
+						navbarTransparentMode === "semifull" &&
+						window.initSemifullScrollDetection
+					) {
+						window.initSemifullScrollDetection();
+					}
+				}
+				forceReflow();
+				break;
+
+			case "overlay":
+				if (bannerWrapper) {
+					bannerWrapper.style.display = "none";
+				}
+				if (fullscreenWallpaper) {
+					fullscreenWallpaper.style.display = "block";
+				}
+				if (tocWrapper) {
+					tocWrapper.classList.remove("toc-hide");
+				}
+				body.classList.remove("enable-banner");
+				body.classList.remove("fullscreen-banner");
+				forceReflow();
+				if (mainContent) {
+					mainContent.style.removeProperty("top");
+				}
+				body.classList.add("wallpaper-transparent");
+				body.classList.add("no-banner-mode");
+				if (navbar) {
+					navbar.setAttribute("data-dynamic-transparent", "semi");
+					navbar.removeAttribute("data-transparent-mode");
+				}
+				forceReflow();
+				break;
+
+			case "none":
+				// 隐藏所有壁纸
+				if (bannerWrapper) {
+					bannerWrapper.style.display = "none";
+				}
+				if (fullscreenWallpaper) {
+					fullscreenWallpaper.style.display = "none";
+				}
+				// 在无壁纸模式下也始终显示 TOC
+				if (tocWrapper) {
+					tocWrapper.classList.remove("toc-hide");
+				}
+				// 先移除body类，避免CSS冲突
+				body.classList.remove("enable-banner");
+				body.classList.remove("wallpaper-transparent");
+				body.classList.remove("fullscreen-banner");
+				// 强制重排
+				forceReflow();
+				// 移除内联样式，让CSS完全接管
+				if (mainContent) {
+					mainContent.style.removeProperty("top");
+				}
+				// 再添加no-banner-mode类
+				body.classList.add("no-banner-mode");
+				// navbar 强制设置为不透明（忽略 config 配置）
+				if (navbar) {
+					navbar.setAttribute("data-dynamic-transparent", "none");
+					// 强制移除 config 中的 data-transparent-mode 影响
+					navbar.removeAttribute("data-transparent-mode");
+				}
+				// 强制重排以确保CSS变量正确更新
+				forceReflow();
+				break;
+		}
+	}
+
+	// 监听壁纸模式变化，立即应用（不重载页面）
+	window.addEventListener("wallpaper-mode-change", function (_event) {
+		applyWallpaperMode();
+	});
+
+	// 在 DOM 加载后执行
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", applyWallpaperMode);
+	} else {
+		applyWallpaperMode();
+	}
+
+	// 支持 Swup 页面过渡 - 在内容替换之前就应用布局，避免闪烁
+	// 支持 Swup 页面过渡
+	document.addEventListener("swup:page:view", function () {
+		applyWallpaperMode();
+	});
+
+	// 在页面完全加载后，再次确认布局模式是否正确
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", function () {
+			const mainGrid = document.getElementById("main-grid");
+			if (mainGrid) {
+				const savedLayout = postListLayoutEnabled ? localStorage.getItem("postListLayout") : null;
+				const currentLayout = savedLayout || defaultPostListLayout;
+				mainGrid.setAttribute("data-layout-mode", currentLayout);
+
+				if (currentLayout === "grid") {
+					const rightSidebar = document.querySelector(
+						".right-sidebar-container",
+					);
+					if (rightSidebar) {
+						rightSidebar.classList.add("hidden-in-grid-mode");
+					}
+				}
+			}
+		});
+	}
+</script>  <div class="fixed inset-0 w-full h-full overflow-hidden pointer-events-none wallpaper-container" style="z-index: -1; transform: translateZ(0); perspective: 1000px; opacity: var(--wallpaper-opacity, 0.8); filter: blur(var(--wallpaper-blur, 1px));" data-fullscreen-wallpaper> <script>(function(){const wallpaperEnabled = false;
+const overlaySwitchable = {"opacity":true,"blur":true,"cardOpacity":true};
+
+	(function() {
+		const root = document.documentElement;
+		const wallpaperEnabledVal = wallpaperEnabled;
+		const mode = wallpaperEnabledVal ? (localStorage.getItem('wallpaperMode') || 'banner') : 'banner';
+
+		if (mode === 'overlay') {
+			const isSw = typeof overlaySwitchable === 'object' ? overlaySwitchable : { opacity: !!overlaySwitchable, blur: !!overlaySwitchable, cardOpacity: !!overlaySwitchable };
+			const overlayOpacity = isSw.opacity ? localStorage.getItem('overlayOpacity') : null;
+			const overlayBlur = isSw.blur ? localStorage.getItem('overlayBlur') : null;
+			const overlayCardOpacity = isSw.cardOpacity ? localStorage.getItem('overlayCardOpacity') : null;
+
+			if (overlayOpacity) {
+				document.currentScript.parentElement.style.setProperty('--wallpaper-opacity', overlayOpacity);
+			}
+			if (overlayBlur) {
+				document.currentScript.parentElement.style.setProperty('--wallpaper-blur', overlayBlur + 'px');
+			}
+			if (overlayCardOpacity) {
+				root.style.setProperty('--card-transparent-opacity', overlayCardOpacity);
+			}
+		}
+
+		if (mode !== 'overlay') {
+			root.style.removeProperty('--card-transparent-opacity');
+			document.currentScript.parentElement.style.display = 'none';
+		}
+	})();
+	})();</script> <div class="hidden md:block w-full h-full relative" style="transform: translateZ(0);"> <img src="/assets/desktop-banner/1.webp" alt="desktop wallpaper 1" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 object-center" data-carousel-item="0" style="transform: translateZ(0); backface-visibility: hidden; will-change: opacity; opacity: 1;" decoding="async" loading="eager" fetchpriority="high"><img src="/assets/desktop-banner/2.webp" alt="desktop wallpaper 2" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 object-center" data-carousel-item="1" style="transform: translateZ(0); backface-visibility: hidden; will-change: opacity; opacity: 0;" decoding="async" loading="lazy"><img src="/assets/desktop-banner/3.webp" alt="desktop wallpaper 3" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 object-center" data-carousel-item="2" style="transform: translateZ(0); backface-visibility: hidden; will-change: opacity; opacity: 0;" decoding="async" loading="lazy"><img src="/assets/desktop-banner/4.webp" alt="desktop wallpaper 4" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 object-center" data-carousel-item="3" style="transform: translateZ(0); backface-visibility: hidden; will-change: opacity; opacity: 0;" decoding="async" loading="lazy"> </div><div class="block md:hidden w-full h-full relative" style="transform: translateZ(0);"> <img src="/assets/mobile-banner/1.webp" alt="mobile wallpaper 1" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 object-center" data-carousel-item="0" style="transform: translateZ(0); backface-visibility: hidden; will-change: opacity; opacity: 1;" decoding="async" loading="eager" fetchpriority="high"><img src="/assets/mobile-banner/2.webp" alt="mobile wallpaper 2" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 object-center" data-carousel-item="1" style="transform: translateZ(0); backface-visibility: hidden; will-change: opacity; opacity: 0;" decoding="async" loading="lazy"><img src="/assets/mobile-banner/3.webp" alt="mobile wallpaper 3" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 object-center" data-carousel-item="2" style="transform: translateZ(0); backface-visibility: hidden; will-change: opacity; opacity: 0;" decoding="async" loading="lazy"><img src="/assets/mobile-banner/4.webp" alt="mobile wallpaper 4" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 object-center" data-carousel-item="3" style="transform: translateZ(0); backface-visibility: hidden; will-change: opacity; opacity: 0;" decoding="async" loading="lazy"> </div> </div> <script>(function(){const carouselInterval = 5;
+
+		function initFullscreenWallpaperCarousel() {
+			const container = document.querySelector('[data-fullscreen-wallpaper]');
+			if (!container) {return;}
+
+			if (window.__wallpaper_cleanup) {
+				window.__wallpaper_cleanup();
+				window.__wallpaper_cleanup = null;
+			}
+
+			const STORAGE_KEY = 'mizuki_wallpaper_index';
+			const savedIndex = parseInt(sessionStorage.getItem(STORAGE_KEY) || '0');
+
+			const groups = [
+				container.querySelectorAll('.hidden.md\\:block [data-carousel-item]'),
+				container.querySelectorAll('.block.md\\:hidden [data-carousel-item]')
+			];
+
+			const state = groups.map(items => {
+				const safeIndex = (savedIndex >= 0 && savedIndex < items.length) ? savedIndex : 0;
+				return {
+					items,
+					currentIndex: safeIndex,
+					timer: null,
+					active: items.length > 1
+				};
+			});
+
+			// 初始化显示：根据 savedIndex 立即修正图片显示
+			function initImage(stateItem) {
+				const { items, currentIndex } = stateItem;
+				// 立即设置样式，防止视觉上跳回第一张
+				for (let i = 0; i < items.length; i++) {
+					items[i].style.opacity = i === currentIndex ? '1' : '0';
+				}
+			}
+
+			// 切换下一张
+			function switchNextImage(stateItem) {
+				const { items, currentIndex } = stateItem;
+				const nextIndex = (currentIndex + 1) % items.length;
+				
+				items[currentIndex].style.opacity = '0';
+				items[nextIndex].style.opacity = '1';
+				
+				stateItem.currentIndex = nextIndex;
+
+				sessionStorage.setItem(STORAGE_KEY, nextIndex.toString());
+			}
+
+			function start() {
+				state.forEach(s => {
+					if (s.active && !s.timer) {
+						s.timer = setInterval(() => {
+							if (!document.body.contains(s.items[0])) {
+								stop();
+								return;
+							}
+							switchNextImage(s);
+						}, carouselInterval * 1000);
+					}
+				});
+			}
+
+			function stop() {
+				state.forEach(s => {
+					if (s.timer) {
+						clearInterval(s.timer);
+						s.timer = null;
+					}
+				});
+			}
+
+			const handleVisibilityChange = () => {
+				if (document.hidden) {
+					stop();
+				} else {
+					const exists = state.some(s => s.items.length > 0 && document.body.contains(s.items[0]));
+					if (exists) {start();}
+				}
+			};
+
+			// 初始化状态
+			state.forEach(s => {
+				if (s.items.length > 0) {initImage(s);}
+			});
+
+			start();
+
+			document.addEventListener('visibilitychange', handleVisibilityChange);
+
+			window.__wallpaper_cleanup = () => {
+				stop();
+				document.removeEventListener('visibilitychange', handleVisibilityChange);
+			};
+		}
+
+		// 页面加载完成后初始化轮播
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', initFullscreenWallpaperCarousel);
+		} else {
+			initFullscreenWallpaperCarousel();
+		}
+	})();</script>  <!-- Iconify图标库加载器 --><script>(function(){const preloadIcons = [];
+const timeout = 10000;
+const retryCount = 3;
+
+	// 全局图标加载逻辑
+	(function () {
+		"use strict";
+
+		// 避免重复加载
+		if (window.__iconifyLoaderInitialized) {
+			return;
+		}
+		window.__iconifyLoaderInitialized = true;
+
+		// 图标加载器类
+		class IconifyLoader {
+			constructor() {
+				this.isLoaded = false;
+				this.isLoading = false;
+				this.loadPromise = null;
+				this.observers = new Set();
+				this.preloadQueue = new Set();
+			}
+
+			async load(options = {}) {
+				const {
+					timeout: loadTimeout = timeout,
+					retryCount: maxRetries = retryCount,
+				} = options;
+
+				if (this.isLoaded) {
+					return Promise.resolve();
+				}
+
+				if (this.isLoading && this.loadPromise) {
+					return this.loadPromise;
+				}
+
+				this.isLoading = true;
+				this.loadPromise = this.loadWithRetry(loadTimeout, maxRetries);
+
+				try {
+					await this.loadPromise;
+					this.isLoaded = true;
+					this.notifyObservers();
+					await this.processPreloadQueue();
+				} catch (error) {
+					console.error("Failed to load Iconify:", error);
+					throw error;
+				} finally {
+					this.isLoading = false;
+				}
+			}
+
+			async loadWithRetry(timeout, retryCount) {
+				for (let attempt = 1; attempt <= retryCount; attempt++) {
+					try {
+						await this.loadScript(timeout);
+						return;
+					} catch (error) {
+						console.warn(
+							`Iconify load attempt ${attempt} failed:`,
+							error,
+						);
+
+						if (attempt === retryCount) {
+							throw new Error(
+								`Failed to load Iconify after ${retryCount} attempts`,
+							);
+						}
+
+						await new Promise((resolve) =>
+							setTimeout(resolve, 1000),
+						);
+					}
+				}
+			}
+
+			loadScript(timeout) {
+				return new Promise((resolve, reject) => {
+					// 检查是否已经存在
+					if (this.isIconifyReady()) {
+						resolve();
+						return;
+					}
+
+					const existingScript = document.querySelector(
+						'script[src*="iconify-icon"]',
+					);
+					if (existingScript) {
+						this.waitForIconifyReady().then(resolve).catch(reject);
+						return;
+					}
+
+					const script = document.createElement("script");
+					script.src =
+						"https://code.iconify.design/iconify-icon/3-latest/iconify-icon.min.js";
+					script.async = true;
+					script.crossOrigin = "anonymous";
+
+					const timeoutId = setTimeout(() => {
+						script.remove();
+						reject(new Error("Script load timeout"));
+					}, timeout);
+
+					script.onload = () => {
+						clearTimeout(timeoutId);
+						this.waitForIconifyReady().then(resolve).catch(reject);
+					};
+
+					script.onerror = () => {
+						clearTimeout(timeoutId);
+						script.remove();
+						reject(new Error("Script load error"));
+					};
+
+					document.head.appendChild(script);
+				});
+			}
+
+			waitForIconifyReady(maxWait = 5000) {
+				return new Promise((resolve, reject) => {
+					const startTime = Date.now();
+
+					const checkReady = () => {
+						if (this.isIconifyReady()) {
+							resolve();
+							return;
+						}
+
+						if (Date.now() - startTime > maxWait) {
+							reject(new Error("Iconify initialization timeout"));
+							return;
+						}
+
+						setTimeout(checkReady, 50);
+					};
+
+					checkReady();
+				});
+			}
+
+			isIconifyReady() {
+				return (
+					typeof window !== "undefined" &&
+					"customElements" in window &&
+					customElements.get("iconify-icon") !== undefined
+				);
+			}
+
+			onLoad(callback) {
+				if (this.isLoaded) {
+					callback();
+				} else {
+					this.observers.add(callback);
+				}
+			}
+
+			notifyObservers() {
+				this.observers.forEach((callback) => {
+					try {
+						callback();
+					} catch (error) {
+						console.error("Error in icon load observer:", error);
+					}
+				});
+				this.observers.clear();
+			}
+
+			addToPreloadQueue(icons) {
+				if (Array.isArray(icons)) {
+					icons.forEach((icon) => this.preloadQueue.add(icon));
+				} else {
+					this.preloadQueue.add(icons);
+				}
+
+				if (this.isLoaded) {
+					this.processPreloadQueue();
+				}
+			}
+
+			async processPreloadQueue() {
+				if (this.preloadQueue.size === 0) {
+					return;
+				}
+
+				const iconsToLoad = Array.from(this.preloadQueue);
+				this.preloadQueue.clear();
+
+				await this.preloadIcons(iconsToLoad);
+			}
+
+			async preloadIcons(icons) {
+				if (!this.isLoaded || icons.length === 0) {
+					return;
+				}
+
+				return new Promise((resolve) => {
+					let loadedCount = 0;
+					const totalIcons = icons.length;
+					const tempElements = [];
+
+					const cleanup = () => {
+						tempElements.forEach((el) => {
+							if (el.parentNode) {
+								el.parentNode.removeChild(el);
+							}
+						});
+					};
+
+					const checkComplete = () => {
+						loadedCount++;
+						if (loadedCount >= totalIcons) {
+							cleanup();
+							resolve();
+						}
+					};
+
+					icons.forEach((icon) => {
+						const tempIcon = document.createElement("iconify-icon");
+						tempIcon.setAttribute("icon", icon);
+						tempIcon.style.cssText =
+							"position:absolute;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;";
+
+						tempIcon.addEventListener("load", checkComplete);
+						tempIcon.addEventListener("error", checkComplete);
+
+						tempElements.push(tempIcon);
+						document.body.appendChild(tempIcon);
+					});
+
+					// 设置超时清理
+					setTimeout(() => {
+						cleanup();
+						resolve();
+					}, 3000);
+				});
+			}
+		}
+
+		// 创建全局实例
+		window.__iconifyLoader = new IconifyLoader();
+
+		// 立即开始加载
+		window.__iconifyLoader.load().catch((error) => {
+			console.error("Failed to initialize Iconify:", error);
+		});
+
+		// 如果有预加载图标，添加到队列
+		if (preloadIcons && preloadIcons.length > 0) {
+			window.__iconifyLoader.addToPreloadQueue(preloadIcons);
+		}
+
+		// 导出便捷函数到全局
+		window.loadIconify = () => window.__iconifyLoader?.load();
+		window.preloadIcons = (icons) =>
+			window.__iconifyLoader?.addToPreloadQueue(icons);
+		window.onIconifyReady = (callback) => {
+			return window.__iconifyLoader?.onLoad
+				? window.__iconifyLoader.onLoad(callback)
+				: null;
+		};
+
+		// 页面可见性变化时重新检查
+		document.addEventListener("visibilitychange", () => {
+			if (!document.hidden && !window.__iconifyLoader.isLoaded) {
+				window.__iconifyLoader.load().catch(console.error);
+			}
+		});
+	})();
+})();</script> <!-- 为不支持JavaScript的情况提供备用方案 --><noscript><style>
+		iconify-icon {
+			display: none;
+		}
+		.icon-fallback {
+			display: inline-block;
+		}
+	</style></noscript>   <div id="top-row" class="z-50 pointer-events-none relative transition-all duration-700 max-w-(--page-width) px-0 md:px-4 mx-auto" data-astro-cid-haiuh7kc> <div id="navbar-wrapper" class="pointer-events-auto sticky top-0 transition-all" data-astro-cid-haiuh7kc> <div id="navbar" class="z-50 onload-animation group" data-transparent-mode="semifull" data-is-home="false"> <div class="absolute h-8 left-0 right-0 -top-8 bg-[var(--card-bg)] transition"></div> <!-- used for onload animation --> <div class="!overflow-visible max-w-[var(--page-width)] h-[4.5rem] mx-auto flex items-center justify-between px-4"> <a href="/" class="btn-plain scale-animation rounded-lg h-[2.5rem] md:h-[3.25rem] md:[.enable-banner_&]:h-[2.5rem] md:[.enable-banner_&]:group-[.scrolled]:h-[3.25rem] px-5 font-bold active:scale-95 shrink-0 transition-all duration-300"> <div class="flex flex-row items-center text-md">  <img src="/assets/home/macos.jpg" alt="" class="h-[1.75rem] w-[1.75rem] mr-2 object-contain" loading="lazy"><span class="dark:text-white text-black">AI Infra</span>  </div> </a> <div id="navbar-links-container" class="hidden md:flex items-center space-x-1 transition-opacity duration-300"> <div class="dropdown-container group" data-dropdown data-astro-cid-dl4kyotk> <a aria-label="Home" href="/" class="btn-plain scale-animation rounded-lg h-11 font-bold w-11 lg:w-auto lg:px-5 active:scale-95 flex items-center justify-center lg:justify-start whitespace-nowrap" data-astro-cid-dl4kyotk> <svg width="1em" height="1em" class="text-[1.1rem] lg:mr-2 flex-shrink-0" data-astro-cid-dl4kyotk="true" data-icon="material-symbols:home">   <symbol id="ai:material-symbols:home" viewBox="0 0 24 24"><path fill="currentColor" d="M4 21V9l8-6l8 6v12h-6v-7h-4v7z"/></symbol><use href="#ai:material-symbols:home"></use>  </svg> <span class="truncate hidden lg:inline" data-astro-cid-dl4kyotk> Home </span>  </a> </div>  <script type="module">document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("[data-dropdown]").forEach(o=>{const n=o.querySelector("[data-dropdown-trigger]"),s=o.querySelector("[data-dropdown-menu]"),t=o.querySelectorAll(".dropdown-item");if(!n||!s)return;const a=()=>{n.setAttribute("aria-expanded","false")},i=()=>{const e=n.getAttribute("aria-expanded")==="true";n.setAttribute("aria-expanded",String(!e))};n.addEventListener("keydown",e=>{e.key==="Enter"||e.key===" "?(e.preventDefault(),i()):e.key==="ArrowDown"?(e.preventDefault(),n.setAttribute("aria-expanded","true"),t.length>0&&t[0].focus()):e.key==="Escape"&&a()}),t.forEach((e,d)=>{e.addEventListener("keydown",r=>{r.key==="ArrowDown"?(r.preventDefault(),t[(d+1)%t.length].focus()):r.key==="ArrowUp"?(r.preventDefault(),t[(d-1+t.length)%t.length].focus()):r.key==="Escape"&&(r.preventDefault(),a(),n.focus())})}),document.addEventListener("click",e=>{o.contains(e.target)||a()})})});</script><div class="dropdown-container group" data-dropdown data-astro-cid-dl4kyotk> <a aria-label="CUDA" href="/posts/cuda/" class="btn-plain scale-animation rounded-lg h-11 font-bold w-11 lg:w-auto lg:px-5 active:scale-95 flex items-center justify-center lg:justify-start whitespace-nowrap" data-astro-cid-dl4kyotk> <svg width="1em" height="1em" class="text-[1.1rem] lg:mr-2 flex-shrink-0" data-astro-cid-dl4kyotk="true" data-icon="simple-icons:nvidia">   <symbol id="ai:simple-icons:nvidia" viewBox="0 0 24 24"><path fill="currentColor" d="M8.948 8.798v-1.43a7 7 0 0 1 .424-.018c3.922-.124 6.493 3.374 6.493 3.374s-2.774 3.851-5.75 3.851a3.7 3.7 0 0 1-1.158-.185v-4.346c1.528.185 1.837.857 2.747 2.385l2.04-1.714s-1.492-1.952-4-1.952a6 6 0 0 0-.796.035m0-4.735v2.138l.424-.027c5.45-.185 9.01 4.47 9.01 4.47s-4.08 4.964-8.33 4.964a6.5 6.5 0 0 1-1.095-.097v1.325c.3.035.61.062.91.062c3.957 0 6.82-2.023 9.593-4.408c.459.371 2.34 1.263 2.73 1.652c-2.633 2.208-8.772 3.984-12.253 3.984c-.335 0-.653-.018-.971-.053v1.864H24V4.063zm0 10.326v1.131c-3.657-.654-4.673-4.46-4.673-4.46s1.758-1.944 4.673-2.262v1.237H8.94c-1.528-.186-2.73 1.245-2.73 1.245s.68 2.412 2.739 3.11M2.456 10.9s2.164-3.197 6.5-3.533V6.201C4.153 6.59 0 10.653 0 10.653s2.35 6.802 8.948 7.42v-1.237c-4.84-.6-6.492-5.936-6.492-5.936"/></symbol><use href="#ai:simple-icons:nvidia"></use>  </svg> <span class="truncate hidden lg:inline" data-astro-cid-dl4kyotk> CUDA </span>  </a> </div>  <div class="dropdown-container group" data-dropdown data-astro-cid-dl4kyotk> <a aria-label="Triton" href="/posts/triton-first-kernel/" class="btn-plain scale-animation rounded-lg h-11 font-bold w-11 lg:w-auto lg:px-5 active:scale-95 flex items-center justify-center lg:justify-start whitespace-nowrap" data-astro-cid-dl4kyotk> <svg width="1em" height="1em" class="text-[1.1rem] lg:mr-2 flex-shrink-0" data-astro-cid-dl4kyotk="true" data-icon="material-symbols:bolt">   <symbol id="ai:material-symbols:bolt" viewBox="0 0 24 24"><path fill="currentColor" d="m8 22l1-7H4l9-13h2l-1 8h6L10 22z"/></symbol><use href="#ai:material-symbols:bolt"></use>  </svg> <span class="truncate hidden lg:inline" data-astro-cid-dl4kyotk> Triton </span>  </a> </div>  <div class="dropdown-container group" data-dropdown data-astro-cid-dl4kyotk> <a aria-label="Transformer" href="/posts/transformer/" class="btn-plain scale-animation rounded-lg h-11 font-bold w-11 lg:w-auto lg:px-5 active:scale-95 flex items-center justify-center lg:justify-start whitespace-nowrap" data-astro-cid-dl4kyotk> <svg width="1em" height="1em" class="text-[1.1rem] lg:mr-2 flex-shrink-0" data-astro-cid-dl4kyotk="true" data-icon="material-symbols:hub">   <symbol id="ai:material-symbols:hub" viewBox="0 0 24 24"><path fill="currentColor" d="M3.875 22.125Q3 21.25 3 20t.875-2.125T6 17q.35 0 .65.075t.575.2L8.65 15.5q-.7-.775-.975-1.75T7.55 11.8l-2.025-.675q-.425.625-1.075 1T3 12.5q-1.25 0-2.125-.875T0 9.5t.875-2.125T3 6.5t2.125.875T6 9.5v.2l2.025.7q.5-.9 1.338-1.525t1.887-.8V5.9q-.975-.275-1.612-1.063T9 3q0-1.25.875-2.125T12 0t2.125.875T15 3q0 1.05-.65 1.838T12.75 5.9v2.175q1.05.175 1.888.8t1.337 1.525L18 9.7v-.2q0-1.25.875-2.125T21 6.5t2.125.875T24 9.5t-.875 2.125T21 12.5q-.8 0-1.463-.375t-1.062-1l-2.025.675q.15.975-.125 1.938T15.35 15.5l1.425 1.75q.275-.125.575-.187T18 17q1.25 0 2.125.875T21 20t-.875 2.125T18 23t-2.125-.875T15 20q0-.5.163-.962t.437-.838l-1.425-1.775Q13.15 17 11.988 17T9.8 16.425L8.4 18.2q.275.375.438.838T9 20q0 1.25-.875 2.125T6 23t-2.125-.875"/></symbol><use href="#ai:material-symbols:hub"></use>  </svg> <span class="truncate hidden lg:inline" data-astro-cid-dl4kyotk> Transformer </span>  </a> </div>  <div class="dropdown-container group" data-dropdown data-astro-cid-dl4kyotk> <a aria-label="Inference" href="/posts/inference/" class="btn-plain scale-animation rounded-lg h-11 font-bold w-11 lg:w-auto lg:px-5 active:scale-95 flex items-center justify-center lg:justify-start whitespace-nowrap" data-astro-cid-dl4kyotk> <svg width="1em" height="1em" class="text-[1.1rem] lg:mr-2 flex-shrink-0" data-astro-cid-dl4kyotk="true" data-icon="material-symbols:rocket-launch">   <symbol id="ai:material-symbols:rocket-launch" viewBox="0 0 24 24"><path fill="currentColor" d="m2.45 10.575l4.2-4.2q.35-.35.825-.5t.975-.05l1.3.275Q8.4 7.7 7.625 9t-1.5 3.15zm5.125 2.275q.575-1.8 1.563-3.4t2.387-3q2.2-2.2 5.025-3.287t5.275-.663q.425 2.45-.65 5.275T17.9 12.8q-1.375 1.375-3 2.388t-3.425 1.587zm8.313-2.425q.837 0 1.412-.575t.575-1.412t-.575-1.413t-1.412-.575t-1.413.575t-.575 1.413t.575 1.412t1.413.575m-2.113 11.45l-1.6-3.675q1.85-.725 3.163-1.5t2.912-2.125l.25 1.3q.1.5-.05.988t-.5.837zM4.05 16.05q.875-.875 2.125-.888t2.125.863t.875 2.125t-.875 2.125q-.625.625-2.088 1.075t-4.037.8q.35-2.575.8-4.025T4.05 16.05"/></symbol><use href="#ai:material-symbols:rocket-launch"></use>  </svg> <span class="truncate hidden lg:inline" data-astro-cid-dl4kyotk> Inference </span>  </a> </div>  <div class="dropdown-container group" data-dropdown data-astro-cid-dl4kyotk> <a aria-label="Archive" href="/archive/" class="btn-plain scale-animation rounded-lg h-11 font-bold w-11 lg:w-auto lg:px-5 active:scale-95 flex items-center justify-center lg:justify-start whitespace-nowrap" data-astro-cid-dl4kyotk> <svg width="1em" height="1em" class="text-[1.1rem] lg:mr-2 flex-shrink-0" data-astro-cid-dl4kyotk="true" data-icon="material-symbols:archive">   <symbol id="ai:material-symbols:archive" viewBox="0 0 24 24"><path fill="currentColor" d="m12 18l4-4l-1.4-1.4l-1.6 1.6V10h-2v4.2l-1.6-1.6L8 14zm-7 3q-.825 0-1.412-.587T3 19V6.525q0-.35.113-.675t.337-.6L4.7 3.725q.275-.35.687-.538T6.25 3h11.5q.45 0 .863.188t.687.537l1.25 1.525q.225.275.338.6t.112.675V19q0 .825-.587 1.413T19 21zm.4-15h13.2l-.85-1H6.25z"/></symbol><use href="#ai:material-symbols:archive"></use>  </svg> <span class="truncate hidden lg:inline" data-astro-cid-dl4kyotk> Archive </span>  </a> </div>  <div class="dropdown-container group" data-dropdown data-astro-cid-dl4kyotk>  <button class="btn-plain scale-animation rounded-lg h-11 font-bold w-11 lg:w-auto lg:px-5 active:scale-95 dropdown-trigger flex items-center justify-center lg:justify-start whitespace-nowrap" aria-expanded="false" aria-haspopup="true" data-dropdown-trigger data-astro-cid-dl4kyotk> <svg width="1em" height="1em" class="text-[1.1rem] lg:mr-2 flex-shrink-0" data-astro-cid-dl4kyotk="true" data-icon="material-symbols:link">   <symbol id="ai:material-symbols:link" viewBox="0 0 24 24"><path fill="currentColor" d="M11 17H7q-2.075 0-3.537-1.463T2 12t1.463-3.537T7 7h4v2H7q-1.25 0-2.125.875T4 12t.875 2.125T7 15h4zm-3-4v-2h8v2zm5 4v-2h4q1.25 0 2.125-.875T20 12t-.875-2.125T17 9h-4V7h4q2.075 0 3.538 1.463T22 12t-1.463 3.538T17 17z"/></symbol><use href="#ai:material-symbols:link"></use>  </svg> <span class="truncate hidden lg:inline" data-astro-cid-dl4kyotk> Links </span> <svg width="1em" height="1em" class="text-[1.25rem] transition-transform duration-200 dropdown-arrow ml-1 flex-shrink-0 hidden lg:inline" data-astro-cid-dl4kyotk="true" data-icon="material-symbols:keyboard-arrow-down-rounded">   <symbol id="ai:material-symbols:keyboard-arrow-down-rounded" viewBox="0 0 24 24"><path fill="currentColor" d="M11.625 14.913q-.175-.063-.325-.213l-4.6-4.6q-.275-.275-.275-.7t.275-.7t.7-.275t.7.275l3.9 3.9l3.9-3.9q.275-.275.7-.275t.7.275t.275.7t-.275.7l-4.6 4.6q-.15.15-.325.213t-.375.062t-.375-.062"/></symbol><use href="#ai:material-symbols:keyboard-arrow-down-rounded"></use>  </svg> </button> <div class="dropdown-menu" data-dropdown-menu data-astro-cid-dl4kyotk> <div class="dropdown-content" data-astro-cid-dl4kyotk> <a href="https://github.com/xystart" target="_blank" rel="noopener noreferrer" class="dropdown-item" aria-label="GitHub" data-astro-cid-dl4kyotk> <div class="flex items-center" data-astro-cid-dl4kyotk> <svg width="1em" height="1em" viewBox="0 0 640 640" class="text-[1rem] mr-2" data-astro-cid-dl4kyotk="true" data-icon="fa7-brands:github">   <use href="#ai:fa7-brands:github"></use>  </svg> <span data-astro-cid-dl4kyotk>GitHub</span> </div> <svg width="1em" height="1em" class="text-[0.75rem] text-black/25 dark:text-white/25 ml-2" data-astro-cid-dl4kyotk="true" data-icon="fa7-solid:arrow-up-right-from-square">   <symbol id="ai:fa7-solid:arrow-up-right-from-square" viewBox="0 0 640 640"><path fill="currentColor" d="M384 64c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L265.3 329.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L512 173.3V256c0 17.7 14.3 32 32 32s32-14.3 32-32V96c0-17.7-14.3-32-32-32zm-240 96c-44.2 0-80 35.8-80 80v256c0 44.2 35.8 80 80 80h256c44.2 0 80-35.8 80-80v-80c0-17.7-14.3-32-32-32s-32 14.3-32 32v80c0 8.8-7.2 16-16 16H144c-8.8 0-16-7.2-16-16V240c0-8.8 7.2-16 16-16h80c17.7 0 32-14.3 32-32s-14.3-32-32-32z"/></symbol><use href="#ai:fa7-solid:arrow-up-right-from-square"></use>  </svg> </a><a href="https://github.com/guo1218" target="_blank" rel="noopener noreferrer" class="dropdown-item" aria-label="GitHub" data-astro-cid-dl4kyotk> <div class="flex items-center" data-astro-cid-dl4kyotk> <svg width="1em" height="1em" viewBox="0 0 640 640" class="text-[1rem] mr-2" data-astro-cid-dl4kyotk="true" data-icon="fa7-brands:github">   <use href="#ai:fa7-brands:github"></use>  </svg> <span data-astro-cid-dl4kyotk>GitHub</span> </div> <svg width="1em" height="1em" viewBox="0 0 640 640" class="text-[0.75rem] text-black/25 dark:text-white/25 ml-2" data-astro-cid-dl4kyotk="true" data-icon="fa7-solid:arrow-up-right-from-square">   <use href="#ai:fa7-solid:arrow-up-right-from-square"></use>  </svg> </a> </div> </div>  </div>   </div> <div class="flex items-center gap-1"> <div id="search-container"> <style>astro-island,astro-slot,astro-static-slot{display:contents}</style><script>(()=>{var e=async t=>{await(await t())()};(self.Astro||(self.Astro={})).only=e;window.dispatchEvent(new Event("astro:only"));})();</script><script>(()=>{var g=Object.defineProperty;var w=(c,s,d)=>s in c?g(c,s,{enumerable:!0,configurable:!0,writable:!0,value:d}):c[s]=d;var l=(c,s,d)=>w(c,typeof s!="symbol"?s+"":s,d);var E=new Set(["__proto__","constructor","prototype"]);{let c={0:t=>y(t),1:t=>d(t),2:t=>new RegExp(t),3:t=>new Date(t),4:t=>new Map(d(t)),5:t=>new Set(d(t)),6:t=>BigInt(t),7:t=>new URL(t),8:t=>new Uint8Array(t),9:t=>new Uint16Array(t),10:t=>new Uint32Array(t),11:t=>Number.POSITIVE_INFINITY*t},s=t=>{let[p,e]=t;return p in c?c[p](e):void 0},d=t=>t.map(s),y=t=>typeof t!="object"||t===null?t:Object.fromEntries(Object.entries(t).map(([p,e])=>[p,s(e)]));class f extends HTMLElement{constructor(){super(...arguments);l(this,"Component");l(this,"hydrator");l(this,"hydrate",async()=>{var b;if(!this.hydrator||!this.isConnected)return;let e=(b=this.parentElement)==null?void 0:b.closest("astro-island[ssr]");if(e){e.addEventListener("astro:hydrate",this.hydrate,{once:!0});return}let n=this.querySelectorAll("astro-slot"),r={},i=this.querySelectorAll("template[data-astro-template]");for(let o of i){let a=o.closest(this.tagName);a!=null&&a.isSameNode(this)&&(r[o.getAttribute("data-astro-template")||"default"]=o.innerHTML,o.remove())}for(let o of n){let a=o.closest(this.tagName);a!=null&&a.isSameNode(this)&&(r[o.getAttribute("name")||"default"]=o.innerHTML)}let u;try{u=this.hasAttribute("props")?y(JSON.parse(this.getAttribute("props"))):{}}catch(o){let a=this.getAttribute("component-url")||"<unknown>",v=this.getAttribute("component-export");throw v&&(a+=` (export ${v})`),console.error(`[hydrate] Error parsing props for component ${a}`,this.getAttribute("props"),o),o}let h;await this.hydrator(this)(this.Component,u,r,{client:this.getAttribute("client")}),this.removeAttribute("ssr"),this.dispatchEvent(new CustomEvent("astro:hydrate"))});l(this,"unmount",()=>{this.isConnected||this.dispatchEvent(new CustomEvent("astro:unmount"))})}disconnectedCallback(){document.removeEventListener("astro:after-swap",this.unmount),document.addEventListener("astro:after-swap",this.unmount,{once:!0})}connectedCallback(){if(!this.hasAttribute("await-children")||document.readyState==="interactive"||document.readyState==="complete")this.childrenConnectedCallback();else{let e=()=>{document.removeEventListener("DOMContentLoaded",e),n.disconnect(),this.childrenConnectedCallback()},n=new MutationObserver(()=>{var r;((r=this.lastChild)==null?void 0:r.nodeType)===Node.COMMENT_NODE&&this.lastChild.nodeValue==="astro:end"&&(this.lastChild.remove(),e())});n.observe(this,{childList:!0}),document.addEventListener("DOMContentLoaded",e)}}async childrenConnectedCallback(){let e=this.getAttribute("before-hydration-url");e&&await import(e),this.start()}getRetryImportUrl(e){let n=new URL(e,document.baseURI),r=`astro-retry=${Date.now()}`,i=n.hash.replace(/^#/,"");return n.hash=i?`${i}&${r}`:r,n.toString()}async importWithRetry(e){try{return await import(e)}catch(n){return await new Promise(r=>setTimeout(r,1e3)),import(this.getRetryImportUrl(e))}}handleHydrationError(e){let n=this.getAttribute("component-url"),r=new CustomEvent("astro:hydration-error",{cancelable:!0,bubbles:!0,composed:!0,detail:{error:e,componentUrl:n}});this.dispatchEvent(r)&&console.error(`[astro-island] Error hydrating ${n}`,e)}async start(){let e=JSON.parse(this.getAttribute("opts")),n=this.getAttribute("client");if(Astro[n]===void 0){window.addEventListener(`astro:${n}`,()=>this.start(),{once:!0});return}try{await Astro[n](async()=>{let r=this.getAttribute("renderer-url");try{let[i,{default:u}]=await Promise.all([this.importWithRetry(this.getAttribute("component-url")),r?this.importWithRetry(r):Promise.resolve({default:()=>()=>{}})]),h=this.getAttribute("component-export")||"default";if(h.includes(".")){this.Component=i;for(let m of h.split(".")){if(E.has(m)||!this.Component||typeof this.Component!="object"&&typeof this.Component!="function"||!Object.hasOwn(this.Component,m))throw new Error(`Invalid component export path: ${h}`);this.Component=this.Component[m]}}else{if(E.has(h))throw new Error(`Invalid component export path: ${h}`);this.Component=i[h]}return this.hydrator=u,this.hydrate}catch(i){return this.handleHydrationError(i),()=>{}}},e,this)}catch(r){this.handleHydrationError(r)}}attributeChangedCallback(){this.hydrate()}}l(f,"observedAttributes",["props"]),customElements.get("astro-island")||customElements.define("astro-island",f)}})();</script><astro-island uid="ZdRHrm" component-url="/_astro/Search.DU41oT2X.js" component-export="default" renderer-url="/_astro/client.svelte.Cx-aCQri.js" props="{}" ssr client="only" opts="{&quot;name&quot;:&quot;Search&quot;,&quot;value&quot;:&quot;svelte&quot;}"></astro-island> </div>  <astro-island uid="GRd7H" component-url="/_astro/MobileTOC.DpHv41I2.js" component-export="default" renderer-url="/_astro/client.svelte.Cx-aCQri.js" props="{}" ssr client="only" opts="{&quot;name&quot;:&quot;MobileTOC&quot;,&quot;value&quot;:&quot;svelte&quot;}"></astro-island> <button aria-label="Display Settings" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" id="display-settings-switch"> <svg width="1em" height="1em" class="text-[1.25rem]" data-icon="material-symbols:palette-outline">   <symbol id="ai:material-symbols:palette-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M12 22q-2.05 0-3.875-.788t-3.187-2.15t-2.15-3.187T2 12q0-2.075.813-3.9t2.2-3.175T8.25 2.788T12.2 2q2 0 3.775.688t3.113 1.9t2.125 2.875T22 11.05q0 2.875-1.75 4.413T16 17h-1.85q-.225 0-.312.125t-.088.275q0 .3.375.863t.375 1.287q0 1.25-.687 1.85T12 22m-4.425-9.425Q8 12.15 8 11.5t-.425-1.075T6.5 10t-1.075.425T5 11.5t.425 1.075T6.5 13t1.075-.425m3-4Q11 8.15 11 7.5t-.425-1.075T9.5 6t-1.075.425T8 7.5t.425 1.075T9.5 9t1.075-.425m5 0Q16 8.15 16 7.5t-.425-1.075T14.5 6t-1.075.425T13 7.5t.425 1.075T14.5 9t1.075-.425m3 4Q19 12.15 19 11.5t-.425-1.075T17.5 10t-1.075.425T16 11.5t.425 1.075T17.5 13t1.075-.425M12 20q.225 0 .363-.125t.137-.325q0-.35-.375-.825T11.75 17.3q0-1.05.725-1.675T14.25 15H16q1.65 0 2.825-.962T20 11.05q0-3.025-2.312-5.038T12.2 4Q8.8 4 6.4 6.325T4 12q0 3.325 2.338 5.663T12 20"/></symbol><use href="#ai:material-symbols:palette-outline"></use>  </svg> </button> <astro-island uid="Zwo4YM" component-url="/_astro/ThemeSwitch.cjTkfvbN.js" component-export="default" renderer-url="/_astro/client.svelte.Cx-aCQri.js" props="{}" ssr client="only" opts="{&quot;name&quot;:&quot;ThemeSwitch&quot;,&quot;value&quot;:&quot;svelte&quot;}"></astro-island> <button aria-label="Menu" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 md:!hidden" id="nav-menu-switch"> <svg width="1em" height="1em" class="text-[1.25rem]" data-icon="material-symbols:unfold-more">   <symbol id="ai:material-symbols:unfold-more" viewBox="0 0 24 24"><path fill="currentColor" d="m12 21l-4.5-4.5l1.45-1.45L12 18.1l3.05-3.05l1.45 1.45zM8.95 9.05L7.5 7.6L12 3.1l4.5 4.5l-1.45 1.45L12 6z"/></symbol><use href="#ai:material-symbols:unfold-more"></use>  </svg> </button> </div> <div id="nav-menu-panel" class="float-panel float-panel-closed absolute transition-all fixed right-4 px-2 py-2 max-h-[80vh] overflow-y-auto" data-astro-cid-qutq2pzr> <div class="mobile-menu-item" data-astro-cid-qutq2pzr> <a href="/" class="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-4
+                    hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition
+                " data-astro-cid-qutq2pzr> <div class="flex items-center transition text-black/75 dark:text-white/75 font-bold" data-astro-cid-qutq2pzr> <svg width="1em" height="1em" viewBox="0 0 24 24" class="text-[1.1rem] mr-2" data-astro-cid-qutq2pzr="true" data-icon="material-symbols:home">   <use href="#ai:material-symbols:home"></use>  </svg> Home </div> <svg width="1em" height="1em" class="transition text-[1.25rem] text-[var(--primary)]" data-astro-cid-qutq2pzr="true" data-icon="material-symbols:chevron-right-rounded">   <symbol id="ai:material-symbols:chevron-right-rounded" viewBox="0 0 24 24"><path fill="currentColor" d="M12.6 12L8.7 8.1q-.275-.275-.275-.7t.275-.7t.7-.275t.7.275l4.6 4.6q.15.15.213.325t.062.375t-.062.375t-.213.325l-4.6 4.6q-.275.275-.7.275t-.7-.275t-.275-.7t.275-.7z"/></symbol><use href="#ai:material-symbols:chevron-right-rounded"></use>  </svg>  </a> </div><div class="mobile-menu-item" data-astro-cid-qutq2pzr> <a href="/posts/cuda/" class="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-4
+                    hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition
+                " data-astro-cid-qutq2pzr> <div class="flex items-center transition text-black/75 dark:text-white/75 font-bold" data-astro-cid-qutq2pzr> <svg width="1em" height="1em" viewBox="0 0 24 24" class="text-[1.1rem] mr-2" data-astro-cid-qutq2pzr="true" data-icon="simple-icons:nvidia">   <use href="#ai:simple-icons:nvidia"></use>  </svg> CUDA </div> <svg width="1em" height="1em" viewBox="0 0 24 24" class="transition text-[1.25rem] text-[var(--primary)]" data-astro-cid-qutq2pzr="true" data-icon="material-symbols:chevron-right-rounded">   <use href="#ai:material-symbols:chevron-right-rounded"></use>  </svg>  </a> </div><div class="mobile-menu-item" data-astro-cid-qutq2pzr> <a href="/posts/triton-first-kernel/" class="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-4
+                    hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition
+                " data-astro-cid-qutq2pzr> <div class="flex items-center transition text-black/75 dark:text-white/75 font-bold" data-astro-cid-qutq2pzr> <svg width="1em" height="1em" viewBox="0 0 24 24" class="text-[1.1rem] mr-2" data-astro-cid-qutq2pzr="true" data-icon="material-symbols:bolt">   <use href="#ai:material-symbols:bolt"></use>  </svg> Triton </div> <svg width="1em" height="1em" viewBox="0 0 24 24" class="transition text-[1.25rem] text-[var(--primary)]" data-astro-cid-qutq2pzr="true" data-icon="material-symbols:chevron-right-rounded">   <use href="#ai:material-symbols:chevron-right-rounded"></use>  </svg>  </a> </div><div class="mobile-menu-item" data-astro-cid-qutq2pzr> <a href="/posts/transformer/" class="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-4
+                    hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition
+                " data-astro-cid-qutq2pzr> <div class="flex items-center transition text-black/75 dark:text-white/75 font-bold" data-astro-cid-qutq2pzr> <svg width="1em" height="1em" viewBox="0 0 24 24" class="text-[1.1rem] mr-2" data-astro-cid-qutq2pzr="true" data-icon="material-symbols:hub">   <use href="#ai:material-symbols:hub"></use>  </svg> Transformer </div> <svg width="1em" height="1em" viewBox="0 0 24 24" class="transition text-[1.25rem] text-[var(--primary)]" data-astro-cid-qutq2pzr="true" data-icon="material-symbols:chevron-right-rounded">   <use href="#ai:material-symbols:chevron-right-rounded"></use>  </svg>  </a> </div><div class="mobile-menu-item" data-astro-cid-qutq2pzr> <a href="/posts/inference/" class="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-4
+                    hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition
+                " data-astro-cid-qutq2pzr> <div class="flex items-center transition text-black/75 dark:text-white/75 font-bold" data-astro-cid-qutq2pzr> <svg width="1em" height="1em" viewBox="0 0 24 24" class="text-[1.1rem] mr-2" data-astro-cid-qutq2pzr="true" data-icon="material-symbols:rocket-launch">   <use href="#ai:material-symbols:rocket-launch"></use>  </svg> Inference </div> <svg width="1em" height="1em" viewBox="0 0 24 24" class="transition text-[1.25rem] text-[var(--primary)]" data-astro-cid-qutq2pzr="true" data-icon="material-symbols:chevron-right-rounded">   <use href="#ai:material-symbols:chevron-right-rounded"></use>  </svg>  </a> </div><div class="mobile-menu-item" data-astro-cid-qutq2pzr> <a href="/archive/" class="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-4
+                    hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition
+                " data-astro-cid-qutq2pzr> <div class="flex items-center transition text-black/75 dark:text-white/75 font-bold" data-astro-cid-qutq2pzr> <svg width="1em" height="1em" viewBox="0 0 24 24" class="text-[1.1rem] mr-2" data-astro-cid-qutq2pzr="true" data-icon="material-symbols:archive">   <use href="#ai:material-symbols:archive"></use>  </svg> Archive </div> <svg width="1em" height="1em" viewBox="0 0 24 24" class="transition text-[1.25rem] text-[var(--primary)]" data-astro-cid-qutq2pzr="true" data-icon="material-symbols:chevron-right-rounded">   <use href="#ai:material-symbols:chevron-right-rounded"></use>  </svg>  </a> </div><div class="mobile-menu-item" data-astro-cid-qutq2pzr> <div class="mobile-dropdown" data-mobile-dropdown data-astro-cid-qutq2pzr> <button class="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-4 w-full text-left
+                            hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition" data-mobile-dropdown-trigger aria-expanded="false" data-astro-cid-qutq2pzr> <div class="flex items-center transition text-black/75 dark:text-white/75 font-bold" data-astro-cid-qutq2pzr> <svg width="1em" height="1em" viewBox="0 0 24 24" class="text-[1.1rem] mr-2" data-astro-cid-qutq2pzr="true" data-icon="material-symbols:link">   <use href="#ai:material-symbols:link"></use>  </svg> Links </div> <svg width="1em" height="1em" viewBox="0 0 24 24" class="transition text-[1.25rem] text-[var(--primary)] mobile-dropdown-arrow duration-200" data-astro-cid-qutq2pzr="true" data-icon="material-symbols:keyboard-arrow-down-rounded">   <use href="#ai:material-symbols:keyboard-arrow-down-rounded"></use>  </svg> </button> <div class="mobile-submenu" data-mobile-submenu data-astro-cid-qutq2pzr> <a href="https://github.com/xystart" class="group flex justify-between items-center py-2 pl-6 pr-1 rounded-lg gap-4
+                                   hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition" target="_blank" data-astro-cid-qutq2pzr> <div class="flex items-center transition text-black/60 dark:text-white/60 font-medium" data-astro-cid-qutq2pzr> <svg width="1em" height="1em" viewBox="0 0 640 640" class="text-[1.1rem] mr-2" data-astro-cid-qutq2pzr="true" data-icon="fa7-brands:github">   <use href="#ai:fa7-brands:github"></use>  </svg> GitHub </div> <svg width="1em" height="1em" viewBox="0 0 640 640" class="transition text-[0.75rem] text-black/25 dark:text-white/25 -translate-x-1" data-astro-cid-qutq2pzr="true" data-icon="fa7-solid:arrow-up-right-from-square">   <use href="#ai:fa7-solid:arrow-up-right-from-square"></use>  </svg> </a><a href="https://github.com/guo1218" class="group flex justify-between items-center py-2 pl-6 pr-1 rounded-lg gap-4
+                                   hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition" target="_blank" data-astro-cid-qutq2pzr> <div class="flex items-center transition text-black/60 dark:text-white/60 font-medium" data-astro-cid-qutq2pzr> <svg width="1em" height="1em" viewBox="0 0 640 640" class="text-[1.1rem] mr-2" data-astro-cid-qutq2pzr="true" data-icon="fa7-brands:github">   <use href="#ai:fa7-brands:github"></use>  </svg> GitHub </div> <svg width="1em" height="1em" viewBox="0 0 640 640" class="transition text-[0.75rem] text-black/25 dark:text-white/25 -translate-x-1" data-astro-cid-qutq2pzr="true" data-icon="fa7-solid:arrow-up-right-from-square">   <use href="#ai:fa7-solid:arrow-up-right-from-square"></use>  </svg> </a> </div> </div> </div> </div>  <script type="module">document.addEventListener("DOMContentLoaded",function(){const r=document.querySelectorAll("[data-mobile-dropdown]");r.forEach(e=>{const t=e.querySelector("[data-mobile-dropdown-trigger]"),d=e.querySelector("[data-mobile-submenu]");!t||!d||t.addEventListener("click",function(o){o.preventDefault();const u=e.getAttribute("data-expanded")==="true";r.forEach(a=>{if(a!==e){a.setAttribute("data-expanded","false");const i=a.querySelector("[data-mobile-dropdown-trigger]");i&&i.setAttribute("aria-expanded","false")}});const n=!u;e.setAttribute("data-expanded",n.toString()),t.setAttribute("aria-expanded",n.toString())})})});</script> <astro-island uid="Z2uGHgv" component-url="/_astro/SettingsPanel.DwJpNQtj.js" component-export="default" renderer-url="/_astro/client.svelte.Cx-aCQri.js" props="{}" ssr client="only" opts="{&quot;name&quot;:&quot;SettingsPanel&quot;,&quot;value&quot;:&quot;svelte&quot;}"></astro-island> </div> </div> <script type="module">const a=document.getElementById("search-container"),c=document.getElementById("navbar-links-container");if(a&&c){const t=()=>{window.matchMedia("(min-width: 1280px)").matches&&window.matchMedia("(hover: hover)").matches&&(c.style.opacity="0")},s=()=>{const n=document.getElementById("navbar");n&&!n.classList.contains("is-searching")&&(c.style.opacity="1")};a.addEventListener("mouseenter",t),a.addEventListener("mouseleave",s),a.addEventListener("touchstart",t,{passive:!0}),a.addEventListener("touchend",s);const e=document.getElementById("navbar");e&&new MutationObserver(i=>{i.forEach(o=>{o.type==="attributes"&&o.attributeName==="class"&&(e.classList.contains("is-searching")||a.matches(":hover")||s())})}).observe(e,{attributes:!0})}function u(){let t=document.getElementById("display-settings-switch");t&&(t.onclick=function(){let e=document.getElementById("display-setting");e&&e.classList.toggle("float-panel-closed")});let s=document.getElementById("nav-menu-switch");s&&(s.onclick=function(){let e=document.getElementById("nav-menu-panel");e&&e.classList.toggle("float-panel-closed")}),document.addEventListener("click",function(e){const n=["display-setting","nav-menu-panel"],i=["display-settings-switch","nav-menu-switch"];n.forEach((o,r)=>{const l=document.getElementById(o),m=document.getElementById(i[r]);l&&m&&!l.classList.contains("float-panel-closed")&&e.target instanceof Node&&!l.contains(e.target)&&!m.contains(e.target)&&l.classList.add("float-panel-closed")})})}u();function d(){const t=document.getElementById("navbar");if(!t)return;if(window.semifullScrollHandler&&window.removeEventListener("scroll",window.semifullScrollHandler),!(t.dataset.isHome==="true")){t.classList.add("scrolled");return}let e=!1;function n(){const o=window.scrollY||document.documentElement.scrollTop;t&&o>50?t.classList.add("scrolled"):t&&t.classList.remove("scrolled"),e=!1}function i(){e||(requestAnimationFrame(n),e=!0)}window.semifullScrollHandler=i,window.addEventListener("scroll",i,{passive:!0}),n()}window.initSemifullScrollDetection=d;document.readyState==="loading"?document.addEventListener("DOMContentLoaded",d):d();</script> <script>(function(){const scriptUrl = "/pagefind/pagefind.js";
+
+window.loadPagefind = async function() {
+    if (window.pagefind) {return;}
+    try {
+        const response = await fetch(scriptUrl, { method: 'HEAD' });
+        if (!response.ok) {
+            throw new Error(`Pagefind script not found: ${response.status}`);
+        }
+
+        const pagefind = await import(scriptUrl);
+
+        await pagefind.options({
+            excerptLength: 20
+        });
+
+        window.pagefind = pagefind;
+
+        document.dispatchEvent(new CustomEvent('pagefindready'));
+        console.log('Pagefind loaded and initialized successfully, event dispatched.');
+    } catch (error) {
+        console.error('Failed to load Pagefind:', error);
+        window.pagefind = {
+            search: () => Promise.resolve({ results: [] }),
+            options: () => Promise.resolve(),
+        };
+        document.dispatchEvent(new CustomEvent('pagefindloaderror'));
+        console.log('Pagefind load error, event dispatched.');
+    }
+};
+})();</script> </div> </div>  <div id="banner-wrapper" class="absolute z-10 w-full transition duration-700 overflow-hidden mobile-hide-banner" style="top: -30vh" data-astro-cid-3tcy46xc> <div id="banner-single-container" class="relative h-full w-full" data-astro-cid-3tcy46xc> <script>(function(){const desktopImages = ["/assets/desktop-banner/4.webp"];
+const mobileImages = ["/assets/mobile-banner/4.webp"];
+const position = "center";
+
+				(function () {
+					const getRandomImage = (images, storageKey) => {
+						if (Array.isArray(images)) {
+							if (images.length === 0) {return null;}
+							if (images.length === 1) {return images[0];}
+
+							const lastIndex = sessionStorage.getItem(storageKey);
+							let newIndex;
+
+							do {
+								newIndex = Math.floor(Math.random() * images.length);
+							} while (newIndex === parseInt(lastIndex || "-1"));
+
+							sessionStorage.setItem(storageKey, newIndex.toString());
+							return images[newIndex];
+						}
+						return images || null;
+					};
+
+					const container = document.getElementById("banner-single-container");
+
+					// 检查容器是否已有图片，避免在页面切换或缩放时重复创建
+					if (container.querySelector("img")) {
+						return;
+					}
+
+					const desktopSrc = getRandomImage(desktopImages, "banner_desktop_index");
+					const mobileSrc = getRandomImage(mobileImages, "banner_mobile_index");
+
+					if (mobileSrc) {
+						const mobileImg = document.createElement("img");
+						mobileImg.alt = "Mobile banner image of the blog";
+						mobileImg.className =
+							"block md:hidden object-cover h-full w-full transition duration-700 opacity-100";
+						mobileImg.src = mobileSrc;
+						mobileImg.loading = "eager";
+						mobileImg.fetchPriority = "high";
+						mobileImg.dataset.position = position;
+						container.appendChild(mobileImg);
+					}
+
+					if (desktopSrc) {
+						const desktopImg = document.createElement("img");
+						desktopImg.id = "banner";
+						desktopImg.alt = "Desktop banner image of the blog";
+						desktopImg.className =
+							"hidden md:block object-cover h-full w-full transition duration-700 opacity-100";
+						desktopImg.src = desktopSrc;
+						desktopImg.loading = "eager";
+						desktopImg.fetchPriority = "high";
+						desktopImg.dataset.position = position;
+						container.appendChild(desktopImg);
+					}
+				})();
+			})();</script> </div> <!-- Ken Burns 动画样式（放在 body 中，不受 Swup head 替换影响） -->  <!-- 轮播脚本：随机起始 + 帧收集 + Ken Burns + Crossfade + 触摸/鼠标事件 -->  <!-- 首页文字覆盖层 --> <div class="banner-text-overlay absolute inset-0 z-20 flex items-center justify-center hidden" data-astro-cid-3tcy46xc> <div class="w-4/5 lg:w-3/4 text-center mb-0" data-astro-cid-3tcy46xc> <div class="flex flex-col" data-astro-cid-3tcy46xc> <h1 class="banner-title text-6xl lg:text-8xl text-white drop-shadow-lg mb-2 lg:mb-4" data-astro-cid-3tcy46xc> AI Infra </h1> <h2 class="banner-subtitle text-xl lg:text-3xl text-white/90 drop-shadow-md" data-astro-cid-3tcy46xc> <span class="inline-block min-h-[1.2em]" data-astro-cid-3tcy46xc> <span class="typewriter " data-text="[&quot;From Transformer Principles to LLM Scalability.&quot;,&quot;Keep cloning, keep training, keep learning.&quot;]" data-speed="100" data-delete-speed="50" data-pause-time="2000" data-astro-cid-h5ohsymn></span> <script type="module">class n{element;texts;currentTextIndex=0;speed;deleteSpeed;pauseTime;currentIndex=0;isDeleting=!1;timeoutId=null;constructor(t){this.element=t;const e=t.dataset.text||"";try{const i=JSON.parse(e);this.texts=Array.isArray(i)?i:[e]}catch{this.texts=[e]}this.speed=parseInt(t.dataset.speed||"100"),this.deleteSpeed=parseInt(t.dataset.deleteSpeed||"50"),this.pauseTime=parseInt(t.dataset.pauseTime||"2000"),this.texts.length>1&&!this.isTypewriterEnabled()?this.showRandomText():this.start()}isTypewriterEnabled(){return this.element.dataset.speed!==void 0||this.element.dataset.deleteSpeed!==void 0||this.element.dataset.pauseTime!==void 0}showRandomText(){const t=Math.floor(Math.random()*this.texts.length);this.element.textContent=this.texts[t]}start(){this.texts.length!==0&&this.type()}getCurrentText(){return this.texts[this.currentTextIndex]||""}type(){const t=this.getCurrentText();this.isDeleting?this.currentIndex>0?(this.currentIndex--,this.element.textContent=t.substring(0,this.currentIndex),this.timeoutId=window.setTimeout(()=>this.type(),this.deleteSpeed)):(this.isDeleting=!1,this.currentTextIndex=(this.currentTextIndex+1)%this.texts.length,this.timeoutId=window.setTimeout(()=>this.type(),this.speed)):this.currentIndex<t.length?(this.currentIndex++,this.element.textContent=t.substring(0,this.currentIndex),this.timeoutId=window.setTimeout(()=>this.type(),this.speed)):this.texts.length>1?(this.isDeleting=!0,this.timeoutId=window.setTimeout(()=>this.type(),this.pauseTime)):this.texts.length===1&&this.texts[0]===""&&(this.element.innerHTML="&nbsp;")}destroy(){this.timeoutId&&clearTimeout(this.timeoutId)}}document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll(".typewriter").forEach(t=>{new n(t)})});document.addEventListener("swup:contentReplaced",()=>{document.querySelectorAll(".typewriter").forEach(t=>{new n(t)})});</script> </span> </h2> </div> </div> </div> <!-- 非首页页面标题覆盖层（持久化容器，JS 动态填充文本） --> <div id="banner-page-overlay" class="banner-page-overlay hidden lg:flex absolute inset-0 z-20 pointer-events-none" data-astro-cid-3tcy46xc> <div class="flex flex-col items-center justify-center w-full text-center px-4" data-astro-cid-3tcy46xc> <h2 id="page-overlay-title" class="page-overlay-title text-3xl lg:text-5xl text-white font-bold drop-shadow-lg px-4" data-astro-cid-3tcy46xc></h2> <div id="page-overlay-meta" class="page-overlay-meta hidden flex-wrap items-center justify-center gap-x-5 gap-y-2 text-white/80 text-sm md:text-base mt-4" data-astro-cid-3tcy46xc> <span class="inline-flex items-center gap-1.5" data-astro-cid-3tcy46xc> <svg width="1em" height="1em" class="text-[1.05em]" data-astro-cid-3tcy46xc="true" data-icon="material-symbols:calendar-month-outline-rounded">   <symbol id="ai:material-symbols:calendar-month-outline-rounded" viewBox="0 0 24 24"><path fill="currentColor" d="M5 22q-.825 0-1.412-.587T3 20V6q0-.825.588-1.412T5 4h1V3q0-.425.288-.712T7 2t.713.288T8 3v1h8V3q0-.425.288-.712T17 2t.713.288T18 3v1h1q.825 0 1.413.588T21 6v14q0 .825-.587 1.413T19 22zm0-2h14V10H5zM5 8h14V6H5zm0 0V6zm7 6q-.425 0-.712-.288T11 13t.288-.712T12 12t.713.288T13 13t-.288.713T12 14m-4.712-.288Q7 13.426 7 13t.288-.712T8 12t.713.288T9 13t-.288.713T8 14t-.712-.288M16 14q-.425 0-.712-.288T15 13t.288-.712T16 12t.713.288T17 13t-.288.713T16 14m-4 4q-.425 0-.712-.288T11 17t.288-.712T12 16t.713.288T13 17t-.288.713T12 18m-4.712-.288Q7 17.426 7 17t.288-.712T8 16t.713.288T9 17t-.288.713T8 18t-.712-.288M16 18q-.425 0-.712-.288T15 17t.288-.712T16 16t.713.288T17 17t-.288.713T16 18"/></symbol><use href="#ai:material-symbols:calendar-month-outline-rounded"></use>  </svg> <span id="page-overlay-date" data-astro-cid-3tcy46xc></span> </span> <span class="inline-flex items-center gap-1.5" data-astro-cid-3tcy46xc> <svg width="1em" height="1em" class="text-[1.05em]" data-astro-cid-3tcy46xc="true" data-icon="material-symbols:folder-outline">   <symbol id="ai:material-symbols:folder-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M4 20q-.825 0-1.412-.587T2 18V6q0-.825.588-1.412T4 4h6l2 2h8q.825 0 1.413.588T22 8v10q0 .825-.587 1.413T20 20zm0-2h16V8h-8.825l-2-2H4zm0 0V6z"/></symbol><use href="#ai:material-symbols:folder-outline"></use>  </svg> <span id="page-overlay-category" data-astro-cid-3tcy46xc></span> </span> <span class="inline-flex items-center gap-1.5" data-astro-cid-3tcy46xc> <svg width="1em" height="1em" class="text-[1.05em]" data-astro-cid-3tcy46xc="true" data-icon="material-symbols:ink-pen-outline-rounded">   <symbol id="ai:material-symbols:ink-pen-outline-rounded" viewBox="0 0 24 24"><path fill="currentColor" d="m12.25 10.825l.925.925L18.6 6.325l-.925-.925zM5 19h.925l5.825-5.825l-.925-.925L5 18.075zm8.875-5.125l-3.75-3.75L14.3 5.95l-.725-.725L8.8 10q-.3.3-.7.3t-.7-.3t-.3-.712t.3-.713l4.75-4.75q.6-.6 1.413-.6t1.412.6l.725.725l1.25-1.25q.3-.3.713-.3t.712.3L20.7 5.625q.3.3.3.712t-.3.713zM4 21q-.425 0-.712-.288T3 20v-1.925q0-.4.15-.763t.425-.637l6.55-6.55l3.75 3.75l-6.55 6.55q-.275.275-.638.425t-.762.15z"/></symbol><use href="#ai:material-symbols:ink-pen-outline-rounded"></use>  </svg> <span id="page-overlay-words" data-astro-cid-3tcy46xc></span> </span> </div> </div> </div> <!-- 水波纹效果 --> <div class="waves absolute -bottom-[1px] h-[10vh] max-h-[9.375rem] min-h-[3.125rem] w-full md:h-[15vh]" id="header-waves" style="transform: translateZ(0); will-change: fill;" data-astro-cid-3tcy46xc> <svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 20 150 32" preserveAspectRatio="none" shape-rendering="auto" style="transform: translateZ(0); backface-visibility: hidden;" data-astro-cid-3tcy46xc> <defs data-astro-cid-3tcy46xc> <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v48h-352z" data-astro-cid-3tcy46xc></path> </defs> <g class="parallax" style="transform: translateZ(0);" data-astro-cid-3tcy46xc> <use xlink:href="#gentle-wave" x="48" y="0" class="opacity-25 fill-[var(--page-bg)]" style="animation-delay: -2s; animation-duration: 7s; will-change: transform;" data-astro-cid-3tcy46xc></use> <use xlink:href="#gentle-wave" x="48" y="3" class="opacity-50 fill-[var(--page-bg)]" style="animation-delay: -3s; animation-duration: 10s; will-change: transform;" data-astro-cid-3tcy46xc></use> <use xlink:href="#gentle-wave" x="48" y="5" class="opacity-75 fill-[var(--page-bg)]" style="animation-delay: -4s; animation-duration: 13s; will-change: transform;" data-astro-cid-3tcy46xc></use> <use xlink:href="#gentle-wave" x="48" y="7" class="fill-[var(--page-bg)]" style="animation-delay: -5s; animation-duration: 20s; will-change: transform;" data-astro-cid-3tcy46xc></use> </g> </svg> </div> <!-- Banner 图片来源标注 -->  </div>  <div class="absolute w-full z-30 pointer-events-none mobile-main-no-banner  " style="top: 35vh" data-astro-cid-haiuh7kc> <!-- The pointer-events-none here prevent blocking the click event of the TOC --> <div class="relative max-w-(--page-width) mx-auto pointer-events-auto" data-astro-cid-haiuh7kc> <div id="main-grid" class="transition duration-700 w-full left-0 right-0 grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 grid-rows-none md:grid-rows-[auto] mx-auto gap-4 px-2 md:px-4  " data-layout-mode="list" data-astro-cid-haiuh7kc> <!-- Banner image credit -->   <div class="contents" data-astro-cid-haiuh7kc> <div id="sidebar" class="onload-animation block md:hidden lg:hidden  w-full sidebar-root sidebar-column-root"> <div class="flex flex-col w-full gap-4 mb-4"> <div class="flex flex-col w-full gap-4 md:hidden"> <div class="card-base p-3"> <a aria-label="Go to About Page" href="/about/" class="group block relative mx-auto mt-1 lg:mx-0 lg:mt-0 mb-3
+       max-w-[12rem] lg:max-w-none overflow-hidden rounded-xl active:scale-95"> <div class="absolute transition pointer-events-none group-hover:bg-black/30 group-active:bg-black/50
+        w-full h-full z-50 flex items-center justify-center"> <svg width="1em" height="1em" class="transition opacity-0 scale-90 group-hover:scale-100 group-hover:opacity-100 text-white text-5xl" data-icon="fa7-regular:address-card">   <symbol id="ai:fa7-regular:address-card" viewBox="0 0 640 640"><path fill="currentColor" d="M544 144c8.8 0 16 7.2 16 16v320c0 8.8-7.2 16-16 16H96c-8.8 0-16-7.2-16-16V160c0-8.8 7.2-16 16-16zM96 96c-35.3 0-64 28.7-64 64v320c0 35.3 28.7 64 64 64h448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64zm144 216c30.9 0 56-25.1 56-56s-25.1-56-56-56s-56 25.1-56 56s25.1 56 56 56m-32 40c-44.2 0-80 35.8-80 80c0 8.8 7.2 16 16 16h192c8.8 0 16-7.2 16-16c0-44.2-35.8-80-80-80zm200-144c-13.3 0-24 10.7-24 24s10.7 24 24 24h80c13.3 0 24-10.7 24-24s-10.7-24-24-24zm0 96c-13.3 0-24 10.7-24 24s10.7 24 24 24h80c13.3 0 24-10.7 24-24s-10.7-24-24-24z"/></symbol><use href="#ai:fa7-regular:address-card"></use>  </svg> </div> <div class="mx-auto lg:w-full h-full lg:mt-0 overflow-hidden relative"> <div class="transition absolute inset-0 dark:bg-black/10 bg-opacity-50 pointer-events-none"></div> <picture> <source srcset="/_astro/macos.M_zim1OM_UmMHP.webp 640w, /_astro/macos.M_zim1OM_Z2wSWv3.webp 750w, /_astro/macos.M_zim1OM_Z24kfIP.webp 828w, /_astro/macos.M_zim1OM_1wzAhx.webp 1080w, /_astro/macos.M_zim1OM_Z2mO1Yt.webp 1256w" type="image/webp">  <img src="/_astro/macos.M_zim1OM_Z2mO1Yt.webp" srcset="/_astro/macos.M_zim1OM_UmMHP.webp 640w, /_astro/macos.M_zim1OM_Z2wSWv3.webp 750w, /_astro/macos.M_zim1OM_Z24kfIP.webp 828w, /_astro/macos.M_zim1OM_1wzAhx.webp 1080w, /_astro/macos.M_zim1OM_Z2mO1Yt.webp 1256w" alt="Profile Image of the Author" style="object-position: center" loading="eager" fetchpriority="high" decoding="async" sizes="(min-width: 1256px) 1256px, 100vw" data-astro-image="constrained" data-astro-image-fit="cover" data-astro-image-pos="center" width="1256" height="1256" class="w-full h-full object-cover"> </picture>   </div> </a> <div class="px-2"> <div class="font-bold text-xl text-center mb-1 dark:text-neutral-50 transition"> xystart </div> <div class="h-1 w-5 bg-[var(--primary)] mx-auto rounded-full mb-2 transition"></div> <div class="text-center text-neutral-400 mb-2.5 transition"> <span class="typewriter inline-block" data-text="AI Infra 学习记录" data-speed="80" data-delete-speed="50" data-pause-time="2000" data-astro-cid-h5ohsymn></span>  </div> <div class="flex flex-wrap gap-2 justify-center mb-1">  <a rel="me" aria-label="GitHub" href="https://github.com/xystart" target="_blank" class="btn-regular rounded-lg h-10 gap-2 px-3 font-bold active:scale-95"> <svg width="1em" height="1em" class="text-[1.5rem]" data-icon="fa7-brands:github">   <symbol id="ai:fa7-brands:github" viewBox="0 0 640 640"><path fill="currentColor" d="M237.9 461.4c0 2-2.3 3.6-5.2 3.6c-3.3.3-5.6-1.3-5.6-3.6c0-2 2.3-3.6 5.2-3.6c3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9c2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9c.3 2 2.9 3.3 5.9 2.6c2.9-.7 4.9-2.6 4.6-4.6c-.3-1.9-3-3.2-5.9-2.9M316.8 72C178.1 72 72 177.3 72 316c0 110.9 69.8 205.8 169.5 239.2c12.8 2.3 17.3-5.6 17.3-12.1c0-6.2-.3-40.4-.3-61.4c0 0-70 15-84.7-29.8c0 0-11.4-29.1-27.8-36.6c0 0-22.9-15.7 1.6-15.4c0 0 24.9 2 38.6 25.8c21.9 38.6 58.6 27.5 72.9 20.9c2.3-16 8.8-27.1 16-33.7c-55.9-6.2-112.3-14.3-112.3-110.5c0-27.5 7.6-41.3 23.6-58.9c-2.6-6.5-11.1-33.3 2.6-67.9c20.9-6.5 69 27 69 27c20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27c13.7 34.7 5.2 61.4 2.6 67.9c16 17.7 25.8 31.5 25.8 58.9c0 96.5-58.9 104.2-114.8 110.5c9.2 7.9 17 22.9 17 46.4c0 33.7-.3 75.4-.3 83.6c0 6.5 4.6 14.4 17.3 12.1C500.2 521.8 568 426.9 568 316c0-138.7-112.5-244-251.2-244M169.2 416.9c-1.3 1-1 3.3.7 5.2c1.6 1.6 3.9 2.3 5.2 1c1.3-1 1-3.3-.7-5.2c-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9c1.6 1 3.6.7 4.3-.7c.7-1.3-.3-2.9-2.3-3.9c-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2c2.3 2.3 5.2 2.6 6.5 1c1.3-1.3.7-4.3-1.3-6.2c-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2c-1.4-2.3-4-3.3-5.6-2"/></symbol><use href="#ai:fa7-brands:github"></use>  </svg> GitHub </a> </div> <div class="umami-stats-container hidden"> <hr class="my-2 border-t border-dashed border-black/10 dark:border-white/10 transition-colors duration-150"> <div class="text-sm text-50 mt-2 text-center transition-colors duration-150"> <svg width="1em" height="1em" class="inline-block mr-1 text-50 text-sm align-middle" data-icon="fa7-solid:eye">   <symbol id="ai:fa7-solid:eye" viewBox="0 0 640 640"><path fill="currentColor" d="M320 96c-80.8 0-145.5 36.8-192.6 80.6c-46.8 43.5-78.1 95.4-93 131.1c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 507.1 239.2 544 320 544s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 132.9 400.8 96 320 96M176 320c0-79.5 64.5-144 144-144s144 64.5 144 144s-64.5 144-144 144s-144-64.5-144-144m144-64c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.7-8.4c-1 10.9-.1 22.1 2.9 33.2c13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-12.2-45.7-55.5-74.8-101.1-70.8c5.3 9.3 8.4 20.1 8.4 31.7"/></symbol><use href="#ai:fa7-solid:eye"></use>  </svg> <span class="site-stats-display">Loading stats...</span> </div> </div> </div> </div> <script>(function(){const profileStatsPageViews = "Page views";
+const profileStatsVisits = "Visits";
+const profileStatsUnavailable = "Stats unavailable";
+
+	function generateStatsText(pageViews, visits) {
+		return `${profileStatsPageViews} ${pageViews} · ${profileStatsVisits} ${visits}`;
+	}
+
+	async function fetchSiteStats(isRetry = false) {
+		const containers = document.querySelectorAll(".umami-stats-container");
+
+		// oddmisc 未加载则等待重试
+		if (!window.oddmisc) {
+			if (!isRetry) {
+				setTimeout(() => fetchSiteStats(true), 500);
+			} else {
+				containers.forEach((c) => c.classList.add("hidden"));
+			}
+			return;
+		}
+
+		try {
+			const stats = await window.oddmisc.getSiteStats();
+			const pageViews = stats.pageviews || 0;
+			const visits = stats.visits || 0;
+
+			// 数据为 0 时隐藏
+			if (pageViews === 0 && visits === 0) {
+				containers.forEach((c) => c.classList.add("hidden"));
+				return;
+			}
+
+			containers.forEach((c) => c.classList.remove("hidden"));
+			document.querySelectorAll(".site-stats-display").forEach((el) => {
+				el.textContent = generateStatsText(pageViews, visits);
+			});
+		} catch (error) {
+			console.error("Error fetching site stats:", error);
+			containers.forEach((c) => c.classList.add("hidden"));
+		}
+	}
+
+	// 避免多个 Profile 实例重复请求
+	if (!window.__siteStatsFetching) {
+		window.__siteStatsFetching = true;
+		if (document.readyState === "loading") {
+			document.addEventListener("DOMContentLoaded", () =>
+				fetchSiteStats(),
+			);
+		} else {
+			fetchSiteStats();
+		}
+	}
+})();</script><widget-layout data-id="tags" data-is-collapsed="false" class="pb-4 card-base onload-animation" style="animation-delay: 250ms; --collapsedHeight: 7.5rem;" data-astro-cid-wnmx4ofj="true"> <div class="font-bold transition text-lg text-neutral-900 dark:text-neutral-100 relative ml-8 mt-4 mb-2 flex items-center
+        before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)]
+        before:absolute before:left-[-16px] before:top-[5.5px]" data-astro-cid-wnmx4ofj style="--collapsedHeight: 7.5rem;"> Tags  </div> <div id="tags" class="collapse-wrapper px-4 overflow-hidden" data-astro-cid-wnmx4ofj style="--collapsedHeight: 7.5rem;">  <div class="flex gap-2 flex-wrap"> <a href="/archive/?tag=CUDA" aria-label="View all posts with the CUDA tag" class="btn-regular h-8 text-sm px-3 rounded-lg">  CUDA </a><a href="/archive/?tag=GQA" aria-label="View all posts with the GQA tag" class="btn-regular h-8 text-sm px-3 rounded-lg">  GQA </a><a href="/archive/?tag=Kernel" aria-label="View all posts with the Kernel tag" class="btn-regular h-8 text-sm px-3 rounded-lg">  Kernel </a><a href="/archive/?tag=Llama" aria-label="View all posts with the Llama tag" class="btn-regular h-8 text-sm px-3 rounded-lg">  Llama </a><a href="/archive/?tag=LLM" aria-label="View all posts with the LLM tag" class="btn-regular h-8 text-sm px-3 rounded-lg">  LLM </a><a href="/archive/?tag=Profiling" aria-label="View all posts with the Profiling tag" class="btn-regular h-8 text-sm px-3 rounded-lg">  Profiling </a><a href="/archive/?tag=Roadmap" aria-label="View all posts with the Roadmap tag" class="btn-regular h-8 text-sm px-3 rounded-lg">  Roadmap </a><a href="/archive/?tag=RoPE" aria-label="View all posts with the RoPE tag" class="btn-regular h-8 text-sm px-3 rounded-lg">  RoPE </a><a href="/archive/?tag=Transformer" aria-label="View all posts with the Transformer tag" class="btn-regular h-8 text-sm px-3 rounded-lg">  Transformer </a><a href="/archive/?tag=Triton" aria-label="View all posts with the Triton tag" class="btn-regular h-8 text-sm px-3 rounded-lg">  Triton </a><a href="/archive/?tag=%E5%A4%8D%E7%9B%98" aria-label="View all posts with the 复盘 tag" class="btn-regular h-8 text-sm px-3 rounded-lg">  复盘 </a> </div>  </div>  </widget-layout>  <script type="module">class d extends HTMLElement{constructor(){if(super(),this.dataset.isCollapsed!=="true")return;const e=this.dataset.id,t=this.querySelector(".expand-btn"),s=this.querySelector(`#${e}`);t.addEventListener("click",()=>{s.classList.remove("collapsed"),t.classList.add("hidden")})}}customElements.get("widget-layout")||customElements.define("widget-layout",d);</script> </div>   </div> <div id="sidebar-sticky" class="transition-all duration-700 flex flex-col w-full gap-4 sticky top-4 sidebar-sticky-column"> <div class="flex flex-col w-full gap-4 md:hidden"> <widget-layout data-id="categories" data-is-collapsed="false" class="pb-4 card-base onload-animation" style="animation-delay: 150ms; --collapsedHeight: 7.5rem;" data-astro-cid-wnmx4ofj="true"> <div class="font-bold transition text-lg text-neutral-900 dark:text-neutral-100 relative ml-8 mt-4 mb-2 flex items-center
+        before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)]
+        before:absolute before:left-[-16px] before:top-[5.5px]" data-astro-cid-wnmx4ofj style="--collapsedHeight: 7.5rem;"> Categories  </div> <div id="categories" class="collapse-wrapper px-4 overflow-hidden" data-astro-cid-wnmx4ofj style="--collapsedHeight: 7.5rem;"> <a href="/archive/?uncategorized=true" aria-label="View all posts in the Uncategorized category"> <button class="
+            w-full
+            h-10
+            rounded-lg
+            bg-none
+            hover:bg-[var(--btn-plain-bg-hover)]
+            active:bg-[var(--btn-plain-bg-active)]
+            transition-all
+            pl-2
+            hover:pl-3
+            
+            text-neutral-700
+            hover:text-[var(--primary)]
+            dark:text-neutral-300
+            dark:hover:text-[var(--primary)]
+        "> <div class="flex items-center justify-between relative mr-2"> <div class="overflow-hidden text-left whitespace-nowrap overflow-ellipsis"> Uncategorized </div> <div class="transition px-2 h-7 ml-4 min-w-[2rem] rounded-lg text-sm font-bold
+                    text-[var(--btn-content)] dark:text-[var(--deep-text)]
+                    bg-[oklch(0.95_0.025_var(--hue))] dark:bg-[var(--primary)]
+                    flex items-center justify-center"> 6 </div> </div> </button> </a> </div>  </widget-layout>   </div>   </div> </div>  <script>(function(){const breakpoints = {"mobile":768,"tablet":1280,"desktop":1280};
+const mobileShowSidebar = true;
+const tabletShowSidebar = false;
+const desktopShowSidebar = false;
+const hasMobileComponents = true;
+const hasTabletComponents = false;
+
+	const SIDEBAR_MANAGER_KEY = "__mizukiSidebarManagerInitialized";
+
+	class SidebarManager {
+		constructor() {
+			this.init();
+		}
+
+		init() {
+			this.updateResponsiveDisplay();
+			if (!window.__mizukiSidebarResizeHandler) {
+				window.__mizukiSidebarResizeHandler = () =>
+					this.updateResponsiveDisplay();
+				window.addEventListener(
+					"resize",
+					window.__mizukiSidebarResizeHandler,
+				);
+			}
+
+			if (
+				typeof window !== "undefined" &&
+				window.swup &&
+				!window.__mizukiSidebarSwupHooked
+			) {
+				window.__mizukiSidebarSwupHooked = true;
+				window.swup.hooks.on("content:replace", () => {
+					setTimeout(() => {
+						const sidebar = document.getElementById("sidebar");
+						if (!sidebar) {
+							return;
+						}
+
+						const width = window.innerWidth;
+						let deviceType;
+						let hasComponents = false;
+						let showConfig = false;
+
+						if (width < breakpoints.mobile) {
+							deviceType = "mobile";
+							hasComponents = hasMobileComponents;
+							showConfig = mobileShowSidebar;
+						} else if (width < breakpoints.tablet) {
+							deviceType = "tablet";
+							hasComponents = hasTabletComponents;
+							showConfig = tabletShowSidebar;
+						} else {
+							deviceType = "desktop";
+							hasComponents = hasTabletComponents;
+							showConfig = desktopShowSidebar;
+						}
+
+						sidebar.style.setProperty(
+							`--sidebar-${deviceType}-display`,
+							showConfig && hasComponents ? "block" : "none",
+						);
+					}, 100);
+				});
+			}
+		}
+
+		updateResponsiveDisplay() {
+			const width = window.innerWidth;
+
+			let deviceType;
+			let hasComponents = false;
+			let showConfig = false;
+
+			if (width < breakpoints.mobile) {
+				deviceType = "mobile";
+				hasComponents = hasMobileComponents;
+				showConfig = mobileShowSidebar;
+			} else if (width < breakpoints.tablet) {
+				deviceType = "tablet";
+				hasComponents = hasTabletComponents;
+				showConfig = tabletShowSidebar;
+			} else {
+				deviceType = "desktop";
+				hasComponents = hasTabletComponents;
+				showConfig = desktopShowSidebar;
+			}
+
+			const shouldShow = showConfig && hasComponents;
+			const sidebar = document.getElementById("sidebar");
+
+			if (sidebar) {
+				sidebar.style.setProperty(
+					`--sidebar-${deviceType}-display`,
+					shouldShow ? "block" : "none",
+				);
+			}
+		}
+	}
+
+	if (!window[SIDEBAR_MANAGER_KEY]) {
+		window[SIDEBAR_MANAGER_KEY] = true;
+		new SidebarManager();
+	}
+})();</script>  </div> <main id="swup-container" class="transition-swup-fade overflow-hidden w-full col-span-1 row-start-1 row-end-2 md:col-start-1 md:col-end-2 lg:col-span-1 transition-main" data-astro-cid-haiuh7kc> <div id="content-wrapper" class="onload-animation transition-leaving" data-astro-cid-haiuh7kc> <div id="page-overlay-data" data-title="Triton" data-date="2026-06-17" data-category data-words="403" data-is-post="true" data-is-home="false" data-wallpaper-mode="banner" class="hidden" data-astro-cid-haiuh7kc></div>    <script type="module" src="/_astro/_...slug_.astro_astro_type_script_index_0_lang.DzjEfclF.js"></script> <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative mb-4"> <div id="post-container" class="card-base z-10 px-6 md:px-9 pt-6 pb-4 relative w-full "> <!-- word count and reading time --> <div class="flex flex-row text-black/30 dark:text-white/30 gap-5 mb-3 transition onload-animation"> <div class="flex flex-row items-center"> <div class="flex items-center">  <div class="h-6 w-6 rounded-md bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50 flex items-center justify-center mr-2"> <svg width="1em" height="1em" class="text-xl" data-icon="material-symbols:notes-rounded">   <symbol id="ai:material-symbols:notes-rounded" viewBox="0 0 24 24"><path fill="currentColor" d="M4 18q-.425 0-.712-.288T3 17t.288-.712T4 16h10q.425 0 .713.288T15 17t-.288.713T14 18zm0-5q-.425 0-.712-.288T3 12t.288-.712T4 11h16q.425 0 .713.288T21 12t-.288.713T20 13zm0-5q-.425 0-.712-.288T3 7t.288-.712T4 6h16q.425 0 .713.288T21 7t-.288.713T20 8z"/></symbol><use href="#ai:material-symbols:notes-rounded"></use>  </svg> </div>  <div class="text-sm"> 403  words </div> </div> </div> <div class="flex flex-row items-center"> <div class="flex items-center">  <div class="h-6 w-6 rounded-md bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50 flex items-center justify-center mr-2"> <svg width="1em" height="1em" class="text-xl" data-icon="material-symbols:schedule-outline-rounded">   <symbol id="ai:material-symbols:schedule-outline-rounded" viewBox="0 0 24 24"><path fill="currentColor" d="M13 11.6V8q0-.425-.288-.712T12 7t-.712.288T11 8v3.975q0 .2.075.388t.225.337l3.3 3.3q.275.275.7.275T16 16t.275-.7t-.275-.7zM12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.325 0 5.663-2.337T20 12t-2.337-5.663T12 4T6.337 6.338T4 12t2.338 5.663T12 20"/></symbol><use href="#ai:material-symbols:schedule-outline-rounded"></use>  </svg> </div>  <div class="text-sm"> 1  minute </div> </div> </div> </div> <!-- title --> <div class="relative onload-animation"> <div data-pagefind-body data-pagefind-weight="10" data-pagefind-meta="title" class="transition w-full block font-bold mb-3
+                    text-3xl md:text-[2.25rem]/[2.75rem]
+                    text-black/90 dark:text-white/90
+                    md:before:w-1 before:h-5 before:rounded-md before:bg-[var(--primary)]
+                    before:absolute before:top-[0.75rem] before:left-[-1.125rem]"> Triton </div> </div> <!-- metadata --> <div class="onload-animation"> <div class="flex flex-wrap text-neutral-500 dark:text-neutral-400 items-center gap-4 gap-x-4 gap-y-2 mb-5"> <div class="flex items-center"> <div class="meta-icon"> <svg width="1em" height="1em" class="text-xl" data-icon="material-symbols:calendar-today-outline-rounded">   <symbol id="ai:material-symbols:calendar-today-outline-rounded" viewBox="0 0 24 24"><path fill="currentColor" d="M5 22q-.825 0-1.412-.587T3 20V6q0-.825.588-1.412T5 4h1V3q0-.425.288-.712T7 2t.713.288T8 3v1h8V3q0-.425.288-.712T17 2t.713.288T18 3v1h1q.825 0 1.413.588T21 6v14q0 .825-.587 1.413T19 22zm0-2h14V10H5zM5 8h14V6H5zm0 0V6z"/></symbol><use href="#ai:material-symbols:calendar-today-outline-rounded"></use>  </svg> </div> <span class="text-50 text-sm font-medium">2026-06-17</span> </div>  <div class="flex items-center"> <div class="meta-icon"> <svg width="1em" height="1em" class="text-xl" data-icon="material-symbols:book-2-outline-rounded">   <symbol id="ai:material-symbols:book-2-outline-rounded" viewBox="0 0 24 24"><path fill="currentColor" d="M6 15.325q.35-.175.725-.25T7.5 15H8V4h-.5q-.625 0-1.062.438T6 5.5zM10 15h8V4h-8zm-4 .325V4zM7.5 22q-1.45 0-2.475-1.025T4 18.5v-13q0-1.45 1.025-2.475T7.5 2H18q.825 0 1.413.587T20 4v12.525q0 .2-.162.363t-.588.362q-.35.175-.55.5t-.2.75t.2.763t.55.487t.55.413t.2.562v.25q0 .425-.288.725T19 22zm0-2h9.325q-.15-.35-.237-.712T16.5 18.5q0-.4.075-.775t.25-.725H7.5q-.65 0-1.075.438T6 18.5q0 .65.425 1.075T7.5 20"/></symbol><use href="#ai:material-symbols:book-2-outline-rounded"></use>  </svg> </div> <div class="flex flex-row flex-nowrap items-center"> <a href="/archive/?uncategorized=true" aria-label="View all posts in the undefined category" class="link-lg transition text-50 text-sm font-medium hover:text-[var(--primary)] dark:hover:text-[var(--primary)] whitespace-nowrap"> Uncategorized </a> </div> </div>   <div class="items-center flex"> <div class="meta-icon"> <svg width="1em" height="1em" class="text-xl" data-icon="material-symbols:tag-rounded">   <symbol id="ai:material-symbols:tag-rounded" viewBox="0 0 24 24"><path fill="currentColor" d="m9 16l-.825 3.275q-.075.325-.325.525t-.6.2q-.475 0-.775-.375T6.3 18.8L7 16H4.275q-.5 0-.8-.387T3.3 14.75q.075-.35.35-.55t.625-.2H7.5l1-4H5.775q-.5 0-.8-.387T4.8 8.75q.075-.35.35-.55t.625-.2H9l.825-3.275Q9.9 4.4 10.15 4.2t.6-.2q.475 0 .775.375t.175.825L11 8h4l.825-3.275q.075-.325.325-.525t.6-.2q.475 0 .775.375t.175.825L17 8h2.725q.5 0 .8.387t.175.863q-.075.35-.35.55t-.625.2H16.5l-1 4h2.725q.5 0 .8.388t.175.862q-.075.35-.35.55t-.625.2H15l-.825 3.275q-.075.325-.325.525t-.6.2q-.475 0-.775-.375T12.3 18.8L13 16zm.5-2h4l1-4h-4z"/></symbol><use href="#ai:material-symbols:tag-rounded"></use>  </svg> </div> <div class="flex flex-row flex-nowrap items-center">  <div class="hidden mx-1.5 text-[var(--meta-divider)] text-sm">/</div> <a href="/archive/?tag=CUDA" aria-label="View all posts with the CUDA tag" class="link-lg transition text-50 text-sm font-medium
+                                        hover:text-[var(--primary)] dark:hover:text-[var(--primary)] whitespace-nowrap"> CUDA </a>  <div class="mx-1.5 text-[var(--meta-divider)] text-sm">/</div> <a href="/archive/?tag=Triton" aria-label="View all posts with the Triton tag" class="link-lg transition text-50 text-sm font-medium
+                                        hover:text-[var(--primary)] dark:hover:text-[var(--primary)] whitespace-nowrap"> Triton </a>  <div class="mx-1.5 text-[var(--meta-divider)] text-sm">/</div> <a href="/archive/?tag=Kernel" aria-label="View all posts with the Kernel tag" class="link-lg transition text-50 text-sm font-medium
+                                        hover:text-[var(--primary)] dark:hover:text-[var(--primary)] whitespace-nowrap"> Kernel </a>  <div class="mx-1.5 text-[var(--meta-divider)] text-sm">/</div> <a href="/archive/?tag=Profiling" aria-label="View all posts with the Profiling tag" class="link-lg transition text-50 text-sm font-medium
+                                        hover:text-[var(--primary)] dark:hover:text-[var(--primary)] whitespace-nowrap"> Profiling </a>   </div> </div> <div class="flex items-center umami-page-views hidden" data-id="triton-first-kernel"> <div class="meta-icon"> <svg width="1em" height="1em" class="text-xl" data-icon="material-symbols:visibility-outline-rounded">   <symbol id="ai:material-symbols:visibility-outline-rounded" viewBox="0 0 24 24"><path fill="currentColor" d="M15.188 14.688Q16.5 13.375 16.5 11.5t-1.312-3.187T12 7T8.813 8.313T7.5 11.5t1.313 3.188T12 16t3.188-1.312m-5.1-1.276Q9.3 12.625 9.3 11.5t.788-1.912T12 8.8t1.913.788t.787 1.912t-.787 1.913T12 14.2t-1.912-.787m-4.2 3.787q-2.763-1.8-4.363-4.75q-.125-.225-.187-.462t-.063-.488t.063-.488t.187-.462q1.6-2.95 4.363-4.75T12 4t6.113 1.8t4.362 4.75q.125.225.188.463t.062.487t-.062.488t-.188.462q-1.6 2.95-4.362 4.75T12 19t-6.113-1.8m11.3-1.687Q19.55 14.025 20.8 11.5q-1.25-2.525-3.613-4.012T12 6T6.813 7.488T3.2 11.5q1.25 2.525 3.613 4.013T12 17t5.188-1.487"/></symbol><use href="#ai:material-symbols:visibility-outline-rounded"></use>  </svg> </div> <span class="text-50 text-sm font-medium page-views-display">Loading stats...</span> </div>  <script>(function(){const pageViewsText = "Page views";
+const visitsText = "Visits";
+
+    function generateStatsText(pageViews, visits) {
+        return `${pageViewsText} ${pageViews} · ${visitsText} ${visits}`;
+    }
+
+    async function fetchPageViews() {
+        const container = document.querySelector('.umami-page-views');
+        
+        if (!window.oddmisc) {
+            container?.classList.add('hidden');
+            return;
+        }
+
+        const id = container?.dataset.id;
+        if (!id) {return;}
+
+        try {
+            const stats = await window.oddmisc.getStats(`/posts/${id}/`);
+            const pageViews = stats.pageviews || 0;
+            const visits = stats.visits || 0;
+
+            if (pageViews === 0 && visits === 0) {
+                container?.classList.add('hidden');
+                return;
+            }
+
+            container?.classList.remove('hidden');
+            container.querySelector('.page-views-display').textContent = generateStatsText(pageViews, visits);
+        } catch (error) {
+            console.error('Error fetching page views:', error);
+            container?.classList.add('hidden');
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fetchPageViews);
+    } else {
+        fetchPageViews();
+    }
+})();</script></div> <div class="mt-4 border-[var(--line-divider)] border-dashed border-b-[1px] mb-5"></div> </div> <!-- always show cover as long as it has one -->  <div data-pagefind-body class="prose dark:prose-invert prose-base !max-w-none custom-md mb-6 markdown-content onload-animation"> <!--<div class="prose dark:prose-invert max-w-none custom-md">--> <!--<div class="max-w-none custom-md">-->  <section><h2 id="为什么-triton-值得学">为什么 Triton 值得学<a class="anchor" href="#为什么-triton-值得学"><span class="anchor-icon" data-pagefind-ignore="">#</span></a></h2><ul>
+<li>推理引擎的性能瓶颈，经常不是“模型原理”，而是“算子实现与访存”</li>
+<li>Triton 适合用来写/改小算子（尤其是希望做 fused 的场景）</li>
+</ul></section>
+<section><h2 id="triton-编程模型速通">Triton 编程模型速通<a class="anchor" href="#triton-编程模型速通"><span class="anchor-icon" data-pagefind-ignore="">#</span></a></h2><ul>
+<li>program / program id</li>
+<li>block/tile 的思维方式</li>
+<li><code>num_warps</code> / <code>num_stages</code> 的直觉意义</li>
+</ul></section>
+<section><h2 id="选择-rmsnorm为什么它适合作为第一篇">选择 RMSNorm：为什么它适合作为第一篇<a class="anchor" href="#选择-rmsnorm为什么它适合作为第一篇"><span class="anchor-icon" data-pagefind-ignore="">#</span></a></h2><ul>
+<li>在 LLM 推理链路里出现频繁（attention/MLP 前后）</li>
+<li>典型特征：reduce + elementwise，容易被访存/并行策略影响</li>
+<li>很适合练“正确性→性能→迭代”的方法论</li>
+</ul></section>
+<section><h2 id="先把问题说清楚rmsnorm-的公式与张量形状">先把问题说清楚：RMSNorm 的公式与张量形状<a class="anchor" href="#先把问题说清楚rmsnorm-的公式与张量形状"><span class="anchor-icon" data-pagefind-ignore="">#</span></a></h2><ul>
+<li>公式：(y = x \cdot \text{rsqrt}(\text{mean}(x^2) + \epsilon) \cdot w)</li>
+<li>典型 shape：<code>[batch, seq, hidden]</code>（推理时经常被 reshape 成 2D）</li>
+</ul></section>
+<section><h2 id="实现-0最小可跑版本正确性优先">实现 0：最小可跑版本（正确性优先）<a class="anchor" href="#实现-0最小可跑版本正确性优先"><span class="anchor-icon" data-pagefind-ignore="">#</span></a></h2><ul>
+<li>grid 如何映射到 row（每个 program 处理一行 hidden）</li>
+<li>mask 与边界处理</li>
+</ul></section>
+<section><h2 id="实现-1性能第一轮迭代问题驱动">实现 1：性能第一轮迭代（问题驱动）<a class="anchor" href="#实现-1性能第一轮迭代问题驱动"><span class="anchor-icon" data-pagefind-ignore="">#</span></a></h2><ul>
+<li>访存：合并读取、减少重复读</li>
+<li>并行：block size、<code>num_warps</code> 的选择</li>
+<li>数值：epsilon 放置位置、fp16/bf16 的注意点</li>
+</ul></section>
+<section><h2 id="性能分析用数据说明为什么快慢">性能分析：用数据说明“为什么快/慢”<a class="anchor" href="#性能分析用数据说明为什么快慢"><span class="anchor-icon" data-pagefind-ignore="">#</span></a></h2><ul>
+<li>先定义指标：吞吐/延迟、带宽利用率、SM 利用率</li>
+<li>再看工具：Nsight Systems / Nsight Compute（后续可单独开工具篇）</li>
+<li>对照基线：PyTorch eager / torch.compile / 现成 fused（写清楚对比对象）</li>
+</ul></section>
+<section><h2 id="小结">小结<a class="anchor" href="#小结"><span class="anchor-icon" data-pagefind-ignore="">#</span></a></h2><ul>
+<li>你的 kernel 迭代 checklist（正确性、基线、profile、瓶颈、优化、回归）</li>
+</ul></section>  </div> <script type="module">document.addEventListener("click",function(r){const i=r.target;if(i&&i.classList.contains("copy-btn")){const s=i.parentElement?.querySelector("code");let l="";if(s){const e=s.querySelectorAll("span.line");if(e.length>0){const o=[];for(let t=0;t<e.length;t++){const c=e[t].textContent||"";o.push(c)}l=o.join(`
+`)}else{const o=s.querySelectorAll(".code:not(summary *)");if(o.length>0){const t=[];for(let n=0;n<o.length;n++){const a=o[n].textContent||"";t.push(a)}l=t.join(`
+`)}else l=s.textContent||""}}l=l.replace(/\n\n\n+/g,function(e){const t=e.length-1;let n;return t%2===0?n=t/2:n=Math.floor((t+1)/2),n<1&&(n=1),`
+`.repeat(n+1)}),(async e=>{if(!navigator.clipboard?.writeText)throw new Error("Clipboard API 不可用");await navigator.clipboard.writeText(e)})(l).then(()=>{const e=i.getAttribute("data-timeout-id");e&&clearTimeout(parseInt(e)),i.classList.add("success");const o=setTimeout(()=>{i.classList.remove("success")},1e3);i.setAttribute("data-timeout-id",o.toString())}).catch(e=>{console.error("复制失败:",e)})}});</script>  <div id="license-component" class="encrypted-hidden-wrapper"> <div class="relative transition overflow-hidden bg-[var(--license-block-bg)] py-5 px-6 mb-6 rounded-xl license-container onload-animation"> <div class="transition font-bold text-black/75 dark:text-white/75"> Triton </div> <a href="https://xystart.github.io/posts/triton-first-kernel/" class="link text-[var(--primary)]"> https://xystart.github.io/posts/triton-first-kernel/ </a> <div class="flex gap-6 mt-2"> <div> <div class="transition text-black/30 dark:text-white/30 text-sm"> Author </div> <div class="transition text-black/75 dark:text-white/75 line-clamp-2"> xystart </div> </div> <div> <div class="transition text-black/30 dark:text-white/30 text-sm"> Published at </div> <div class="transition text-black/75 dark:text-white/75 line-clamp-2"> 2026-06-17 </div> </div> <div> <div class="transition text-black/30 dark:text-white/30 text-sm"> License </div> <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" class="link text-[var(--primary)] line-clamp-2">CC BY-NC-SA 4.0</a> </div> </div> <svg width="1em" height="1em" class="transition text-[15rem] absolute pointer-events-none right-6 top-1/2 -translate-y-1/2 text-black/5 dark:text-white/5" data-icon="fa7-brands:creative-commons">   <symbol id="ai:fa7-brands:creative-commons" viewBox="0 0 640 640"><path fill="currentColor" d="m317.8 278.9l-33.2 17.3c-9.4-19.6-25.2-19.9-27.5-19.9c-22.1 0-33.2 14.6-33.2 43.8c0 23.6 9.2 43.8 33.2 43.8c14.5 0 24.6-7.1 30.6-21.3l30.6 15.5c-6.2 11.5-25.7 39-65.1 39c-22.6 0-74-10.3-74-77c0-58.7 43-77.1 72.6-77.1c30.7 0 52.7 11.9 66 35.9m143 0L428 296.2c-9.5-19.8-25.7-19.9-27.9-19.9c-22.1 0-33.2 14.6-33.2 43.8c0 23.5 9.2 43.8 33.2 43.8c14.4 0 24.6-7.1 30.5-21.3l31 15.5c-2.1 3.8-21.4 39-65.1 39c-22.7 0-74-9.9-74-77c0-58.7 43-77.1 72.6-77.1c30.7 0 52.6 11.9 65.6 35.9zM319.6 72C176.7 72 72 187.1 72 320.1c0 138.4 113.6 248 247.6 248c129.9 0 248.4-100.9 248.4-248C568 182.2 461.4 72 319.6 72m.9 450.8c-112.5 0-203.7-93-203.7-202.8c0-105.4 85.4-203.3 203.7-203.3c112.5 0 202.8 89.5 202.8 203.3c0 121.7-99.7 202.8-202.8 202.8"/></symbol><use href="#ai:fa7-brands:creative-commons"></use>  </svg> </div> </div> </div> </div>   <div id="last-modified" data-last-modified="2026-06-17T00:00:00" data-prefix="Time since last edit: " data-year="y" data-month="m" data-day="d" data-hour="h" data-minute="min" data-second="s" style="display: none;"></div><div class="card-base p-6 mb-4"><script>
+			function runtime() {
+				const lastModifiedElement =
+					document.getElementById("last-modified");
+				if (!lastModifiedElement) {
+					return;
+				}
+
+				const startDate = new Date(
+					lastModifiedElement.dataset.lastModified,
+				);
+				const currentDate = new Date();
+				const diff = currentDate - startDate;
+				const seconds = Math.floor(diff / 1000);
+				const days = Math.floor(seconds / 86400);
+				const hours = Math.floor((seconds % 86400) / 3600);
+				const minutes = Math.floor((seconds % 3600) / 60);
+				const secs = seconds % 60;
+
+				const years = Math.floor(days / 365);
+				const months = Math.floor((days % 365) / 30);
+				const remainingDays = days % 30;
+
+				const prefix = lastModifiedElement.dataset.prefix;
+				const yearKey = lastModifiedElement.dataset.year;
+				const monthKey = lastModifiedElement.dataset.month;
+				const dayKey = lastModifiedElement.dataset.day;
+				const hourKey = lastModifiedElement.dataset.hour;
+				const minuteKey = lastModifiedElement.dataset.minute;
+				const secondKey = lastModifiedElement.dataset.second;
+
+				let runtimeString = prefix + " ";
+				if (years > 0) {
+					runtimeString += `${years} ${yearKey} `;
+				}
+				if (months > 0) {
+					runtimeString += `${months} ${monthKey} `;
+				}
+				if (remainingDays > 0) {
+					runtimeString += `${remainingDays} ${dayKey} `;
+				}
+				runtimeString += `${hours} ${hourKey} `;
+				if (minutes < 10) {
+					runtimeString += `0${minutes} ${minuteKey} `;
+				} else {
+					runtimeString += `${minutes} ${minuteKey} `;
+				}
+				if (secs < 10) {
+					runtimeString += `0${secs} ${secondKey}`;
+				} else {
+					runtimeString += `${secs} ${secondKey}`;
+				}
+
+				document.getElementById("modifiedtime").innerHTML =
+					runtimeString;
+			}
+			setInterval(runtime, 1000);
+		</script><div class="flex items-center gap-3"><div class="flex items-center justify-center h-12 w-12 rounded-lg bg-[var(--enter-btn-bg)]"><svg width="1em" height="1em" class="text-3xl text-[var(--primary)]" data-icon="material-symbols:history-rounded">   <symbol id="ai:material-symbols:history-rounded" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21q-3.15 0-5.575-1.912T3.275 14.2q-.1-.375.15-.687t.675-.363q.4-.05.725.15t.45.6q.6 2.25 2.475 3.675T12 19q2.925 0 4.963-2.037T19 12t-2.037-4.962T12 5q-1.725 0-3.225.8T6.25 8H8q.425 0 .713.288T9 9t-.288.713T8 10H4q-.425 0-.712-.288T3 9V5q0-.425.288-.712T4 4t.713.288T5 5v1.35q1.275-1.6 3.113-2.475T12 3q1.875 0 3.513.713t2.85 1.924t1.925 2.85T21 12t-.712 3.513t-1.925 2.85t-2.85 1.925T12 21m1-9.4l2.5 2.5q.275.275.275.7t-.275.7t-.7.275t-.7-.275l-2.8-2.8q-.15-.15-.225-.337T11 11.975V8q0-.425.288-.712T12 7t.713.288T13 8z"/></symbol><use href="#ai:material-symbols:history-rounded"></use>  </svg></div><div class="flex flex-col gap-1"><div id="modifiedtime" class="text-[1.0rem] leading-tight text-black/75 dark:text-white/75"></div><p class="text-[0.8rem] leading-tight text-black/75 dark:text-white/75">Some information may be outdated</p></div></div></div><div class="flex flex-col mb-4 gap-4 overflow-hidden w-full md:flex-row md:justify-between"> <a href="/posts/cuda/" class="w-full font-bold overflow-hidden active:scale-95"> <div class="btn-card rounded-2xl w-full h-[3.75rem] max-w-full px-4 flex items-center !justify-start gap-4"> <svg width="1em" height="1em" class="text-[2rem] text-[var(--primary)]" data-icon="material-symbols:chevron-left-rounded">   <symbol id="ai:material-symbols:chevron-left-rounded" viewBox="0 0 24 24"><path fill="currentColor" d="m10.8 12l3.9 3.9q.275.275.275.7t-.275.7t-.7.275t-.7-.275l-4.6-4.6q-.15-.15-.212-.325T8.425 12t.063-.375t.212-.325l4.6-4.6q.275-.275.7-.275t.7.275t.275.7t-.275.7z"/></symbol><use href="#ai:material-symbols:chevron-left-rounded"></use>  </svg> <div class="overflow-hidden transition overflow-ellipsis whitespace-nowrap max-w-[calc(100%_-_3rem)] text-black/75 dark:text-white/75"> CUDA </div> </div> </a> <a href="/posts/transformer/" class="w-full font-bold overflow-hidden active:scale-95"> <div class="btn-card rounded-2xl w-full h-[3.75rem] max-w-full px-4 flex items-center !justify-end gap-4"> <div class="overflow-hidden transition overflow-ellipsis whitespace-nowrap max-w-[calc(100%_-_3rem)] text-black/75 dark:text-white/75"> Transformer </div> <svg width="1em" height="1em" viewBox="0 0 24 24" class="text-[2rem] text-[var(--primary)]" data-icon="material-symbols:chevron-right-rounded">   <use href="#ai:material-symbols:chevron-right-rounded"></use>  </svg> </div> </a> </div>  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"> <div class="card-base p-5 md:p-6 flex flex-col"> <div class="flex items-center gap-2 pb-3 mb-1 border-b border-dashed border-(--line-divider)"> <svg width="1em" height="1em" class="text-xl text-(--primary)" data-icon="material-symbols:signpost">   <symbol id="ai:material-symbols:signpost" viewBox="0 0 24 24"><path fill="currentColor" d="M11 22v-4H6l-3-3l3-3h5v-2H4V4h7V2h2v2h5l3 3l-3 3h-5v2h7v6h-7v4z"/></symbol><use href="#ai:material-symbols:signpost"></use>  </svg> <span class="text-base font-bold text-black/75 dark:text-white/75 transition"> Related Posts </span> <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-(--btn-regular-bg) text-(--btn-content) transition"> Smart </span> </div> <div class="flex flex-col -mx-1"><a href="/posts/modern-llm-architecture-evolution/" class="group flex items-center gap-3 px-3 py-3 -mx-1 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.98]"> <div class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary) flex items-center justify-center text-sm font-bold transition"> 1 </div> <div class="flex-1 min-w-0"> <div class="font-bold text-sm text-black/75 dark:text-white/75 truncate transition group-hover:text-(--primary)"> 从 Transformer 到 LLM </div> <div class="flex items-center gap-1.5 text-xs text-black/30 dark:text-white/30 transition mt-1">  <span class="truncate">从 Transformer 到现代 LLM 的演进</span> </div> </div> <svg width="1em" height="1em" viewBox="0 0 24 24" class="shrink-0 text-xl text-black/15 dark:text-white/15 transition group-hover:text-(--primary) group-hover:translate-x-0.5" data-icon="material-symbols:chevron-right-rounded">   <use href="#ai:material-symbols:chevron-right-rounded"></use>  </svg> </a><div class="border-b border-(--line-divider)" style="border-style: dashed;"></div><a href="/posts/pytorch/" class="group flex items-center gap-3 px-3 py-3 -mx-1 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.98]"> <div class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary) flex items-center justify-center text-sm font-bold transition"> 2 </div> <div class="flex-1 min-w-0"> <div class="font-bold text-sm text-black/75 dark:text-white/75 truncate transition group-hover:text-(--primary)"> Pytorch </div> <div class="flex items-center gap-1.5 text-xs text-black/30 dark:text-white/30 transition mt-1">  <span class="truncate">2026-06-17</span> </div> </div> <svg width="1em" height="1em" viewBox="0 0 24 24" class="shrink-0 text-xl text-black/15 dark:text-white/15 transition group-hover:text-(--primary) group-hover:translate-x-0.5" data-icon="material-symbols:chevron-right-rounded">   <use href="#ai:material-symbols:chevron-right-rounded"></use>  </svg> </a><div class="border-b border-(--line-divider)" style="border-style: dashed;"></div><a href="/posts/getting-started/" class="group flex items-center gap-3 px-3 py-3 -mx-1 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.98]"> <div class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary) flex items-center justify-center text-sm font-bold transition"> 3 </div> <div class="flex-1 min-w-0"> <div class="font-bold text-sm text-black/75 dark:text-white/75 truncate transition group-hover:text-(--primary)"> AI Infra 学习记录 </div> <div class="flex items-center gap-1.5 text-xs text-black/30 dark:text-white/30 transition mt-1">  <span class="truncate">这个博客会记录自己的学习过程。</span> </div> </div> <svg width="1em" height="1em" viewBox="0 0 24 24" class="shrink-0 text-xl text-black/15 dark:text-white/15 transition group-hover:text-(--primary) group-hover:translate-x-0.5" data-icon="material-symbols:chevron-right-rounded">   <use href="#ai:material-symbols:chevron-right-rounded"></use>  </svg> </a><div class="border-b border-(--line-divider)" style="border-style: dashed;"></div><a href="/posts/transformer/" class="group flex items-center gap-3 px-3 py-3 -mx-1 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.98]"> <div class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary) flex items-center justify-center text-sm font-bold transition"> 4 </div> <div class="flex-1 min-w-0"> <div class="font-bold text-sm text-black/75 dark:text-white/75 truncate transition group-hover:text-(--primary)"> Transformer </div> <div class="flex items-center gap-1.5 text-xs text-black/30 dark:text-white/30 transition mt-1">  <span class="truncate">从 RNN/Seq2Seq/Attention 的演进切入，系统梳理 Transformer 的核心结构。</span> </div> </div> <svg width="1em" height="1em" viewBox="0 0 24 24" class="shrink-0 text-xl text-black/15 dark:text-white/15 transition group-hover:text-(--primary) group-hover:translate-x-0.5" data-icon="material-symbols:chevron-right-rounded">   <use href="#ai:material-symbols:chevron-right-rounded"></use>  </svg> </a><div class="border-b border-(--line-divider)" style="border-style: dashed;"></div><a href="/posts/cuda/" class="group flex items-center gap-3 px-3 py-3 -mx-1 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.98]"> <div class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary) flex items-center justify-center text-sm font-bold transition"> 5 </div> <div class="flex-1 min-w-0"> <div class="font-bold text-sm text-black/75 dark:text-white/75 truncate transition group-hover:text-(--primary)"> CUDA </div> <div class="flex items-center gap-1.5 text-xs text-black/30 dark:text-white/30 transition mt-1">  <span class="truncate">2026-05-01</span> </div> </div> <svg width="1em" height="1em" viewBox="0 0 24 24" class="shrink-0 text-xl text-black/15 dark:text-white/15 transition group-hover:text-(--primary) group-hover:translate-x-0.5" data-icon="material-symbols:chevron-right-rounded">   <use href="#ai:material-symbols:chevron-right-rounded"></use>  </svg> </a></div> </div> <div class="card-base p-5 md:p-6 flex flex-col"> <div class="flex items-center gap-2 pb-3 mb-1 border-b border-dashed border-(--line-divider)"> <svg width="1em" height="1em" class="text-xl text-(--primary)" data-icon="material-symbols:recommend">   <symbol id="ai:material-symbols:recommend" viewBox="0 0 24 24"><path fill="currentColor" d="M9 18h5.5q.425 0 .788-.213t.512-.587l2.1-4.9q.05-.125.075-.25T18 11.8V11q0-.425-.288-.713T17 10h-4.6l.6-3.4q.05-.25-.025-.475t-.25-.4L12 5l-4.6 5q-.2.2-.3.45T7 11v5q0 .825.588 1.413T9 18m3 4q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"/></symbol><use href="#ai:material-symbols:recommend"></use>  </svg> <span class="text-base font-bold text-black/75 dark:text-white/75 transition"> Random Posts </span> <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-(--btn-regular-bg) text-(--btn-content) transition"> Random </span> </div> <div class="flex flex-col -mx-1">  <a href="/posts/getting-started/" class="group flex items-center gap-3 px-3 py-3 -mx-1 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.98]"> <div class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary) flex items-center justify-center text-sm font-bold transition"> 1 </div> <div class="flex-1 min-w-0"> <div class="font-bold text-sm text-black/75 dark:text-white/75 truncate transition group-hover:text-(--primary)"> AI Infra 学习记录 </div> <div class="flex items-center gap-1.5 text-xs text-black/30 dark:text-white/30 transition mt-1">  <span class="truncate">2026-06-16</span> </div> </div> <svg width="1em" height="1em" viewBox="0 0 24 24" class="shrink-0 text-xl text-black/15 dark:text-white/15 transition group-hover:text-(--primary) group-hover:translate-x-0.5" data-icon="material-symbols:chevron-right-rounded">   <use href="#ai:material-symbols:chevron-right-rounded"></use>  </svg> </a> <div class="border-b border-(--line-divider)" style="border-style: dashed;"></div> <a href="/posts/modern-llm-architecture-evolution/" class="group flex items-center gap-3 px-3 py-3 -mx-1 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.98]"> <div class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary) flex items-center justify-center text-sm font-bold transition"> 2 </div> <div class="flex-1 min-w-0"> <div class="font-bold text-sm text-black/75 dark:text-white/75 truncate transition group-hover:text-(--primary)"> 从 Transformer 到 LLM </div> <div class="flex items-center gap-1.5 text-xs text-black/30 dark:text-white/30 transition mt-1">  <span class="truncate">2026-06-17</span> </div> </div> <svg width="1em" height="1em" viewBox="0 0 24 24" class="shrink-0 text-xl text-black/15 dark:text-white/15 transition group-hover:text-(--primary) group-hover:translate-x-0.5" data-icon="material-symbols:chevron-right-rounded">   <use href="#ai:material-symbols:chevron-right-rounded"></use>  </svg> </a> <div class="border-b border-(--line-divider)" style="border-style: dashed;"></div> <a href="/posts/transformer/" class="group flex items-center gap-3 px-3 py-3 -mx-1 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.98]"> <div class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary) flex items-center justify-center text-sm font-bold transition"> 3 </div> <div class="flex-1 min-w-0"> <div class="font-bold text-sm text-black/75 dark:text-white/75 truncate transition group-hover:text-(--primary)"> Transformer </div> <div class="flex items-center gap-1.5 text-xs text-black/30 dark:text-white/30 transition mt-1">  <span class="truncate">2026-05-02</span> </div> </div> <svg width="1em" height="1em" viewBox="0 0 24 24" class="shrink-0 text-xl text-black/15 dark:text-white/15 transition group-hover:text-(--primary) group-hover:translate-x-0.5" data-icon="material-symbols:chevron-right-rounded">   <use href="#ai:material-symbols:chevron-right-rounded"></use>  </svg> </a> <div class="border-b border-(--line-divider)" style="border-style: dashed;"></div> <a href="/posts/cuda/" class="group flex items-center gap-3 px-3 py-3 -mx-1 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.98]"> <div class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary) flex items-center justify-center text-sm font-bold transition"> 4 </div> <div class="flex-1 min-w-0"> <div class="font-bold text-sm text-black/75 dark:text-white/75 truncate transition group-hover:text-(--primary)"> CUDA </div> <div class="flex items-center gap-1.5 text-xs text-black/30 dark:text-white/30 transition mt-1">  <span class="truncate">2026-05-01</span> </div> </div> <svg width="1em" height="1em" viewBox="0 0 24 24" class="shrink-0 text-xl text-black/15 dark:text-white/15 transition group-hover:text-(--primary) group-hover:translate-x-0.5" data-icon="material-symbols:chevron-right-rounded">   <use href="#ai:material-symbols:chevron-right-rounded"></use>  </svg> </a> <div class="border-b border-(--line-divider)" style="border-style: dashed;"></div> <a href="/posts/pytorch/" class="group flex items-center gap-3 px-3 py-3 -mx-1 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.98]"> <div class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary) flex items-center justify-center text-sm font-bold transition"> 5 </div> <div class="flex-1 min-w-0"> <div class="font-bold text-sm text-black/75 dark:text-white/75 truncate transition group-hover:text-(--primary)"> Pytorch </div> <div class="flex items-center gap-1.5 text-xs text-black/30 dark:text-white/30 transition mt-1">  <span class="truncate">2026-06-17</span> </div> </div> <svg width="1em" height="1em" viewBox="0 0 24 24" class="shrink-0 text-xl text-black/15 dark:text-white/15 transition group-hover:text-(--primary) group-hover:translate-x-0.5" data-icon="material-symbols:chevron-right-rounded">   <use href="#ai:material-symbols:chevron-right-rounded"></use>  </svg> </a>  </div> </div> </div> <div class="footer col-span-full onload-animation hidden lg:block" data-astro-cid-haiuh7kc> <!--<div class="border-t border-[var(--primary)] mx-16 border-dashed py-8 max-w-[var(--page-width)] flex flex-col items-center justify-center px-6">--><div class="transition border-t border-black/10 dark:border-white/15 my-10 border-dashed mx-32"></div> <!--<div class="transition bg-[oklch(92%_0.01_var(--hue))] dark:bg-black rounded-2xl py-8 mt-4 mb-8 flex flex-col items-center justify-center px-6">--> <div class="transition border-dashed border-[oklch(85%_0.01_var(--hue))] dark:border-white/15 rounded-2xl mb-12 flex flex-col items-center justify-center px-6"> <div class="transition text-50 text-sm text-center">  <div class="mb-2">
+&copy; <span id="copyright-year">2026</span> xystart. All Rights Reserved. /
+<a class="transition link text-[var(--primary)] font-medium" href="/rss/" onclick="event.preventDefault(); navigateToPage('/rss/')">RSS</a> /
+<a class="transition link text-[var(--primary)] font-medium" href="/atom/" onclick="event.preventDefault(); navigateToPage('/atom/')">Atom</a> /
+<a class="transition link text-[var(--primary)] font-medium" target="_blank" href="/sitemap-index.xml">Sitemap</a> </div> <div>
+Powered by
+<a class="transition link text-[var(--primary)] font-medium" target="_blank" href="https://astro.build">Astro</a> &
+<a class="transition link text-[var(--primary)] font-medium" target="_blank" href="https://github.com/LyraVoid/Mizuki">Mizuki</a>&nbsp; Version <a class="transition link text-[var(--primary)] font-medium" target="_blank" href="https://github.com/LyraVoid/Mizuki">9.0</a> </div> </div> </div> </div> </div> </main> <div class="footer col-span-full onload-animation block lg:hidden" data-astro-cid-haiuh7kc> <!--<div class="border-t border-[var(--primary)] mx-16 border-dashed py-8 max-w-[var(--page-width)] flex flex-col items-center justify-center px-6">--><div class="transition border-t border-black/10 dark:border-white/15 my-10 border-dashed mx-32"></div> <!--<div class="transition bg-[oklch(92%_0.01_var(--hue))] dark:bg-black rounded-2xl py-8 mt-4 mb-8 flex flex-col items-center justify-center px-6">--> <div class="transition border-dashed border-[oklch(85%_0.01_var(--hue))] dark:border-white/15 rounded-2xl mb-12 flex flex-col items-center justify-center px-6"> <div class="transition text-50 text-sm text-center">  <div class="mb-2">
+&copy; <span id="copyright-year">2026</span> xystart. All Rights Reserved. /
+<a class="transition link text-[var(--primary)] font-medium" href="/rss/" onclick="event.preventDefault(); navigateToPage('/rss/')">RSS</a> /
+<a class="transition link text-[var(--primary)] font-medium" href="/atom/" onclick="event.preventDefault(); navigateToPage('/atom/')">Atom</a> /
+<a class="transition link text-[var(--primary)] font-medium" target="_blank" href="/sitemap-index.xml">Sitemap</a> </div> <div>
+Powered by
+<a class="transition link text-[var(--primary)] font-medium" target="_blank" href="https://astro.build">Astro</a> &
+<a class="transition link text-[var(--primary)] font-medium" target="_blank" href="https://github.com/LyraVoid/Mizuki">Mizuki</a>&nbsp; Version <a class="transition link text-[var(--primary)] font-medium" target="_blank" href="https://github.com/LyraVoid/Mizuki">9.0</a> </div> </div> </div> </div> </div> <div class="floating-controls-container" data-astro-cid-l4lcuy54> <div class="floating-control-item" data-control-key="music" data-astro-cid-l4lcuy54> <script>(()=>{var l=(n,t)=>{let i=async()=>{await(await n())()},e=typeof t.value=="object"?t.value:void 0,s={timeout:e==null?void 0:e.timeout};"requestIdleCallback"in window?window.requestIdleCallback(i,s):setTimeout(i,s.timeout||200)};(self.Astro||(self.Astro={})).idle=l;window.dispatchEvent(new Event("astro:idle"));})();</script><astro-island uid="2jnjlm" component-url="/_astro/MusicFabButton.B6yCo9e6.js" component-export="default" renderer-url="/_astro/client.svelte.Cx-aCQri.js" props="{&quot;data-astro-cid-l4lcuy54&quot;:[0,true]}" ssr client="idle" opts="{&quot;name&quot;:&quot;MusicFabButton&quot;,&quot;value&quot;:true}" await-children><!--[--><button type="button" class="music-fab btn-card svelte-xtsc8q" aria-label="打开音乐控制中心：Sample Song" title="打开音乐控制中心：Sample Song"><span class="music-fab__icon svelte-xtsc8q" aria-hidden="true"><!--[-1--><!--]--><!----></span> <!--[-1--><!--]--></button><!--]--><!--astro:end--></astro-island> </div> <div class="floating-control-item" data-control-key="toc" data-astro-cid-l4lcuy54> <div class="floating-toc-wrapper" data-depth="2" data-japanese-badge="true" data-astro-cid-nqzesjzf> <div id="floating-toc-btn" class="floating-btn hide btn-card flex items-center rounded-2xl overflow-hidden transition" onclick="window.toggleFloatingTOC()" data-astro-cid-eoir7dmc> <button aria-label="Table of Contents" class="h-full w-full rounded-2xl" data-astro-cid-eoir7dmc> <svg width="1em" height="1em" class="mx-auto" data-astro-cid-eoir7dmc="true" data-icon="material-symbols:format-list-bulleted-rounded">   <symbol id="ai:material-symbols:format-list-bulleted-rounded" viewBox="0 0 24 24"><path fill="currentColor" d="M10 19q-.425 0-.712-.288T9 18t.288-.712T10 17h10q.425 0 .713.288T21 18t-.288.713T20 19zm0-6q-.425 0-.712-.288T9 12t.288-.712T10 11h10q.425 0 .713.288T21 12t-.288.713T20 13zm0-6q-.425 0-.712-.288T9 6t.288-.712T10 5h10q.425 0 .713.288T21 6t-.288.713T20 7zM5 20q-.825 0-1.412-.587T3 18t.588-1.412T5 16t1.413.588T7 18t-.587 1.413T5 20m0-6q-.825 0-1.412-.587T3 12t.588-1.412T5 10t1.413.588T7 12t-.587 1.413T5 14M3.588 7.413Q3 6.825 3 6t.588-1.412T5 4t1.413.588T7 6t-.587 1.413T5 8t-1.412-.587"/></symbol><use href="#ai:material-symbols:format-list-bulleted-rounded"></use>  </svg> </button> </div> <div id="floating-toc-panel" class="floating-toc-panel" data-astro-cid-nqzesjzf> <div class="floating-toc-header" data-astro-cid-nqzesjzf> <h3 class="text-lg font-bold text-(--primary)" data-astro-cid-nqzesjzf> Table of Contents </h3> <button onclick="window.toggleFloatingTOC()" aria-label="Close TOC" class="btn-plain rounded-lg h-8 w-8 active:scale-90" data-astro-cid-nqzesjzf> <svg width="1em" height="1em" class="text-lg" data-astro-cid-nqzesjzf="true" data-icon="material-symbols:close">   <symbol id="ai:material-symbols:close" viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6z"/></symbol><use href="#ai:material-symbols:close"></use>  </svg> </button> </div> <div class="floating-toc-panel-content" id="floating-toc-content" data-astro-cid-nqzesjzf></div> </div> </div>  <script type="module" src="/_astro/FloatingTOC.astro_astro_type_script_index_0_lang.B-TDumfD.js"></script> </div> <div class="floating-control-item" data-control-key="home" data-astro-cid-l4lcuy54> <div id="back-to-home-btn" class="floating-btn hide btn-card flex items-center rounded-2xl overflow-hidden transition" onclick="backToHome()" data-astro-cid-eoir7dmc> <button aria-label="Home" class="h-full w-full rounded-2xl" data-astro-cid-eoir7dmc> <svg width="1em" height="1em" class="mx-auto" data-astro-cid-eoir7dmc="true" data-icon="material-symbols:home-outline-rounded">   <symbol id="ai:material-symbols:home-outline-rounded" viewBox="0 0 24 24"><path fill="currentColor" d="M6 19h3v-5q0-.425.288-.712T10 13h4q.425 0 .713.288T15 14v5h3v-9l-6-4.5L6 10zm-2 0v-9q0-.475.213-.9t.587-.7l6-4.5q.525-.4 1.2-.4t1.2.4l6 4.5q.375.275.588.7T20 10v9q0 .825-.588 1.413T18 21h-4q-.425 0-.712-.288T13 20v-5h-2v5q0 .425-.288.713T10 21H6q-.825 0-1.412-.587T4 19m8-6.75"/></symbol><use href="#ai:material-symbols:home-outline-rounded"></use>  </svg> </button> </div> <script>(function(){const homeUrl = "/";
+
+	window.backToHome = function () {
+		if (window.swup) {
+			window.swup.navigate(homeUrl);
+		} else {
+			window.location.href = homeUrl;
+		}
+	};
+})();</script> <script>(function(){const homeUrl = "/";
+
+	function updateBackToHomeVisibility() {
+		const btn = document.getElementById("back-to-home-btn");
+		if (!btn) {
+			return;
+		}
+
+		const path = window.location.pathname.replace(/\/$/, "") || "/";
+		const homePath = homeUrl.replace(/\/$/, "") || "/";
+		if (path === homePath) {
+			btn.classList.add("hide");
+		} else {
+			btn.classList.remove("hide");
+		}
+	}
+
+	updateBackToHomeVisibility();
+
+	document.addEventListener("astro:page-load", updateBackToHomeVisibility);
+	document.addEventListener(
+		"swup:contentReplaced",
+		updateBackToHomeVisibility,
+	);
+})();</script> </div> <div class="floating-control-item" data-control-key="top" data-astro-cid-l4lcuy54> <div id="back-to-top-btn" class="floating-btn hide btn-card flex items-center rounded-2xl overflow-hidden transition" onclick="backToTop()" data-astro-cid-eoir7dmc> <button aria-label="Back to Top" class="h-full w-full rounded-2xl" data-astro-cid-eoir7dmc> <svg width="1em" height="1em" class="mx-auto" data-astro-cid-eoir7dmc="true" data-icon="material-symbols:keyboard-arrow-up-rounded">   <symbol id="ai:material-symbols:keyboard-arrow-up-rounded" viewBox="0 0 24 24"><path fill="currentColor" d="m12 10.8l-3.9 3.9q-.275.275-.7.275t-.7-.275t-.275-.7t.275-.7l4.6-4.6q.3-.3.7-.3t.7.3l4.6 4.6q.275.275.275.7t-.275.7t-.7.275t-.7-.275z"/></symbol><use href="#ai:material-symbols:keyboard-arrow-up-rounded"></use>  </svg> </button> </div> <script>
+	function backToTop() {
+		window.scroll({ top: 0, behavior: "smooth" });
+	}
+</script> </div> </div>  <script>
+	(() => {
+		if (!window.__floatingControlObservers) {
+			window.__floatingControlObservers = new Map();
+		}
+
+		if (!window.__floatingControlState) {
+			window.__floatingControlState = {
+				isMusicPanelExpanded: false,
+				visibilityUpdateScheduled: false,
+				mermaidRendering: false,
+				mermaidRenderTimer: null,
+				listenersRegistered: false,
+			};
+		}
+
+		const state = window.__floatingControlState;
+		const controlButtonIds = [
+			"floating-toc-btn",
+			"back-to-home-btn",
+			"back-to-top-btn",
+		];
+
+		function isButtonVisible(id) {
+			const element = document.getElementById(id);
+			return Boolean(element && !element.classList.contains("hide"));
+		}
+
+		function updateFloatingControlVisibility() {
+			if (state.isMusicPanelExpanded) {
+				return;
+			}
+
+			const items = document.querySelectorAll(
+				".floating-control-item[data-control-key]",
+			);
+			let hasVisibleItem = false;
+			let visibleCount = 0;
+
+			for (const item of items) {
+				const key = item.getAttribute("data-control-key");
+				let visible = true;
+
+				if (key === "toc") {
+					visible = isButtonVisible("floating-toc-btn");
+				} else if (key === "home") {
+					visible = isButtonVisible("back-to-home-btn");
+				} else if (key === "top") {
+					visible = isButtonVisible("back-to-top-btn");
+				}
+
+				item.classList.toggle("is-collapsed", !visible);
+				item.classList.toggle("is-stacked", visible && hasVisibleItem);
+
+				if (visible) {
+					hasVisibleItem = true;
+					visibleCount += 1;
+				}
+			}
+
+			document.documentElement.style.setProperty(
+				"--fab-visible-count",
+				String(Math.max(visibleCount, 1)),
+			);
+		}
+
+		function observeFloatingControlButton(id) {
+			const target = document.getElementById(id);
+			if (!target) {
+				return;
+			}
+
+			const existing = window.__floatingControlObservers.get(id);
+			if (existing) {
+				existing.disconnect();
+			}
+
+			const observer = new MutationObserver(() => {
+				scheduleVisibilityUpdate();
+			});
+
+			observer.observe(target, {
+				attributes: true,
+				attributeFilter: ["class"],
+			});
+
+			window.__floatingControlObservers.set(id, observer);
+		}
+
+		function initFloatingControlVisibility() {
+			updateFloatingControlVisibility();
+			observeFloatingControlButton("floating-toc-btn");
+			observeFloatingControlButton("back-to-home-btn");
+			observeFloatingControlButton("back-to-top-btn");
+		}
+
+		function lockFloatingControlVisibility() {
+			document.documentElement.classList.add("fab-visibility-locked");
+
+			const items = document.querySelectorAll(
+				".floating-control-item[data-control-key]",
+			);
+			for (const item of items) {
+				const key = item.getAttribute("data-control-key");
+				const id =
+					key === "toc"
+						? "floating-toc-btn"
+						: key === "home"
+							? "back-to-home-btn"
+							: key === "top"
+								? "back-to-top-btn"
+								: null;
+
+				if (!id) {
+					continue;
+				}
+
+				const button = document.getElementById(id);
+				const isVisible = Boolean(
+					button && !button.classList.contains("hide"),
+				);
+				item.classList.toggle("fab-lock-collapsed", !isVisible);
+			}
+
+			for (const id of controlButtonIds) {
+				const button = document.getElementById(id);
+				if (!button) {
+					continue;
+				}
+
+				const isVisible = !button.classList.contains("hide");
+				button.classList.toggle("fab-lock-visible", isVisible);
+			}
+		}
+
+		function unlockFloatingControlVisibility() {
+			document.documentElement.classList.remove("fab-visibility-locked");
+
+			const items = document.querySelectorAll(
+				".floating-control-item[data-control-key]",
+			);
+			for (const item of items) {
+				item.classList.remove("fab-lock-collapsed");
+			}
+
+			for (const id of controlButtonIds) {
+				const button = document.getElementById(id);
+				button?.classList.remove("fab-lock-visible");
+			}
+		}
+
+		function handleMusicPanelState(event) {
+			const expanded = Boolean(event?.detail?.isExpanded);
+			if (expanded === state.isMusicPanelExpanded) {
+				return;
+			}
+
+			state.isMusicPanelExpanded = expanded;
+			if (state.isMusicPanelExpanded) {
+				lockFloatingControlVisibility();
+			} else {
+				unlockFloatingControlVisibility();
+				updateFloatingControlVisibility();
+			}
+		}
+
+		function handleMermaidRenderStart() {
+			state.mermaidRendering = true;
+		}
+
+		function handleMermaidRenderDone() {
+			clearTimeout(state.mermaidRenderTimer);
+			state.mermaidRenderTimer = setTimeout(() => {
+				state.mermaidRendering = false;
+				updateFloatingControlVisibility();
+			}, 120);
+		}
+
+		if (!state.listenersRegistered) {
+			document.addEventListener(
+				"DOMContentLoaded",
+				initFloatingControlVisibility,
+			);
+			document.addEventListener(
+				"astro:page-load",
+				initFloatingControlVisibility,
+			);
+			window.addEventListener(
+				"music-sidebar:state",
+				handleMusicPanelState,
+			);
+			window.addEventListener(
+				"mermaid:render:start",
+				handleMermaidRenderStart,
+			);
+			window.addEventListener(
+				"mermaid:render:done",
+				handleMermaidRenderDone,
+			);
+			state.listenersRegistered = true;
+		}
+
+		initFloatingControlVisibility();
+
+		function scheduleVisibilityUpdate() {
+			if (state.visibilityUpdateScheduled || state.mermaidRendering) {
+				return;
+			}
+			state.visibilityUpdateScheduled = true;
+			requestAnimationFrame(() => {
+				state.visibilityUpdateScheduled = false;
+				if (!state.mermaidRendering) {
+					updateFloatingControlVisibility();
+				}
+			});
+		}
+	})();
+</script> </div> </div>   <div class="absolute w-full z-0 hidden 2xl:block" data-astro-cid-haiuh7kc> <div class="relative max-w-(--page-width) mx-auto" data-astro-cid-haiuh7kc> <div id="toc-wrapper" class="hidden lg:block transition absolute top-0 w-(--toc-width) items-center -right-(--toc-width) toc-hide" data-astro-cid-haiuh7kc> <div id="toc-inner-wrapper" class="fixed top-14 w-(--toc-width) h-[calc(100vh-6rem)] max-h-[calc(100vh-6rem)] overflow-x-hidden overflow-y-auto" data-astro-cid-haiuh7kc> <div id="toc-container" class="w-full h-full transition-swup-fade" data-astro-cid-haiuh7kc> <table-of-contents id="toc" data-astro-cid-wnozmdto="true" class="group"></table-of-contents> <script type="module" src="/_astro/SidebarTOC.astro_astro_type_script_index_0_lang.FfS9vcvU.js"></script> </div> </div> </div> </div> </div>  <!-- Music Player - 核心始终加载（当enable=true），UI通过showFloatingPlayer控制 --> <astro-island uid="Z2mX62M" component-url="/_astro/MusicPlayer.BUQfDrQ7.js" component-export="default" renderer-url="/_astro/client.svelte.Cx-aCQri.js" props="{&quot;data-astro-cid-sckkx6r4&quot;:[0,true]}" ssr client="idle" opts="{&quot;name&quot;:&quot;MusicPlayer&quot;,&quot;value&quot;:true}" await-children><!--[--><!--[0--><!--[-1--><!--]--> <!--[0--><!--[-1--><!--]--><!--]--> <style>
+		.music-player-fab-anchor {
+			right: var(--fab-group-right, 1.5rem);
+			bottom: calc(
+				var(--fab-group-bottom, 10rem) +
+					(
+						var(--fab-button-size, 3rem) *
+							var(--fab-visible-count, 1)
+					) +
+					(
+						var(--fab-group-gap, 0.5rem) *
+							(var(--fab-visible-count, 1) - 1)
+					)
+			);
+			width: 0;
+			height: 0;
+			pointer-events: none;
+		}
+
+		.music-player-fab-shell {
+			position: absolute;
+			right: 0;
+			bottom: 0.75rem;
+			transform-origin: bottom right;
+			pointer-events: auto;
+			will-change: transform, opacity;
+		}
+
+		.orb-player-container {
+			position: absolute;
+			bottom: 0;
+			right: 0;
+		}
+
+		.orb-enter {
+			animation: orbElasticIn 460ms cubic-bezier(0.22, 1.25, 0.36, 1)
+				forwards;
+		}
+
+		.orb-leave {
+			animation: orbElasticOut 360ms cubic-bezier(0.4, 0, 1, 1) forwards;
+		}
+
+		@keyframes orbElasticIn {
+			0% {
+				opacity: 0;
+				transform: translateX(0) scale(0.55);
+			}
+			70% {
+				opacity: 1;
+				transform: translateX(0) scale(1.12);
+			}
+			100% {
+				opacity: 1;
+				transform: translateX(0) scale(1);
+			}
+		}
+
+		@keyframes orbElasticOut {
+			0% {
+				opacity: 1;
+				transform: translateX(0) scale(1);
+			}
+			100% {
+				opacity: 0;
+				transform: translateX(0) scale(0.6);
+			}
+		}
+
+		.music-player.hidden-mode {
+			width: 3rem;
+			height: 3rem;
+		}
+
+		.music-player {
+			width: 20rem;
+			max-width: 20rem;
+			min-width: 20rem;
+			user-select: none;
+		}
+
+		:global(.mini-player) {
+			position: absolute;
+			bottom: 0;
+			right: 0;
+		}
+
+		:global(.expanded-player) {
+			position: absolute;
+			bottom: 0;
+			right: 0;
+		}
+
+		:global(.orb-player) {
+			position: relative;
+			backdrop-filter: blur(10px);
+			-webkit-backdrop-filter: blur(10px);
+		}
+
+		:global(.orb-player::before) {
+			content: "";
+			position: absolute;
+			inset: -0.125rem;
+			background: linear-gradient(
+				45deg,
+				var(--primary),
+				transparent,
+				var(--primary)
+			);
+			border-radius: 50%;
+			z-index: -1;
+			opacity: 0;
+			transition: opacity 0.3s ease;
+		}
+
+		:global(.orb-player:hover::before) {
+			opacity: 0.3;
+			animation: rotate 2s linear infinite;
+		}
+
+		:global(.orb-player .animate-pulse) {
+			animation: musicWave 1.5s ease-in-out infinite;
+		}
+
+		@keyframes rotate {
+			from {
+				transform: rotate(0deg);
+			}
+			to {
+				transform: rotate(360deg);
+			}
+		}
+
+		@keyframes musicWave {
+			0%,
+			100% {
+				transform: scaleY(0.5);
+			}
+			50% {
+				transform: scaleY(1);
+			}
+		}
+
+		:global(.animate-pulse) {
+			animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+		}
+
+		@keyframes pulse {
+			0%,
+			100% {
+				opacity: 1;
+			}
+			50% {
+				opacity: 0.5;
+			}
+		}
+
+		:global(.progress-section div:hover),
+		:global(.bottom-controls > div:hover) {
+			transform: scaleY(1.2);
+			transition: transform 0.2s ease;
+		}
+
+		@media (max-width: 768px) {
+			.music-player-fab-anchor {
+				right: var(--fab-group-right, 0.75rem) !important;
+				bottom: calc(
+					var(--fab-group-bottom, 5rem) +
+						(
+							var(--fab-button-size, 2.75rem) *
+								var(--fab-visible-count, 1)
+						) +
+						(
+							var(--fab-group-gap, 0.5rem) *
+								(var(--fab-visible-count, 1) - 1)
+						)
+				) !important;
+			}
+
+			.music-player-fab-shell {
+				right: 0 !important;
+				bottom: 0.75rem !important;
+			}
+
+			.music-player {
+				width: 280px !important;
+				min-width: 280px !important;
+				max-width: 280px !important;
+				bottom: 0.5rem !important;
+				right: 0.5rem !important;
+			}
+			:global(.mini-player) {
+				width: 280px !important;
+			}
+			:global(.expanded-player) {
+				width: 280px !important;
+				max-width: 280px !important;
+			}
+			.music-player.expanded {
+				width: 280px !important;
+				min-width: 280px !important;
+				max-width: 280px !important;
+				right: 0.5rem !important;
+			}
+			:global(.playlist-panel) {
+				width: 280px !important;
+				right: 0.5rem !important;
+				max-width: 280px !important;
+			}
+			:global(.controls) {
+				gap: 8px;
+			}
+			:global(.controls button) {
+				width: 36px;
+				height: 36px;
+			}
+			:global(.controls button:nth-child(3)) {
+				width: 44px;
+				height: 44px;
+			}
+		}
+
+		@media (max-width: 480px) {
+			.music-player-fab-anchor {
+				right: var(--fab-group-right, 0.5rem) !important;
+				bottom: calc(
+					var(--fab-group-bottom, 4.5rem) +
+						(
+							var(--fab-button-size, 2.5rem) *
+								var(--fab-visible-count, 1)
+						) +
+						(
+							var(--fab-group-gap, 0.5rem) *
+								(var(--fab-visible-count, 1) - 1)
+						)
+				) !important;
+			}
+
+			.music-player-fab-shell {
+				right: 0 !important;
+				bottom: 0.75rem !important;
+			}
+
+			.music-player {
+				width: 260px !important;
+				min-width: 260px !important;
+				max-width: 260px !important;
+			}
+			:global(.expanded-player) {
+				width: 260px !important;
+				max-width: 260px !important;
+			}
+			:global(.playlist-panel) {
+				width: 260px !important;
+				max-width: 260px !important;
+				right: 0.5rem !important;
+			}
+			:global(.song-title) {
+				font-size: 14px;
+			}
+			:global(.song-artist) {
+				font-size: 12px;
+			}
+			:global(.controls) {
+				gap: 6px;
+				margin-bottom: 12px;
+			}
+			:global(.controls button) {
+				width: 32px;
+				height: 32px;
+			}
+			:global(.controls button:nth-child(3)) {
+				width: 40px;
+				height: 40px;
+			}
+			:global(.playlist-item) {
+				padding: 8px 12px;
+			}
+			:global(.playlist-item .w-10) {
+				width: 32px;
+				height: 32px;
+			}
+		}
+
+		@keyframes slide-up {
+			from {
+				transform: translateY(100%);
+				opacity: 0;
+			}
+			to {
+				transform: translateY(0);
+				opacity: 1;
+			}
+		}
+
+		.animate-slide-up {
+			animation: slide-up 0.3s ease-out;
+		}
+
+		@media (hover: none) and (pointer: coarse) {
+			:global(.music-player button),
+			:global(.playlist-item) {
+				min-height: 44px;
+			}
+			:global(.progress-section > div),
+			:global(.bottom-controls > div:nth-child(2)) {
+				height: 12px;
+			}
+		}
+
+		@keyframes spin-continuous {
+			from {
+				transform: rotate(0deg);
+			}
+			to {
+				transform: rotate(360deg);
+			}
+		}
+
+		:global(.cover-container img) {
+			animation: spin-continuous 3s linear infinite;
+			animation-play-state: paused;
+		}
+
+		:global(.cover-container img.spinning) {
+			animation-play-state: running;
+		}
+
+		:global(button.bg-\\[var\\(--primary\\)\\]) {
+			box-shadow: 0 0 0 2px var(--primary);
+			border: none;
+		}
+	</style><!--]--><!--]--><!--astro:end--></astro-island> <!-- Pio 看板娘组件 - 仅在进入视口时加载 -->  <!-- increase the page height during page transition to prevent the scrolling animation from jumping --> <div id="page-height-extend" class="hidden h-[300vh]" data-astro-cid-sckkx6r4 style="--configHue: 240;--page-width: 90rem;--bannerOffset: 15vh;--banner-height-home: 65vh;--banner-height: 35vh;"></div>  <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.DwfyrwIU.js"></script> <!-- 代码块折叠功能 --> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_1_lang.DGJQrGZe.js"></script> <!-- 主题切换综合性能优化器（包含代码块优化、重型元素优化、性能诊断） --> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_2_lang._R4ib5TO.js"></script></body></html> <!--
+  Banner 和网格布局样式已提取到 src/styles/banner.css
+  该文件通过 src/styles/main.css 导入
+-->
