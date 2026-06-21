@@ -1133,12 +1133,23 @@ dim3 block(8, 8, 4);   // 每个 Block 8x8x4 = 256 个线程
 > - ❌ 错误示范：如果你写 `dim3 block(16, 16, 16);`（总数 4096），程序在跑起来的瞬间就会原地崩溃。
 >     
 
-> [!warning] 🟡 铁律二：Block 的 Z 轴大小特殊限制
+<!-- > [!warning] 🟡 铁律二：Block 的 Z 轴大小特殊限制
 > 
 > 英伟达规定，Block 的 `.x` 和 `.y` 轴最大可以设到 1024，但 **`.z` 轴最大只能设到 64**。
 > 
 > - 观察你的 3D 例子：`.z = 4`。完全合法！
->
+> -->
+
+<div class="my-4 border-l-4 border-amber-500 bg-amber-500/10 p-4 rounded-r">
+    <strong class="text-amber-500 block mb-1">⚠️ 铁律二：Block 的 Z 轴大小特殊限制</strong>
+    <p class="text-sm opacity-80 m-0">
+        英伟达规定，Block 的 <code>.x</code> 和 <code>.y</code> 轴最大可以设到 1024，但 <strong class="text-amber-500">.z 轴最大只能设到 64</strong>。
+    </p>
+    <ul class="text-sm opacity-80 mt-2 list-none p-0">
+        <li>- 观察你的 3D 例子：<code>.z = 4</code>。完全合法！</li>
+    </ul>
+</div>
+
 ### 12.2 硬件限制
 
 |限制项|最大值（Compute Capability ≥ 8.0）|
