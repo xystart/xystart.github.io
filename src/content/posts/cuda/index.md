@@ -242,9 +242,8 @@ NVIDIA 从 CUDA 11.0 开始放宽了限制，引入了“小版本兼容性（Mi
 
 #### 方法 1：使用 apt 包管理器（推荐）
 
-bash
 
-```
+```bash
 sudo apt update
 sudo apt install nvidia-driver-560
 
@@ -266,9 +265,8 @@ nvidia-smi
 
 ##### ubuntu-drivers device 命令输出示例解析
 
-Plaintext
 
-```
+```Plaintext
 == /sys/devices/pci0000:00/0000:00:01.0/0000:01:00.0 ==
 vendor   : NVIDIA Corporation
 model    : AD102 [GeForce RTX 4090]
@@ -291,9 +289,7 @@ driver   : xserver-xorg-video-nouveau - distro free builtin
 
 #### 方法 2：使用官方 .run 安装包
 
-bash
-
-```
+```bash
 # 先禁用 nouveau 开源驱动
 sudo bash -c "echo 'blacklist nouveau' >> /etc/modprobe.d/blacklist.conf"
 sudo update-initramfs -u
@@ -314,18 +310,15 @@ sudo ./NVIDIA-Linux-x86_64-560.35.03.run
 
 在安装完 toolkit 之后需要配置环境变量，让系统能够检测出 toolkit。在 `~/.bashrc` 或 `~/.zshrc` 中添加：
 
-bash
-
-```
+```bash
 # CUDA 路径配置
 export CUDA_HOME=/usr/local/cuda-12.6
 export PATH=$CUDA_HOME/bin:$PATH
 export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 ```
 
-bash
 
-```
+```bash
 # 使配置生效
 source ~/.bashrc
 
@@ -357,9 +350,8 @@ which nvcc
 
 ##### 例子 A：配置 TensorRT（英伟达的高性能推理加速库）
 
-bash
 
-```
+```bash
 export TENSORRT_HOME=/usr/local/TensorRT-10.x
 export PATH=$TENSORRT_HOME/bin:$PATH
 export LD_LIBRARY_PATH=$TENSORRT_HOME/lib:$LD_LIBRARY_PATH
@@ -367,9 +359,8 @@ export LD_LIBRARY_PATH=$TENSORRT_HOME/lib:$LD_LIBRARY_PATH
 
 ##### 例子 B：配置 Java 开发环境（JDK）
 
-bash
 
-```
+```bash
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
 export PATH=$JAVA_HOME/bin:$PATH
 # 注：Java 有自己的类加载机制，有时不需要第三句，但前两句是雷打不动的铁律
@@ -482,9 +473,8 @@ graph TD
 
 这是告诉 nvcc 为哪一代显卡编译代码的关键参数：
 
-bash
 
-```
+```bash
 nvcc main.cu -arch=sm_89 -o main
 ```
 
@@ -497,9 +487,7 @@ nvcc main.cu -arch=sm_89 -o main
 
 在编译时，如果用到了库，必须显式地告诉 nvcc：
 
-bash
-
-```
+```bash
 nvcc main.cu -lcublas -lcudart -o main
 ```
 
@@ -512,9 +500,8 @@ nvcc main.cu -lcublas -lcudart -o main
 
 如果你想给底层的 g++ 传递开启 cpp17 标准的参数，可以使用 `-Xcompiler`：
 
-bash
 
-```
+```bash
 nvcc main.cu -Xcompiler "-std=cpp17 -O3" -o main
 ```
 
@@ -540,19 +527,17 @@ nvcc main.cu -Xcompiler "-std=cpp17 -O3" -o main
 
 - **写法一：极简直接型（推荐本地单卡开发）**
     
-    bash
     
-    ```
+    ```bash
     nvcc main.cu -arch=sm_89 -o main
     ```
     
     - **作用**：直接告诉编译器，我就要在 40 系显卡（Ada Lovelace 架构）上跑，请帮我全量优化。
         
 - **写法二：多架构兼容型（推荐编写发布给别人的软件）**
+
     
-    bash
-    
-    ```
+    ```bash
     nvcc main.cu \
       -gencode=arch=compute_86,code=sm_86 \
       -gencode=arch=compute_89,code=sm_89 \
@@ -567,10 +552,9 @@ nvcc main.cu -Xcompiler "-std=cpp17 -O3" -o main
 如果用到了英伟达官方自带的高级数学/加速库（如 cuBLAS、cuDNN），必须显式连结，否则会报 `undefined reference` 错误。
 
 - **标准实战**：
+
     
-    bash
-    
-    ```
+    ```bash
     nvcc main.cu -lcublas -lcudnn -o main
     ```
     
@@ -616,9 +600,8 @@ nvcc main.cu -Xcompiler "-std=cpp17 -O3" -o main
 
 在项目根目录下新建一个 `CMakeLists.txt`，把下面这段标准代码复制进去改改名字即可：
 
-CMake
 
-```
+```cmake
 # 1. 规定 CMake 的最低版本要求
 cmake_minimum_required(VERSION 3.18)
 
@@ -652,9 +635,8 @@ add_executable(my_executable ${SRC_LIST})
 
 在 Linux / Ubuntu 环境下，项目写好后，工业界标准的“影子构建（Out-of-source Build）”流程如下：
 
-bash
 
-```
+```bash
 # 第一步：在项目根目录下，新建一个专门存放编译缓存的 build 文件夹并进入
 mkdir build && cd build
 
@@ -701,9 +683,7 @@ make -j4
 
 #### 第一步：立规矩（最低版本与项目声明）
 
-CMake
-
-```
+```cmake
 # 限制 CMake 的最低版本。如果用户电脑里的 cmake 太老，直接报错不干活
 cmake_minimum_required(VERSION 3.15)
 
@@ -713,9 +693,8 @@ project(SmartFactory LANGUAGES CXX CUDA)
 
 #### 第二步：设策略（编译器参数与版本控制）
 
-CMake
 
-```
+```cmake
 # 强行开启标准：全面采用现代化 cpp17 和 CUDA17 标准
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -730,9 +709,8 @@ set(CMAKE_BUILD_TYPE "Release")
 
 #### 第三步：抓壮丁（搜集所有的源代码）
 
-CMake
 
-```
+```cmake
 # 让 CMake 去项目的 src 文件夹下，把所有 .cpp 和 .cu 后缀的代码文件一网打尽
 # 抓出来的文件列表，打包存进我们自己命名的全局变量 `ALL_SOURCES` 盒子里
 file(GLOB ALL_SOURCES 
@@ -743,18 +721,16 @@ file(GLOB ALL_SOURCES
 
 #### 第四步：钦定出厂名字（生成目标程序）
 
-CMake
 
-```
+```cmake
 # 告诉 CMake：请把 ALL_SOURCES 盒子里所有的源码，编译缝合成一个叫 `my_app` 的可执行程序
 add_executable(my_app ${ALL_SOURCES})
 ```
 
 #### 第五步：拉外援（链接外部第三方库）
 
-CMake
 
-```
+```cmake
 # 找到名为 OpenCV 的库（系统会自动去环境变量里搜寻它的位置）
 find_package(OpenCV REQUIRED)
 
@@ -766,9 +742,8 @@ target_link_libraries(my_app PRIVATE ${OpenCV_LIBS})
 
 有时候，你写的 CUDA 代码不想直接做成可执行程序，而是想做成一个“插件（库）”供别人调用。这时候，我们只需要把第四步的 `add_executable` 换成 `add_library`：
 
-CMake
 
-```
+```cmake
 # 不生成可执行程序，而是把你的代码编译打包成一个名为 `libmatrix_cuda.so` 的动态链接库
 add_library(matrix_cuda SHARED ${ALL_SOURCES})
 ```
@@ -817,9 +792,7 @@ add_library(matrix_cuda SHARED ${ALL_SOURCES})
 
 ### 9.2 闭环：四大命令的联合生命周期
 
-Plaintext
-
-```
+```Plaintext
 [项目根目录] ──(mkdir)──> [建立空 build 隔离区]
                               │
   ┌───────────────────────────┴───────────────────────────┐
@@ -873,9 +846,8 @@ CUDA 程序运行在一个异构系统上：CPU（Host）负责控制逻辑和�
 
 本质：它是 CPU 指挥 GPU 开启并行计算的唯一入口。
 
-cpp
 
-```
+```cpp
 // 1. 声明核函数：在 GPU 上跑，但由 CPU 在 main 函数里启动
 __global__ void myKernel(float* data) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
