@@ -96,7 +96,7 @@ graph TD
 
 执行 `nvidia-smi` 命令后，你会看到一个终端面板。我们将这个面板拆解为【头部信息】、【GPU 状态矩阵】和【进程监控】三个部分。
 
-![[Pasted image 20260520210105.png]]
+![CUDA编译流图](/Pasted image 20260520210105.png)
 
 ### 3.1 头部信息（环境版本诊断）
 
@@ -1001,7 +1001,7 @@ __host__ __device__ float myAbs(float x) {
 
 当 Host 启动一个核函数时，它会瞬间在 GPU 内部召唤出成千上万个线程。为了管理这群“人海”，CUDA 建立了一套严密的三级行政组织架构：
 
-![[Pasted image 20260527153541.png]]
+![](/Pasted image 20260527153541.png)
 
 - **① 线程（Thread）—— 最小的基层士兵**
     
