@@ -131,7 +131,7 @@ export const siteConfig: SiteConfig = {
 				// "/assets/mobile-banner/1.webp",
 				// "/assets/mobile-banner/2.webp",
 				// "/assets/mobile-banner/3.webp",
-				"/assets/mobile-banner/4.webp",
+				"/assets/mobile-banner/5.webp",
 			], // 移动横幅图片
 		}, // 使用本地横幅图片
 
