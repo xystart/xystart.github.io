@@ -123,7 +123,8 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 		right: [],
 
         // 3. 手机端侧边划出抽屉：保持原样，提供全面的快捷导航
-        drawer: ["profile", "categories", "tags"],
+        // drawer: ["profile", "categories", "tags"],
+		drawer: [],
     },
 
 	// 默认动画配置
