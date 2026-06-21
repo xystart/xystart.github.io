@@ -50,7 +50,7 @@ draft: false
 
 代码段
 
-```
+```mermaid
 graph TD
     A[你的 CUDA 源码 *.cu] -->|使用 nvcc 编译| B[可执行二进制程序]
     B -->|调用高级控制接口| C[CUDA Runtime API <br> libcudart.so / cudart.dll]
@@ -421,7 +421,7 @@ export PATH=$JAVA_HOME/bin:$PATH
 
 代码段
 
-```
+```mermaid
 graph TD
     A[main.cu 源码] -->|nvcc 介入| B[第一步: 预处理与分离]
     

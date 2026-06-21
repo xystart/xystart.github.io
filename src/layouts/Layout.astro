@@ -271,6 +271,26 @@ if (siteConfig.font) {
 
 		<!-- increase the page height during page transition to prevent the scrolling animation from jumping -->
 		<div id="page-height-extend" class="hidden h-[300vh]"></div>
+
+		
+
+		<script is:inline src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+		<script is:inline>
+		// 监听 Swup 页面切换或普通加载，确保每次进文章都能成功渲染
+		function initMermaid() {
+			if (typeof mermaid !== 'undefined') {
+			mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+			// 强刷未渲染的 mermaid 代码块
+			mermaid.run({
+				querySelector: '.language-mermaid',
+			});
+			}
+		}
+		// 首次加载执行
+		document.addEventListener('DOMContentLoaded', initMermaid);
+		// 如果你的博客带页面无刷新过渡（Swup/ViewTransitions），加上这一行
+		document.addEventListener('swup:contentReplaced', initMermaid);
+		</script>
 	</body>
 </html>
 
