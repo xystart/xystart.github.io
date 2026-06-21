@@ -3020,7 +3020,6 @@ optimizer = optim.SGD([
 &lt;h2&gt;五、 NVIDIA 驱动和 Toolkit 的安装&lt;/h2&gt;
 &lt;h3&gt;5.1 NVIDIA 驱动安装&lt;/h3&gt;
 &lt;h4&gt;方法 1：使用 apt 包管理器（推荐）&lt;/h4&gt;
-&lt;p&gt;bash&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;sudo apt update
 sudo apt install nvidia-driver-560
 
@@ -3043,7 +3042,6 @@ nvidia-smi
 &lt;/ul&gt;
 &lt;/blockquote&gt;
 &lt;h5&gt;ubuntu-drivers device 命令输出示例解析&lt;/h5&gt;
-&lt;p&gt;Plaintext&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;== /sys/devices/pci0000:00/0000:00:01.0/0000:01:00.0 ==
 vendor   : NVIDIA Corporation
 model    : AD102 [GeForce RTX 4090]
@@ -3070,7 +3068,6 @@ driver   : xserver-xorg-video-nouveau - distro free builtin
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;h4&gt;方法 2：使用官方 .run 安装包&lt;/h4&gt;
-&lt;p&gt;bash&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;# 先禁用 nouveau 开源驱动
 sudo bash -c &quot;echo &apos;blacklist nouveau&apos; &amp;gt;&amp;gt; /etc/modprobe.d/blacklist.conf&quot;
 sudo update-initramfs -u
@@ -3087,13 +3084,11 @@ sudo ./NVIDIA-Linux-x86_64-560.35.03.run
 &lt;/blockquote&gt;
 &lt;h3&gt;5.2 配置环境变量&lt;/h3&gt;
 &lt;p&gt;在安装完 toolkit 之后需要配置环境变量，让系统能够检测出 toolkit。在 &lt;code&gt;~/.bashrc&lt;/code&gt; 或 &lt;code&gt;~/.zshrc&lt;/code&gt; 中添加：&lt;/p&gt;
-&lt;p&gt;bash&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;# CUDA 路径配置
 export CUDA_HOME=/usr/local/cuda-12.6
 export PATH=$CUDA_HOME/bin:$PATH
 export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;bash&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;# 使配置生效
 source ~/.bashrc
 
@@ -3139,13 +3134,11 @@ which nvcc
 &lt;/table&gt;
 &lt;h4&gt;举一反三：配置其他高频开发环境&lt;/h4&gt;
 &lt;h5&gt;例子 A：配置 TensorRT（英伟达的高性能推理加速库）&lt;/h5&gt;
-&lt;p&gt;bash&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;export TENSORRT_HOME=/usr/local/TensorRT-10.x
 export PATH=$TENSORRT_HOME/bin:$PATH
 export LD_LIBRARY_PATH=$TENSORRT_HOME/lib:$LD_LIBRARY_PATH
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h5&gt;例子 B：配置 Java 开发环境（JDK）&lt;/h5&gt;
-&lt;p&gt;bash&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
 export PATH=$JAVA_HOME/bin:$PATH
 # 注：Java 有自己的类加载机制，有时不需要第三句，但前两句是雷打不动的铁律
@@ -3263,7 +3256,6 @@ export PATH=$JAVA_HOME/bin:$PATH
 &lt;h3&gt;6.4 NVCC 实战高频编译参数&lt;/h3&gt;
 &lt;h4&gt;1. 指定计算能力 (Compute Capability)&lt;/h4&gt;
 &lt;p&gt;这是告诉 nvcc 为哪一代显卡编译代码的关键参数：&lt;/p&gt;
-&lt;p&gt;bash&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;nvcc main.cu -arch=sm_89 -o main
 &lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
@@ -3276,7 +3268,6 @@ export PATH=$JAVA_HOME/bin:$PATH
 &lt;/ul&gt;
 &lt;h4&gt;2. 包含第三方动态库&lt;/h4&gt;
 &lt;p&gt;在编译时，如果用到了库，必须显式地告诉 nvcc：&lt;/p&gt;
-&lt;p&gt;bash&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;nvcc main.cu -lcublas -lcudart -o main
 &lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
@@ -3289,7 +3280,6 @@ export PATH=$JAVA_HOME/bin:$PATH
 &lt;/ul&gt;
 &lt;h4&gt;3. 传递参数给主机编译器（GCC）&lt;/h4&gt;
 &lt;p&gt;如果你想给底层的 g++ 传递开启 cpp17 标准的参数，可以使用 &lt;code&gt;-Xcompiler&lt;/code&gt;：&lt;/p&gt;
-&lt;p&gt;bash&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;nvcc main.cu -Xcompiler &quot;-std=cpp17 -O3&quot; -o main
 &lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
@@ -3312,7 +3302,6 @@ export PATH=$JAVA_HOME/bin:$PATH
 &lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;写法一：极简直接型（推荐本地单卡开发）&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;bash&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;nvcc main.cu -arch=sm_89 -o main
 &lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
@@ -3321,7 +3310,6 @@ export PATH=$JAVA_HOME/bin:$PATH
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;写法二：多架构兼容型（推荐编写发布给别人的软件）&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;bash&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;nvcc main.cu \
   -gencode=arch=compute_86,code=sm_86 \
   -gencode=arch=compute_89,code=sm_89 \
@@ -3337,7 +3325,6 @@ export PATH=$JAVA_HOME/bin:$PATH
 &lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;标准实战&lt;/strong&gt;：&lt;/p&gt;
-&lt;p&gt;bash&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;nvcc main.cu -lcublas -lcudnn -o main
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/li&gt;
@@ -3423,7 +3410,6 @@ export PATH=$JAVA_HOME/bin:$PATH
 &lt;/ol&gt;
 &lt;h3&gt;7.3 生产级 CUDA CMakeLists.txt 标准模板&lt;/h3&gt;
 &lt;p&gt;在项目根目录下新建一个 &lt;code&gt;CMakeLists.txt&lt;/code&gt;，把下面这段标准代码复制进去改改名字即可：&lt;/p&gt;
-&lt;p&gt;CMake&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;# 1. 规定 CMake 的最低版本要求
 cmake_minimum_required(VERSION 3.18)
 
@@ -3454,7 +3440,6 @@ add_executable(my_executable ${SRC_LIST})
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h3&gt;7.4 CMake 构建与编译的“标准三部曲”命令&lt;/h3&gt;
 &lt;p&gt;在 Linux / Ubuntu 环境下，项目写好后，工业界标准的“影子构建（Out-of-source Build）”流程如下：&lt;/p&gt;
-&lt;p&gt;bash&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;# 第一步：在项目根目录下，新建一个专门存放编译缓存的 build 文件夹并进入
 mkdir build &amp;amp;&amp;amp; cd build
 
@@ -3507,7 +3492,6 @@ make -j4
 &lt;/ul&gt;
 &lt;h3&gt;8.2 经典五步法：搞定一个标准项目&lt;/h3&gt;
 &lt;h4&gt;第一步：立规矩（最低版本与项目声明）&lt;/h4&gt;
-&lt;p&gt;CMake&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;# 限制 CMake 的最低版本。如果用户电脑里的 cmake 太老，直接报错不干活
 cmake_minimum_required(VERSION 3.15)
 
@@ -3515,7 +3499,6 @@ cmake_minimum_required(VERSION 3.15)
 project(SmartFactory LANGUAGES CXX CUDA)
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h4&gt;第二步：设策略（编译器参数与版本控制）&lt;/h4&gt;
-&lt;p&gt;CMake&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;# 强行开启标准：全面采用现代化 cpp17 和 CUDA17 标准
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -3528,7 +3511,6 @@ set(CMAKE_CUDA_ARCHITECTURES 89)
 set(CMAKE_BUILD_TYPE &quot;Release&quot;)
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h4&gt;第三步：抓壮丁（搜集所有的源代码）&lt;/h4&gt;
-&lt;p&gt;CMake&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;# 让 CMake 去项目的 src 文件夹下，把所有 .cpp 和 .cu 后缀的代码文件一网打尽
 # 抓出来的文件列表，打包存进我们自己命名的全局变量 `ALL_SOURCES` 盒子里
 file(GLOB ALL_SOURCES 
@@ -3537,12 +3519,10 @@ file(GLOB ALL_SOURCES
 )
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h4&gt;第四步：钦定出厂名字（生成目标程序）&lt;/h4&gt;
-&lt;p&gt;CMake&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;# 告诉 CMake：请把 ALL_SOURCES 盒子里所有的源码，编译缝合成一个叫 `my_app` 的可执行程序
 add_executable(my_app ${ALL_SOURCES})
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h4&gt;第五步：拉外援（链接外部第三方库）&lt;/h4&gt;
-&lt;p&gt;CMake&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;# 找到名为 OpenCV 的库（系统会自动去环境变量里搜寻它的位置）
 find_package(OpenCV REQUIRED)
 
@@ -3551,7 +3531,6 @@ target_link_libraries(my_app PRIVATE ${OpenCV_LIBS})
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h3&gt;8.3 CMake 进阶：生成“动态链接库 (.so / .dll)”&lt;/h3&gt;
 &lt;p&gt;有时候，你写的 CUDA 代码不想直接做成可执行程序，而是想做成一个“插件（库）”供别人调用。这时候，我们只需要把第四步的 &lt;code&gt;add_executable&lt;/code&gt; 换成 &lt;code&gt;add_library&lt;/code&gt;：&lt;/p&gt;
-&lt;p&gt;CMake&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;# 不生成可执行程序，而是把你的代码编译打包成一个名为 `libmatrix_cuda.so` 的动态链接库
 add_library(matrix_cuda SHARED ${ALL_SOURCES})
 &lt;/code&gt;&lt;/pre&gt;
@@ -3605,7 +3584,6 @@ add_library(matrix_cuda SHARED ${ALL_SOURCES})
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;h3&gt;9.2 闭环：四大命令的联合生命周期&lt;/h3&gt;
-&lt;p&gt;Plaintext&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;[项目根目录] ──(mkdir)──&amp;gt; [建立空 build 隔离区]
                               │
   ┌───────────────────────────┴───────────────────────────┐
@@ -3697,7 +3675,6 @@ add_library(matrix_cuda SHARED ${ALL_SOURCES})
 &lt;h3&gt;11.2 深度拆解与实战代码演练&lt;/h3&gt;
 &lt;h4&gt;1. &lt;code&gt;__global__&lt;/code&gt; 核函数&lt;/h4&gt;
 &lt;p&gt;本质：它是 CPU 指挥 GPU 开启并行计算的唯一入口。&lt;/p&gt;
-&lt;p&gt;cpp&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;// 1. 声明核函数：在 GPU 上跑，但由 CPU 在 main 函数里启动
 __global__ void myKernel(float* data) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
