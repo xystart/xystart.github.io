@@ -64,9 +64,23 @@ graph TD
     style E fill:#fff,stroke:#333,stroke-width:2px
 ```
 
-> [!important] **核心总结**
-> 
-> **驱动**相当于是硬件设备的底层接口，便于系统或用户操作硬件；而 **Toolkit** 是英伟达开发的一款软件工具包，用于将 CUDA 代码编译为机器可以理解的程序，并提供运行时的库（Runtime），这些库最终通过驱动去调用显卡完成计算。
+<div class="my-4 border-l-4 border-indigo-500 bg-indigo-500/10 p-4 rounded-r">
+    <strong class="text-indigo-500 block mb-1">🎯 核心总结：驱动 vs Toolkit 的本质区别</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        用一句话说透两者的协作关系：
+    </p>
+    <ul class="text-sm opacity-85 mt-2 m-0 p-0 list-none space-y-2">
+        <li>
+            🔌 <strong>驱动（Driver）</strong>：相当于是硬件设备的<strong>底层接口</strong>，负责向下直接统治显卡，便于系统或上层用户去安全、高效地操控硬件。
+        </li>
+        <li>
+            🛠️ <strong>Toolkit（工具包）</strong>：是英伟达官方开发的一款<strong>软件开发工具包</strong>。它负责向上对接工程师，负责将你写的 CUDA/Triton 代码编译为机器可以理解的二进制程序，并提供运行时的核心库（Runtime）。
+        </li>
+    </ul>
+    <div class="mt-3 pt-2 border-t border-indigo-500/20 text-xs opacity-80 font-medium text-indigo-400">
+        🔗 最终闭环：这些用户态的运行库，最终都要通过底层驱动提供的通道，去真正调用物理 GPU 显卡来完成惊人的算力计算！
+    </div>
+</div>
 
 ## 二、 避坑核心：版本兼容性与“两个 CUDA 版本”
 
@@ -88,9 +102,22 @@ graph TD
 - **代表含义**：你当前实际安装并正在使用的 **CUDA Toolkit（开发工具包）版本**。
     
 
-> [!tip] **避坑金律**
-> 
-> 只要保证 $\text{nvcc --version (Toolkit版本)} \le \text{nvidia-smi (驱动支持的最高版本)}$，你的 CUDA 程序就能完美运行！
+<div class="my-4 border-l-4 border-cyan-500 bg-cyan-500/10 p-4 rounded-r">
+    <strong class="text-cyan-500 block mb-1">💡 环境护航：版本匹配的避坑金律</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        不要被两个不同的 CUDA 版本号吓到，只要你在心里牢记下面这个不等式：
+    </p>
+    <div class="my-3 text-center bg-cyan-500/5 py-2 rounded border border-cyan-500/10 font-mono text-cyan-400 text-sm">
+        $$\text{nvcc --version (Toolkit 运行版本)} \le \text{nvidia-smi (驱动支持的最高版本)}$$
+    </div>
+    <p class="text-sm opacity-85 m-0">
+        只要这个算式成立，你的 CUDA 内核程序、PyTorch 算子就绝对能够完美编译并跑起来！
+    </p>
+    <div class="mt-3 pt-2 border-t border-cyan-500/20 text-xs opacity-75">
+        🧠 <strong>底层大白话：</strong><br>
+        <code>nvidia-smi</code> 看到的是物理驱动（Driver）的天花板，代表硬件能兼容的最高极限；而 <code>nvcc</code> 看到的是用户态开发工具包（Toolkit）的实际版本。下层的容器/房子足够大，上层的应用/家具就能完美放进去！
+    </div>
+</div>
 
 ## 三、 实战监控：剖析 nvidia-smi 面板信息
 
@@ -156,9 +183,23 @@ graph TD
 - **Compute M. (Default)**：计算模式。Default 代表允许多个进程同时使用这张显卡。
     
 
-> [!warning] **初学者必看错误**
-> 
-> 如果正在运行程序时，左边的数字快要等于右边的数字，就会爆出大名鼎鼎的 `CUDA out of memory (OOM)` 错误。
+<div class="my-4 border-l-4 border-amber-500 bg-amber-500/10 p-4 rounded-r">
+    <strong class="text-amber-500 block mb-1">⚠️ 初学者必看错误：大名鼎鼎的 CUDA OOM</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        在运行大模型训练、微调或跑算子程序时，请密切监控 <code>nvidia-smi</code> 面板！
+    </p>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        如果左边的<strong>“已用显存（Memory-Usage）”</strong>数字一路上涨，疯狂逼近右边的<strong>“总显存”</strong>极限，系统就会在顶满的瞬间当场抛出那个让无数人破防的错误：<br>
+        <span class="text-amber-500 font-mono font-bold block mt-1 bg-amber-500/5 p-1 px-2 rounded border border-amber-500/20 text-center">RuntimeError: CUDA out of memory (OOM)</span>
+    </p>
+    <div class="mt-3 pt-2 border-t border-amber-500/20 text-xs opacity-75">
+        🛠️ <strong>Infra 破局思路：</strong><br>
+        爆 OOM 时，不要盲目加显卡，先排查三个方向：<br>
+        1. <strong>减小 Batch Size</strong>：直接降低单个 Batch 挤占的激活值显存（Activation Memory）。<br>
+        2. <strong>使用梯度累积（Gradient Accumulation）</strong>：用时间换空间，保持原有总 Batch Size 复合不变。<br>
+        3. <strong>开启 🚀 混合精度（Mixed Precision/FP16/BF16）</strong>：将权重和激活值减半存储，瞬间释放接近一半的物理空间。
+    </div>
+</div>
 
 ### 3.3 Processes 进程监控（谁在吃你的显存？）
 
@@ -181,14 +222,26 @@ graph TD
 - **GPU Memory Usage (1180MiB)**：这个特定进程独自吃掉了多少显存。
     
 
-> [!tip] **极速清理显存小技巧**
-> 
-> 如果你的程序死机了，或者你发现显存被莫名其妙的进程占满了，可以根据面板里的 PID，在终端执行以下命令直接强行杀掉该进程，释放显存：
-> 
-> - **Linux**: `kill -9 1234` (1234 换成实际的 PID)
->     
-> - **Windows (CMD)**: `taskkill /F /PID 1234`
->     
+<div class="my-4 border-l-4 border-cyan-500 bg-cyan-500/10 p-4 rounded-r">
+    <strong class="text-cyan-500 block mb-1">💡 运维救急：极速清理显存小技巧（强杀僵尸进程）</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        如果你的训练程序死机了，或者执行 <code>nvidia-smi</code> 发现显存被莫名其妙的僵尸进程占满，可以直接通过 PID 进行物理释放！
+    </p>
+    <ul class="text-sm opacity-85 mt-2 m-0 p-0 list-none space-y-2">
+        <li>
+            🐧 <strong>Linux 环境</strong>：<br>
+            <code class="bg-base-200 px-1 rounded text-cyan-400">kill -9 1234</code> <span class="text-xs opacity-70">（把 1234 换成面板里实际看到的 PID）</span>
+        </li>
+        <li>
+            🪟 <strong>Windows 环境 (CMD)</strong>：<br>
+            <code class="bg-base-200 px-1 rounded text-cyan-400">taskkill /F /PID 1234</code>
+        </li>
+    </ul>
+    <div class="mt-3 pt-2 border-t border-cyan-500/20 text-xs opacity-75">
+        ⚠️ <strong>Infra 注意事项：</strong><br>
+        在多用户共享的分布式算力集群（如使用 Slurm 或 K8s 节点）上，切记先核对该 PID 的所属用户（执行 <code>ps -ef | grep PID</code>），盲目跨用户强杀进程可能会直接中断队友跑了一夜的实验！
+    </div>
+</div>
 
 ## 四、 Toolkit 与 驱动的版本匹配规则
 
@@ -223,11 +276,19 @@ NVIDIA 从 CUDA 11.0 开始放宽了限制，引入了“小版本兼容性（Mi
 - **解释**：在 CUDA 12 这一代里，如果你的驱动是比较旧的 525.60（刚出 CUDA 12.0 时的驱动），你依然可以直接使用 CUDA 12.8 Toolkit 来编译和运行程序。因为只要驱动满足该大版本的最低基线（即 $\ge 525.60$），整个 12.x 系列的 Toolkit 都能兼容。
     
 
-> [!danger] **跨大版本的绝对红线**
-> 
-> **不能用旧驱动去跑跨大版本的新 Toolkit！**
-> 
-> _例如：驱动是 450.80（属于 CUDA 11 世代），此时如果你安装并使用 CUDA 12.x 或 13.x Toolkit，程序在初始化时会 100% 崩溃，报 `CUDA_ERROR_SYSTEM_DRIVER_MISMATCH`（驱动版本不足）错误。_
+<div class="my-4 border-l-4 border-rose-500 bg-rose-500/10 p-4 rounded-r">
+    <strong class="text-rose-500 block mb-1">🔴 绝对红线：不能用旧驱动去跑跨大版本的新 Toolkit！</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        驱动版本决定了你当前系统的硬核底线，新版的 Toolkit 必须依赖相匹配的新版核心驱动。
+    </p>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        <em>例如：系统的物理驱动是 450.80（属于老旧的 CUDA 11 世代），此时如果你在用户态安装并强行使用 CUDA 12.x 或 13.x Toolkit，程序在初始化（Kernel Launch）时会 100% 崩溃，直接报 <code>CUDA_ERROR_SYSTEM_DRIVER_MISMATCH</code>（驱动版本不足）错误。</em>
+    </p>
+    <div class="mt-3 pt-2 border-t border-rose-500/20 text-xs opacity-75">
+        💡 <strong>向下兼容铁律：</strong><br>
+        NVIDIA 官方遵循的是<strong>“新驱动支持旧 Toolkit，但旧驱动绝不支持新 Toolkit”</strong>的单向兼容原则。所以升级 CUDA 版本前，必须先看一眼 <code>nvidia-smi</code> 里的物理驱动版本是否已经顶上去！
+    </div>
+</div>
 
 ### 4.3 生产环境避坑建议
 
@@ -254,14 +315,25 @@ sudo reboot
 nvidia-smi
 ```
 
-> [!warning] **Linux 驱动安装的隐蔽暗礁：显卡型号与驱动版本的匹配**
-> 
-> 在执行 `sudo apt install nvidia-driver-560` 前，强烈建议先运行一次 `ubuntu-drivers devices`。
-> 
-> - 如果输出里推荐的版本确实是 560（或者有 `nvidia-driver-560 - distro non-free recommended`），那就闭眼放心装。
->     
-> - 如果你的显卡型号比较老（比如好几年前的旧卡），盲目装 560 可能会导致硬件不支持，此时应该改成系统推荐的那个数字。
->     
+<div class="my-4 border-l-4 border-fuchsia-500 bg-fuchsia-500/10 p-4 rounded-r">
+    <strong class="text-fuchsia-500 block mb-1">🧠 高手进阶：深刻理解 source 命令与终端生命周期</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        修改了 <code>~/.bashrc</code> 或 <code>~/.zshrc</code> 之后，关于 <code>source</code> 命令的底层真相如下：
+    </p>
+    <ul class="text-sm opacity-85 mt-2 m-0 p-0 list-none space-y-2">
+        <li>
+            ⚡ <strong>真相一：source 只是当前窗口的“特效药”</strong><br>
+            执行 <code>source ~/.bashrc</code> 仅仅是让<strong>当前这一个 Shell 进程</strong>重新读取硬盘配置文件并刷新它自己的内存空间，对旁边已经打开的其他终端窗口毫无波及。
+        </li>
+        <li>
+            🌱 <strong>真相二：开启新窗口自带“全体刷新”</strong><br>
+            如果你懒得敲 source 命令，完全可以直接关闭当前终端，重新打开一个新终端。因为每一个新终端在诞生的瞬间（进程初始化），都会自动去硬盘加载一遍配置文件，此时新加的环境变量会自动注入。
+        </li>
+    </ul>
+    <div class="mt-3 pt-2 border-t border-fuchsia-500/20 text-sm opacity-90 font-medium text-fuchsia-400">
+        💡 黄金定律：修改环境变量后，“在当前窗口执行 source” 与 “关掉它，开个新窗口”，在底层进程视图中效果完全等价！
+    </div>
+</div>
 
 ##### ubuntu-drivers device 命令输出示例解析
 
@@ -300,11 +372,22 @@ chmod +x NVIDIA-Linux-x86_64-560.35.03.run
 sudo ./NVIDIA-Linux-x86_64-560.35.03.run
 ```
 
-> [!info] **📂 什么是 .run 文件？**
-> 
-> `.run` 是 Linux 下的一种自解压二进制安装程序（类似于 Windows 的 `.exe`）。
-> 
-> 它将 **Shell 安装脚本** 和 **加密压缩的驱动二进制数据** 缝合在同一个文件里。运行时，它会自动把驱动数据解压到 `/tmp` 临时目录，并调用内部脚本完成底层驱动内核模块（Kernel Module）的编译与安装。它的最大优势是跨 Linux 发行版通用且支持完全离线安装。
+<div class="my-4 border-l-4 border-emerald-500 bg-emerald-500/10 p-4 rounded-r">
+    <strong class="text-emerald-500 block mb-1">📂 背景知识：什么是 .run 文件？（自解压二进制安装包）</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        <code>.run</code> 是 Linux 下的一种自解压二进制安装程序（类似于 Windows 的 <code>.exe</code> 安装包）。
+    </p>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        它巧妙地将 <strong>Shell 安装脚本</strong> 和 <strong>加密压缩的驱动二进制数据</strong> 缝合在了同一个文件里。
+    </p>
+    <div class="mt-3 pt-2 border-t border-emerald-500/20 text-sm opacity-90 space-y-1">
+        ⚙️ <strong>底层运行机制：</strong><br>
+        当你执行它时，它会自动将后面的驱动数据解压到 <code>/tmp</code> 临时目录，并当场调用内部的脚本完成底层驱动<strong>内核模块（Kernel Module）</strong>的编译、签名与挂载。
+    </div>
+    <div class="mt-2 text-xs opacity-75 text-emerald-400">
+        💡 最大优势：完全脱离了特定发行版（Ubuntu/CentOS）的软件包管理器限制，跨系统通用且支持 100% 离线安装。
+    </div>
+</div>
 
 ### 5.2 配置环境变量
 
@@ -366,30 +449,46 @@ export PATH=$JAVA_HOME/bin:$PATH
 # 注：Java 有自己的类加载机制，有时不需要第三句，但前两句是雷打不动的铁律
 ```
 
-> [!question] **💡 为什么 PATH 和 LD_LIBRARY_PATH 后面一定要拼上自己（如 :$PATH）？**
-> 
-> `PATH` 是系统原本就有的“大口袋”（里面装着 ls, cd, mkdir 等所有系统命令）。
-> 
-> 如果你不写 `:$PATH`，写成 `export PATH=$CUDA_HOME/bin`，那就相当于把原来的大口袋扔了，换了一个只装了 CUDA 的小口袋。
-> 
-> 结果就是：你一敲回车，系统连 `ls` 都不认识了（报 Command not found）。
-> 
-> 加上 `:$PATH` 的本质是：**在原本的大口袋里，追加塞入 CUDA 的工具。**
+<div class="my-4 border-l-4 border-sky-500 bg-sky-500/10 p-4 rounded-r">
+    <strong class="text-sky-500 block mb-1">❓ 深度答疑：为什么 PATH 和 LD_LIBRARY_PATH 后面一定要拼上自己（如 :$PATH）？</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        <code>PATH</code> 是系统原本就存在的、装满核心工具的<strong>“公用大口袋”</strong>（里面装着 <code>ls</code>, <code>cd</code>, <code>mkdir</code> 等所有系统基础命令）。
+    </p>
+    <ul class="text-sm opacity-85 mt-2 m-0 p-0 list-none space-y-2">
+        <li>
+            💥 <strong>致命误区（不加 <code>:$PATH</code>）</strong>：<br>
+            如果你写成 <code>export PATH=$CUDA_HOME/bin</code>，那就相当于<strong>把原本的大口袋直接扔进了垃圾桶</strong>，换了一个里面只装了 CUDA 工具的“孤单小口袋”。结果就是：你一敲回车，系统连最基本的 <code>ls</code> 都不认识了（疯狂报 <code>Command not found</code>）。
+        </li>
+        <li>
+            🤝 <strong>正确姿势（追加 <code>:$PATH</code>）</strong>：<br>
+            在 Linux 中，冒号 <code>:</code> 代表路径的分隔符。加上 <code>:$PATH</code> 的本质是：<strong>保留原本的大口袋内容，并在它的基础上，追加塞入 CUDA 的二进制工具链。</strong>
+        </li>
+    </ul>
+    <div class="mt-3 pt-2 border-t border-sky-500/20 text-xs opacity-75">
+        🔗 <strong>LD_LIBRARY_PATH 同理：</strong><br>
+        动态链接库路径也是如此。如果不拼上 <code>:$LD_LIBRARY_PATH</code>，上层应用程序（如 PyTorch）在加载时，就只能找到 CUDA 的 <code>.so</code>，而系统其他基础组件的底层依赖库会全部断联，导致程序大面积报错崩溃。
+    </div>
+</div>
 
-> [!insight] **🧠 高手进阶：深刻理解 source 命令与终端生命周期**
-> 
-> 修改了 `~/.bashrc` 或 `~/.zshrc` 之后，关于 source 命令的底层真相如下：
-> 
-> - **真相一：source 只是当前窗口的“特效药”**
->     
->     执行 `source ~/.bashrc` 仅仅是让当前这一个终端窗口重新读取硬盘配置文件并刷新内存。
->     
-> - **真相二：开启新窗口自带“全体刷新”**
->     
->     如果你懒得敲 source 命令，完全可以直接关闭当前终端，重新打开一个新终端。因为每一个新终端在诞生时，都会自动去硬盘读取一遍配置文件，此时新加的环境变量就会自动生效。
->     
-> 
-> **💡 黄金定律：** 修改环境变量后，要么 **“在当前窗口执行 source”**，要么 **“关掉它，开个新窗口”**，二者效果完全等价！
+<div class="my-4 border-l-4 border-fuchsia-500 bg-fuchsia-500/10 p-4 rounded-r">
+    <strong class="text-fuchsia-500 block mb-1">🧠 高手进阶：深刻理解 source 命令与终端生命周期</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        修改了 <code>~/.bashrc</code> 或 <code>~/.zshrc</code> 之后，关于 <code>source</code> 命令的底层真相如下：
+    </p>
+    <ul class="text-sm opacity-85 mt-2 m-0 p-0 list-none space-y-2">
+        <li>
+            ⚡ <strong>真相一：source 只是当前窗口的“特效药”</strong><br>
+            执行 <code>source ~/.bashrc</code> 仅仅是让<strong>当前这一个 Shell 进程</strong>重新读取硬盘配置文件并刷新它自己的内存空间，对旁边已经打开的其他终端窗口毫无波及。
+        </li>
+        <li>
+            🌱 <strong>真相二：开启新窗口自带“全体刷新”</strong><br>
+            如果你懒得敲 source 命令，完全可以直接关闭当前终端，重新打开一个新终端。因为每一个新终端在诞生的瞬间（进程初始化），都会自动去硬盘加载一遍配置文件，此时新加的环境变量会自动注入。
+        </li>
+    </ul>
+    <div class="mt-3 pt-2 border-t border-fuchsia-500/20 text-sm opacity-90 font-medium text-fuchsia-400">
+        💡 黄金定律：修改环境变量后，“在当前窗口执行 source” 与 “关掉它，开个新窗口”，在底层进程视图中效果完全等价！
+    </div>
+</div>
 
 ## 六、 CUDA 进阶：解密 NVCC 编译工具链
 
@@ -561,12 +660,21 @@ nvcc main.cu -Xcompiler "-std=cpp17 -O3" -o main
 
 ### 6.6 NVIDIA GPU 架构、显卡型号与计算能力对照表
 
-> [!tip] **查表金律**
-> 
-> - **sm_xx**：代表流式多处理器（Streaming Multiprocessor）的硬件架构版本号。
->     
-> - **计算能力**：数字代表的是技术代际，编写编译脚本（`-arch=sm_xx`）时，必须严格参考此表！
->     
+<div class="my-4 border-l-4 border-cyan-500 bg-cyan-500/10 p-4 rounded-r">
+    <strong class="text-cyan-500 block mb-1">💡 编译护航：查表金律（`-arch=sm_xx` 算子适配）</strong>
+    <ul class="text-sm opacity-85 m-0 p-0 list-none space-y-2">
+        <li>
+            ⚙️ <strong>sm_xx</strong>：代表<strong>流式多处理器（Streaming Multiprocessor）</strong>的硬件架构版本号。
+        </li>
+        <li>
+            📊 <strong>计算能力（Compute Capability）</strong>：数字代表的是 NVIDIA 芯片的底层技术代际。在编写 <code>CMakeLists.txt</code> 或编译脚本时，<strong>必须严格参考显卡型号与架构对应表</strong>！
+        </li>
+    </ul>
+    <div class="mt-3 pt-2 border-t border-cyan-500/20 text-xs opacity-75">
+        🚀 <strong>Infra 避坑指南：</strong><br>
+        如果你的物理显卡是 A100（sm_80），但编译时错误指定了 <code>-arch=sm_70</code>，虽然能跑，但编译器会完全锁死 A100 特有的 TF32 硬件加速和新型异步拷贝指令，导致算子性能暴跌！
+    </div>
+</div> 
 
 |**架构微代号 (-arch=)**|**代表性显卡 / GPU 型号**|**官方计算能力版本号 (Compute Capability)**|**硬件代际称呼 (Architecture Name)**|
 |---|---|---|---|
@@ -581,9 +689,19 @@ nvcc main.cu -Xcompiler "-std=cpp17 -O3" -o main
 
 ### 7.1 什么是 CMake？（一句话点透）
 
-> [!note] **核心定义**
-> 
-> CMake 是一个跨平台的构建配置工具。它不直接编译代码，而是通过读取一个叫 `CMakeLists.txt` 的文本文件，自动生成当前系统对应的、极其复杂的编译脚本（Linux 下生成 `Makefile`，Windows 下生成 `.sln` 工程文件）。
+<div class="my-4 border-l-4 border-indigo-500 bg-indigo-500/10 p-4 rounded-r">
+    <strong class="text-indigo-500 block mb-1">📝 核心定义：什么是 CMake？</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        CMake 是一个跨平台的构建配置工具。
+    </p>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        <strong>它本身并不直接编译代码</strong>，而是通过读取一个叫 <code>CMakeLists.txt</code> 的文本配置文件，自动去生成当前操作系统对应的、极其复杂的底层编译脚本。
+    </p>
+    <div class="mt-3 pt-2 border-t border-indigo-500/20 text-xs opacity-80 space-y-1">
+        <div>🐧 <strong>Linux / Mac 环境下</strong>：自动生成 <code>Makefile</code>，后续通过 <code>make</code> 命令进行多线程编译。</div>
+        <div>🪟 <strong>Windows 环境下</strong>：自动生成 Visual Studio 的 <code>.sln</code> 解决方案与 <code>.vcxproj</code> 工程文件。</div>
+    </div>
+</div>
 
 ### 7.2 CMake 统一构建的底层原理（现代化 CUDA 流程）
 
@@ -647,9 +765,19 @@ cmake ..
 make -j4
 ```
 
-> [!tip] **💡 为什么必须建立 build 文件夹？**
-> 
-> 这样编译过程中产生的所有 `.o` 中间件、`.ptx` 缓存全都会被隔离在 `build` 文件夹内。如果你哪天想彻底重构项目，直接一行 `rm -rf build` 就能把环境清理得干干净净，绝对不会污染你的 `src` 源码目录！
+<div class="my-4 border-l-4 border-cyan-500 bg-cyan-500/10 p-4 rounded-r">
+    <strong class="text-cyan-500 block mb-1">💡 工程素养：为什么必须建立 build 文件夹？（影子构建）</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        这样编译过程中产生的所有 <code>.o</code> 中间目标文件、<code>.ptx</code> 汇编缓存、以及 <code>CMake</code> 缓存全都会被彻底隔离在 <code>build</code> 文件夹内！
+    </p>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        如果你哪天想彻底重构项目或者重新配置编译选项，<strong>只需要一行最暴力的 <code>rm -rf build</code></strong>，就能把所有的编译垃圾清理得干干净净，绝对不会污染你的 <code>src</code> 核心源码目录！
+    </p>
+    <div class="mt-3 pt-2 border-t border-cyan-500/20 text-xs opacity-75">
+        🛠️ <strong>协作避坑：</strong><br>
+        如果不做隔离，这些自动生成的文件会和你的源码混在一起，导致 <code>git status</code> 瞬间爆炸。你还需要在 <code>.gitignore</code> 里写大量的屏蔽规则，极易误将编译垃圾推上云端。
+    </div>
+</div>
 
 ### 7.5 常见 CMake 报错排雷指南
 
@@ -748,9 +876,19 @@ target_link_libraries(my_app PRIVATE ${OpenCV_LIBS})
 add_library(matrix_cuda SHARED ${ALL_SOURCES})
 ```
 
-> [!tip] **💡 为什么写大项目都要用库（SHARED / STATIC）？**
-> 
-> 这样你可以把自己核心的 GPU 核函数封装起来，别人只需要拿着你生成的 `.so` 文件和 `.h` 头文件，就能在他们自己的常规 cpp 项目（甚至 python 项目）里直接调用你的 GPU 加速算法了！
+<div class="my-4 border-l-4 border-cyan-500 bg-cyan-500/10 p-4 rounded-r">
+    <strong class="text-cyan-500 block mb-1">💡 架构思维：为什么写大项目都要用库（SHARED / STATIC）？</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        这样你可以把自己核心的 GPU 核函数完全封装起来！
+    </p>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        别人或上层业务团队<strong>只需要拿着你编译生成的 <code>.so</code> 动态链接库文件和 <code>.h</code> 头文件</strong>，就能在他们自己的常规 C++ 项目（甚至通过 <code>ctypes/pybind11</code> 嵌入到 Python 项目）里直接调用你的大模型 GPU 加速算法了！
+    </p>
+    <div class="mt-3 pt-2 border-t border-cyan-500/20 text-xs opacity-75">
+        ⚙️ <strong>Infra 视角：</strong><br>
+        不仅能实现核心算子资产的<strong>代码解耦与保密</strong>，还能大幅缩短整个团队大项目联合编译时的等待时间。
+    </div>
+</div>
 
 ## 九、 CMake 实战：现代化项目编译“四步杀”命令全解
 
@@ -857,13 +995,19 @@ __global__ void myKernel(float* data) {
 }
 ```
 
-> [!danger] **`__global__` 的死铁律：返回值必须是 `void`**
-> 
-> 核心原因在于 **CPU 和 GPU 是“异步（Asynchronous）”运行的**。
-> 
-> 当你在 CPU 侧启动核函数后，CPU 并没有傻等 GPU 算完，而是发出信号后立刻抢跑执行下一行。如果核函数有返回值，CPU 抢跑时 GPU 还没算出答案，程序就会逻辑崩溃。
-> 
-> 故 CUDA 采用了一种经典的黑科技：**“留下你的显存地址（指针），算完默默写进去”（传址不传值）**。
+<div class="my-4 border-l-4 border-rose-500 bg-rose-500/10 p-4 rounded-r">
+    <strong class="text-rose-500 block mb-1">🔴 死铁律：__global__ 核函数返回值必须是 void</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        核心原因在于：<strong>CPU 和 GPU 是“异步（Asynchronous）”运行的</strong>。
+    </p>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        当你在 CPU 側啟動核函數後，CPU <span>（Host）</span>並沒有傻等 GPU <span>（Device）</span>算完，而是發出信號後立刻搶跑執行下一行。如果核函數有返回值，CPU 搶跑時 GPU 還沒算出答案，程序就會邏輯崩潰。
+    </p>
+    <div class="mt-3 pt-2 border-t border-rose-500/20 text-sm opacity-90">
+        💡 <strong>CUDA 採用的經典黑科技：</strong><br>
+        既然不能直接 return，那就採用<strong>“傳址不傳值”</strong>策略 —— <strong>“留下你的顯存地址（指標 <code>*out</code>），算完默默寫進去”</strong>。
+    </div>
+</div>
 
 #### 为什么核函数返回值必须是 void
 
@@ -1124,21 +1268,35 @@ dim3 block(8, 8, 4);   // 每个 Block 8x8x4 = 256 个线程
 
 虽然你在写代码时可以随意调配 1D、2D 或 3D 的尺寸，但英伟达显卡在**物理硬件层面是有死硬限制的**。如果超过限制，核函数会启动失败，或者给你吐一堆全零的废数据！
 
-> [!danger] 🔴 铁律一：单块线程上限 1024 限制（Block 兵力上限）
-> 
-> 无论你是 1D、2D 还是 3D，**一个 Block 内部的所有线程总数（$x \times y \times z$）绝对不能超过 1024！**
-> 
-> - 观察你给的 3D 例子：$8 \times 8 \times 4 = 256 \le 1024$。完全合法！
->     
-> - ❌ 错误示范：如果你写 `dim3 block(16, 16, 16);`（总数 4096），程序在跑起来的瞬间就会原地崩溃。
->     
+<div class="my-4 border-l-4 border-rose-500 bg-rose-500/10 p-4 rounded-r">
+    <strong class="text-rose-500 block mb-1">🔴 铁律一：单块线程上限 1024 限制（Block 兵力上限）</strong>
+    <p class="text-sm opacity-85 m-0">
+        无论你是 1D、2D 还是 3D，<strong>一个 Block 内部的所有线程总数（$x \times y \times z$）绝对不能超过 1024！</strong>
+    </p>
+    <ul class="text-sm opacity-85 mt-2 list-none p-0 space-y-1">
+        <li>🟢 <strong>合规示范</strong>：你的 3D 例子：$8 \times 8 \times 4 = 256 \le 1024$。完全合法！</li>
+        <li>❌ <strong>錯誤示範</strong>：如果你寫 <code>dim3 block(16, 16, 16);</code>（總數 4096），程序在內核啟動（Kernel Launch）的瞬間就會原地崩潰。</li>
+    </ul>
+</div>
 
-<!-- > [!warning] 🟡 铁律二：Block 的 Z 轴大小特殊限制
-> 
-> 英伟达规定，Block 的 `.x` 和 `.y` 轴最大可以设到 1024，但 **`.z` 轴最大只能设到 64**。
-> 
-> - 观察你的 3D 例子：`.z = 4`。完全合法！
-> -->
+<div class="my-4 border-l-4 border-amber-500 bg-amber-500/10 p-4 rounded-r">
+    <strong class="text-amber-500 block mb-1">⚠️ 维度约束：Block 的 Z 轴大小特殊限制</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        在声明三维网格拓扑 <code>dim3 block(X, Y, Z);</code> 时，请死死记住英伟达官方的底层物理限制：
+    </p>
+    <div class="my-2 bg-amber-500/5 p-2 rounded font-mono text-xs border border-amber-500/10 text-center text-amber-400">
+        ✅ block.x ≤ 1024 &nbsp;|&nbsp; ✅ block.y ≤ 1024 &nbsp;|&nbsp; 🚨 block.z ≤ 64 (最高上限)
+    </div>
+    <ul class="text-sm opacity-85 mt-2 m-0 p-0 list-none space-y-1">
+        <li>
+            📐 <strong>以你的 3D 例子为例</strong>：你的配置是 <code>.z = 4</code>，完全落在 $4 \le 64$ 的安全区间内，硬件一路绿灯，<strong>完全合法</strong>！
+        </li>
+    </ul>
+    <div class="mt-3 pt-2 border-t border-amber-500/20 text-xs opacity-75">
+        🚀 <strong>Infra 架构师的避坑金律：总数亦有天花板！</strong><br>
+        除了单轴限制外，还要注意隐藏的总数总额：<code>X * Y * Z</code> 的<strong>乘积总和绝对不能超过 1024</strong>！也就是说，如果你的 <code>.x</code> 和 <code>.y</code> 已经拉满到了 32x32（共 1024），那么你的 <code>.z</code> 此时只能被迫写成 1，多写一个线程都会导致核函数直接挂掉（Invalid Configuration Argument）。写 32 人的倍数时，务必先算好整体的乘积大账本！
+    </div>
+</div>
 
 <div class="my-4 border-l-4 border-amber-500 bg-amber-500/10 p-4 rounded-r">
     <strong class="text-amber-500 block mb-1">⚠️ 铁律二：Block 的 Z 轴大小特殊限制</strong>
@@ -1274,9 +1432,22 @@ $$Index = z \times (WIDTH \times HEIGHT) + y \times WIDTH + x$$
 
 无论你打算开多大的 Block，它的总线程数（$x \times y \times z$）**必须是 32 的整数倍**（如 64, 128, 256, 512）。
 
-> [!danger] 🔴 底层真相：Warp（线程束）
-> GPU 在物理硬件上，并不是一个一个线程去执行指令的，而是把 **32 个线程** 绑在一起，作为一个最小的执行单元，这个单元叫做 **Warp（线程束）**。
-> 这 32 个人就像是在划龙舟，**必须听同一个鼓点，执行同一条指令**。
+<div class="my-4 border-l-4 border-rose-500 bg-rose-500/10 p-4 rounded-r">
+    <strong class="text-rose-500 block mb-1">🔴 底层真相：硬件只认 Warp（线程束）</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        不要被软件层的宏观并发给欺骗了，剥离掉抽象层后的物理现实如下：
+    </p>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        GPU 在物理硬件上，绝对不是一个一个线程独立去接收和执行指令的，而是无条件把 <strong>32 个线程</strong> 强行绑在一起，作为一个最小的物理调度与执行单元。这个同生共死的硬核编队就叫做 <strong>Warp（线程束）</strong>。
+    </p>
+    <div class="my-3 text-center bg-rose-500/5 py-2 rounded border border-rose-500/10 font-bold text-rose-500 text-sm">
+        🚣‍♂️ 这 32 个人就像是在划同一条龙舟，必须听从同一个鼓点，在同一时刻执行同一条机器指令！
+    </div>
+    <div class="mt-3 pt-2 border-t border-rose-500/20 text-xs opacity-75">
+        💡 <strong>架构师的清醒认知（分支发散的物理病灶）：</strong><br>
+        既然 32 个人共享同一个指令发射器，如果你的代码里写了 <code>if-else</code> 导致前 16 个人和后 16 个人走不同的分支，硬件就不得不让前 16 个人干活时、后 16 个人在龙舟上原地“抱桨发呆”，等分支调换时再反过来。这种<strong>分支发散（Branch Divergence）</strong>带来的硬件空转，是写好硬核算子必须拦截的第一道物理难关！
+    </div>
+</div>
 
 * **如果你设为 32 的倍数（如 128）**：系统会完美地将其分为 4 个 Warp，大家齐心协力。
 * **❌ 如果你瞎设（如设为 100）**：系统依然会按 32 来硬分，划分为 4 个 Warp（共 128 个位置）。结果是前 3 个 Warp 满载，第 4 个 Warp 里只有 4 个人干活，剩下的 28 个人**强行占着硬件资源，却在原地发呆（假装干活）**，造成极大的算力浪费！
@@ -1364,20 +1535,23 @@ myKernel<<<gridSize, blockSize>>>(args);
 
 ##### 🏆 为什么这是“终极方案”？（三大优势）
 
-> [!success] 核心优势
-> 
-> 1. **免去了瞎猜和压测**：不需要再纠结是填 128 还是 256，API 给的数字在理论占用率上绝对是最优的。
->     
-> 2. **完美向前/向后兼容（跨代自适应）**：
->     
->     - 假设你把代码编译好发给朋友。朋友用的是十年前的老显卡（寄存器少），API 运行瞬间会算出 `blockSize = 128`。
->         
->     - 你自己用最新款的 H100 跑，寄存器极多，API 运行瞬间可能会算出 `blockSize = 512`。
->         
->     - **一套代码，在任何显卡上都能自动变形，永远保持满血性能！**
->         
-> 3. **防止越界崩溃**：如果你的核函数写得极度复杂（用了上百个局部变量），写死 256 可能会直接导致程序崩溃（寄存器溢出 `Too many resources requested`）。而用这个 API，它会自动把 Block 压小到比如 64，保证程序绝对能跑通。
->     
+<div class="my-4 border-l-4 border-emerald-500 bg-emerald-500/10 p-4 rounded-r">
+    <strong class="text-emerald-500 block mb-1">🎯 核心优势：Occupancy API 的满血统治力</strong>
+    <ul class="text-sm opacity-85 m-0 p-0 list-none space-y-2">
+        <li>
+            🚀 <strong>1. 免去盲猜与压测</strong>：<br>
+            不需要再纠结是填 128 还是 256，API 吐出的数字在当前硬件的理论占用率上<strong>绝对是最优解</strong>。
+        </li>
+        <li>
+            🧬 <strong>2. 跨代自适应（完美兼容）</strong>：<br>
+            一套编译好的代码，在寄存器匮乏的老旧显卡上运行会自动收缩算为 <code>128</code>；而在最新的 H100 算力怪兽上运行则会自动膨胀为 <code>512</code>。<strong>在任何显卡上都能自动变形，永远保持满血性能！</strong>
+        </li>
+        <li>
+            🛡️ <strong>3. 降维防御越界崩溃</strong>：<br>
+            当核函数极其复杂（局部变量爆棚）时，硬编码 256 会因寄存器超额直接触发物理报错 <code>Too many resources requested</code>。而用该 API，它会自动把 Block 压小到安全线（如 64），<strong>无条件保证程序绝对能跑通</strong>！
+        </li>
+    </ul>
+</div>
 
 ---
 
@@ -1393,9 +1567,19 @@ myKernel<<<gridSize, blockSize>>>(args);
 
 ## 1. 什么是 Warp？（硬件级的真实执行单位）
 
-> [!tip] 💡 核心定义
-> **Warp（线程束）** 是英伟达 GPU 执行程序时的**最小硬件调度单位**。
-> 无论你的 Block 开多大，GPU 都会在底层默默地把 Block 里的线程，**每 32 个绑成一组**。这 32 个同生共死的兄弟，就叫一个 Warp。
+<div class="my-4 border-l-4 border-cyan-500 bg-cyan-500/10 p-4 rounded-r">
+    <strong class="text-cyan-500 block mb-1">💡 核心定义：什么是 Warp（线程束）？</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        <strong>Warp（线程束）</strong> 是英伟达 GPU 在执行程序、发射指令时的<strong>最小硬件调度与物理执行单位</strong>。
+    </p>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        在物理层面，无论你在软件层把 Block 开得多大，GPU 的硬件调度器（Warp Scheduler）都会在底层默默地把 Block 里的连续线程，<strong>每 32 个无条件绑成一组</strong>。这 32 个同生共死、共享同一条物理指令发射通道的兄弟，就叫一个 Warp。
+    </p>
+    <div class="mt-3 pt-2 border-t border-cyan-500/20 text-xs opacity-75">
+        🚀 <strong>Infra 架构师的物理拆解（SIMT 的真相）：</strong><br>
+        为什么说是同生共死？因为在一个独立的时钟周期内，Warp 调度器只会向这 32 个物理核心发射 <strong>1 条</strong> 相同的指令。这 32 个线程必须步伐一致地执行这同一个动作，只是各自处理自己线程 ID 对应的不同数据（即 Single Instruction Multiple Threads）。理解了这个锁死 32 人的硬件手铐，你就能瞬间秒懂后面为什么会发生分支发散（Branch Divergence）以及算力空转的底层逻辑！
+    </div>
+</div>
 
 ### 🚣 黄金比喻：32 人划龙舟
 把 GPU 的计算核心（SM）想象成一条大河，把 Warp 想象成一条 **32 人座的龙舟**。
@@ -1414,15 +1598,25 @@ myKernel<<<gridSize, blockSize>>>(args);
 * **Warp 1**：装载 `threadIdx.x` 为 $32 \sim 63$ 的线程。
 * ...以此类推，一共发车 $256 \div 32 = 8$ 艘龙舟（Warp）。
 
-> [!danger] 🔴 破案了：为什么 Block 大小必须是 32 的倍数？
-> 假设你头铁，写了 `dim3 block(100);`。
-> GPU 依然会无情地按 32 人一船来装：
-> * Warp 0: $0 \sim 31$ (满载)
-> * Warp 1: $32 \sim 63$ (满载)
-> * Warp 2: $64 \sim 95$ (满载)
-> * **Warp 3: $96 \sim 99$ (只有 4 个人)**
-> 
-> 在 Warp 3 这条船上，虽然只有 4 个人干活，但它**依然会占据一整条 32 人的龙舟资源（寄存器空间、调度周期）**。剩下的 28 个座位全是空着的“幽灵”，这就是纯粹的算力浪费！
+<div class="my-4 border-l-4 border-rose-500 bg-rose-500/10 p-4 rounded-r">
+    <strong class="text-rose-500 block mb-1">🔴 彻底破案：为什么 Block 大小必须是 32 的倍数？</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        假设你头铁，强行在代码里写了 <code>dim3 block(100);</code>。GPU 的物理硬件调度器可不会迁就你，它依然会无情地按 32 人一船（Warp）来装填核心：
+    </p>
+    <ul class="text-sm opacity-85 mt-2 m-0 p-0 list-none space-y-1 font-mono bg-rose-500/5 p-2 rounded border border-rose-500/10 text-rose-400 text-xs">
+        <li>🚢 Warp 0: 0 ~ 31 号线程（100% 满载干活）</li>
+        <li>🚢 Warp 1: 32 ~ 63 号线程（100% 满载干活）</li>
+        <li>🚢 Warp 2: 64 ~ 95 号线程（100% 满载干活）</li>
+        <li>💀 Warp 3: 96 ~ 99 号线程（实质只有 4 个人干活！）</li>
+    </ul>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        在 Warp 3 这条物理龙舟上，虽然真正干活的只有 4 个人，但它<strong>在物理上依然会强行占据一整条 32 人的全部硬件资源</strong>（包括对应的寄存器空间、指令发射周期、片上高速缓存额度等）。剩下的 28 个座位全是空着的“幽灵线程”！
+    </p>
+    <div class="mt-3 pt-2 border-t border-rose-500/20 text-xs opacity-75">
+        🚀 <strong>Infra 架构师的防空转防线：</strong><br>
+        这些空着的幽灵座位在执行分支代码时，虽然不输出结果，但它们会雷打不动地陪着那 4 个人一起走完所有的硬件发射周期，造成了极其可怜的物理算力浪费（硬件利用率瞬间跌入谷底）。因此，在写生产环境的大模型融合算子或自定义 Triton/CUDA 内核时，<strong>Block 的大小无条件闭眼锁定 128、256 或 512</strong>，这是吃满流水线带宽的绝对工业标准！
+    </div>
+</div>
 
 ---
 
@@ -1613,14 +1807,27 @@ _(注：排在最后面的线程如果越界了，它拿到的依然是自己原
 
 但是在 CUDA 里，借助 `__shfl_down_sync`，**利用“折半折半再折半”的思想，只要 5 步（5 个时钟周期）就能瞬间算完！**
 
-> [!tip] 💡 核心逻辑：
-> 
-> 1. 第一步：隔 16 个人相加（前 16 人拿到了 32 人的总和）。
->     
-> 2. 第二步：隔 8 个人相加...
->     
-> 3. 一直到隔 1 个人相加，0 号线程手里就是最终的总和！
->     
+<div class="my-4 border-l-4 border-cyan-500 bg-cyan-500/10 p-4 rounded-r">
+    <strong class="text-cyan-500 block mb-1">💡 核心逻辑：折半规约（Parallel Reduction）</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        在共享内存或 Warp 内部，32 个线程高效求和的底层降维打击过程：
+    </p>
+    <ul class="text-sm opacity-85 mt-2 m-0 p-0 list-none space-y-1.5">
+        <li>
+            🔄 <strong>第一步</strong>：跨距为 16 相加（前 16 个线程拿到了全部 32 人的阶段总和）。
+        </li>
+        <li>
+            🔄 <strong>第二步</strong>：跨距折半，隔 8 个人相加...
+        </li>
+        <li>
+            🎯 <strong>终点站</strong>：一直裂变到隔 1 个人相加。此时，<strong>0 号线程</strong>手里握着的就是最终的全局总和！
+        </li>
+    </ul>
+    <div class="mt-2.5 pt-2 border-t border-cyan-500/20 text-xs opacity-75">
+        💡 <strong>架构师手记：</strong><br>
+        这种利用树状分治（Divide and Conquer）的求和方式，直接把原本需要排队加 32 次的串行复杂度 $O(N)$，瞬间降维打击成了只需要执行 5 次的 $O(\log N)$ 硬件级暴速并发！
+    </div>
+</div>  
 
 
 ```cpp
@@ -1642,8 +1849,22 @@ __device__ int warpReduceSum(int val) {
 
 ## 1. 什么是占用率？（核心定义）
 
-> [!tip] 💡 黄金公式
-> **占用率 (Occupancy) = 当前 SM 上活跃的 Warp 数量 / 该 SM 硬件支持的最大 Warp 数量**
+<div class="my-4 border-l-4 border-cyan-500 bg-cyan-500/10 p-4 rounded-r">
+    <strong class="text-cyan-500 block mb-1">💡 性能度量衡：硬件占用率（Occupancy）的黄金公式</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        在 CUDA 性能调优中，我们通过以下公式来定量评估物理 SM 的并发利用效率：
+    </p>
+    <div class="my-3 text-center bg-cyan-500/5 py-3 rounded border border-cyan-500/10 text-cyan-400 text-sm">
+        $$\text{占用率 (Occupancy)} = \frac{\text{当前 SM 上活跃的 Warp 数量}}{\text{该 SM 硬件支持的最大 Warp 数量}}$$
+    </div>
+    <p class="text-sm opacity-85 m-0">
+        这个指标越高，代表物理芯片里的延迟隐藏（Latency Hiding）做得越好。当某些 Warp 因为等待显存数据而挂起时，硬件调度器有充足的其他 Warp 可以立刻顶上去干活！
+    </p>
+    <div class="mt-3 pt-2 border-t border-cyan-500/20 text-xs opacity-75">
+        🧠 <strong>Infra 架构师的清醒认知：高 Occupancy $\neq$ 高性能</strong><br>
+        初学者很容易陷入“盲目追求 100% Occupancy”的误区。实际上，高占用率只是提供了“隐藏延迟的机会”，并不等于最终的绝对速度。如果你的算子内部全都是严重的 Bank Conflict 或者非合并访问，哪怕 Occupancy 是 100%，计算核心也全是在原地空转排队。工业界调优的真谛是：<strong>在保证指令与访存高效的前提下，通过微调 Block Size 寻找一个最黄金的 Occupancy 平衡点</strong>！
+    </div>
+</div>
 
 * **SM (Streaming Multiprocessor)**：GPU 的核心计算单元（相当于一栋酒店）。
 * **活跃的 Warp**：当前被分配到这个 SM 上，正在准备执行或者正在等待数据的线程束（相当于已经办理入住的旅客）。
@@ -1672,8 +1893,24 @@ GPU 读写全局显存（Global Memory）的速度非常慢，通常需要几百
 2. **寄存器容量 (Registers)**：酒店的“独立卫生间”总数是有限的（通常是 64KB）。如果你的核函数写得极度复杂，每个线程索要了大量寄存器，哪怕只进了几个 Warp，寄存器就耗尽了。
 3. **共享内存容量 (Shared Memory)**：酒店的“公共会议室”总数是有限的（通常是 64KB - 96KB）。如果你的每个 Block 申请了巨大的共享内存，SM 塞下两个 Block 后就再也挤不进第三个了。
 
-> [!danger] 🔴 铁律：木桶效应
-> 只要上述三个资源中的**任何一个**被耗尽，SM 就会立刻关门谢客，拒绝新的 Block 载入。这就是为什么有时候你明明觉得线程没拉满，占用率却死活上不去的原因。
+<div class="my-4 border-l-4 border-rose-500 bg-rose-500/10 p-4 rounded-r">
+    <strong class="text-rose-500 block mb-1">🔴 性能铁律：资源配额的“木桶效应”</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        在物理 SM 车间内部，<strong>寄存器堆（Registers）、共享内存（Shared Memory）以及最大线程限制（Threads Upper Limit）</strong>共同构成了制约算力释放的三维天花板！
+    </p>
+    <div class="my-3 text-center bg-rose-500/5 py-2 rounded border border-rose-500/10 font-bold text-rose-500 text-sm">
+        ⚠️ 只要这三个核心硬件资源中的任何一个被完全耗尽，SM 就会立刻关门谢客，无情拒绝任何新 Block 的载入！
+    </div>
+    <p class="text-sm opacity-85 m-0">
+        这就是为什么有时候你观察性能面板，明明觉得线程数离最大限制还差得很远，整体占用率却死活上不去、硬件疯狂闲置的原因 —— 因为你的单个 Block 内部局部变量太多、或者共享内存开得太大，已经提前把其他两个木桶短板给彻底顶爆了。
+    </p>
+    <div class="mt-3 pt-2 border-t border-rose-500/20 text-xs opacity-75">
+        🚀 <strong>Infra 架构师的极限调优指南（Occupancy Optimization）：</strong><br>
+        写深度学习算子（如高效算子融合）时，如果遇到共享内存撑爆导致的占用率低，可以使用动态分配技术或借调一部分全局内存做二级缓冲；如果是寄存器用得太凶，可以在核函数前加上限制宏：<br>
+        <code class="bg-base-200 px-1 rounded text-rose-400">__global__ void __launch_bounds__(maxThreadsPerBlock, minBlocksPerSM)</code><br>
+        强行在编译期给 NVCC 下死命令重构局部变量，逼迫编译器吐出寄存器。通过精妙平衡这三个物理资源的容积，才能让物理显卡实现真正的“全员满载拉满”！
+    </div>
+</div>
 
 
 ---
@@ -1682,10 +1919,24 @@ GPU 读写全局显存（Global Memory）的速度非常慢，通常需要几百
 
 ## 1. 核心大局观：什么是 SM？
 
-> [!tip] 💡 黄金比喻：GPU 是超级工厂，SM 是独立车间
-> * **GPU (显卡芯片)**：相当于整个超级工厂。
-> * **SM (流式多处理器)**：相当于工厂里独立运作的**生产车间**。一张现代 GPU 内部由几十到上百个 SM 拼接而成（例如 RTX 4090 拥有 128 个 SM）。
-> * **CUDA 算力本质**：显卡算力之所以强，完全是因为英伟达在硅片上疯狂堆叠了海量的 SM 车间。
+<div class="my-4 border-l-4 border-cyan-500 bg-cyan-500/10 p-4 rounded-r">
+    <strong class="text-cyan-500 block mb-1">💡 黄金比喻：GPU 是超级工厂，SM 是独立车间</strong>
+    <ul class="text-sm opacity-85 m-0 p-0 list-none space-y-2">
+        <li>
+            🏭 <strong>GPU (显卡芯片)</strong>：相当于一整座规模宏大的<strong>超级工厂</strong>。
+        </li>
+        <li>
+            ⚙️ <strong>SM (流式多处理器)</strong>：相当于工厂里<strong>独立运作的生产车间</strong>。一张现代 GPU 内部就是由几十到上百个这样的 SM 车间拼接而成的（例如 RTX 4090 拥有 128 个 SM，而 H100 拥有多达 132 个以上有效 SM）。
+        </li>
+        <li>
+            🚀 <strong>CUDA 算力本质</strong>：显卡的并行算力之所以如此恐怖，完全是因为英伟达在硅片晶圆上<strong>疯狂堆叠了海量的物理 SM 车间</strong>。每个车间内部都自带专属的片上高速缓存（Shared Memory）、寄存器堆以及成百上千个干活的小工人（CUDA Cores / Tensor Cores）。
+        </li>
+    </ul>
+    <div class="mt-3 pt-2 border-t border-cyan-500/20 text-xs opacity-75">
+        🛠️ <strong>Infra 架构师的视角：</strong><br>
+        我们在软件层声明的 <code>Block</code>（线程块），在运行时就是被整个投喂给这些物理 <code>SM</code> 车间的。理解了“车间”的独立性，你就能瞬间明白为什么跨 Block 的线程无法共享片上缓存 —— 因为隔壁车间的工人们根本摸不到你这个车间的工具箱！
+    </div>
+</div>
 
 ---
 
@@ -1720,14 +1971,30 @@ graph LR
     style D fill:#d4edda,stroke:#28a745,stroke-width:2px
 ````
 
-> [!danger] 🔴 软硬件绑定的三大死铁律
-> 
-> 1. **Block 不可撕裂**：一个 Block 一旦被分配给某个 SM，它里面所有的线程从生到死都**只能在这一个 SM 里执行**，绝对不能跨车间转移！（因为它们需要共用这个 SM 物理芯片上的共享内存）。
->     
-> 2. **SM 可以并发多 Block**：一个 SM 车间不仅只接待一个 Block。只要寄存器和共享内存足够，一个 SM 可以同时驻留多个 Block。
->     
-> 3. **Grid 跨 SM 分发**：同一个 Grid 里的不同 Block，会被硬件调度器随机分发到显卡上不同的 SM 里去并行执行。
->     
+<div class="my-4 border-l-4 border-rose-500 bg-rose-500/10 p-4 rounded-r">
+    <strong class="text-rose-500 block mb-1">🔴 底层拓扑：软硬件绑定的三大死铁律</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        软件层面的线程网格拓扑与物理硬件（SM）在映射时，必须无条件服从以下三条死规则：
+    </p>
+    <ul class="text-sm opacity-85 mt-2 m-0 p-0 list-none space-y-3">
+        <li>
+            🔒 <strong>1. Block 不可撕裂（绝对的地域绑定）</strong>：<br>
+            一个 Block 一旦被分配给某个 SM，它里面所有的线程从生到死都<strong>只能在这一个 SM 内部执行</strong>，绝对不能跨车间（跨 SM）动态转移！因为它们在物理上严重依赖该 SM 专属的片上共享内存（Shared Memory）。
+        </li>
+        <li>
+            🥞 <strong>2. SM 可以并发多 Block（多客并发）</strong>：<br>
+            一个 SM 物理车间并不是一次只能接待一个 Block。只要该 SM 的硬件寄存器和共享内存资源足够，硬件调度器可以允许<strong>多个 Block 同时驻留在一个 SM 内</strong>执行并发计算。
+        </li>
+        <li>
+            🌍 <strong>3. Grid 跨 SM 分发（全卡火力全开）</strong>：<br>
+            同一个 Grid 里的不同 Block，在运行时会被 GPU 的硬件调度器（GigaThread Engine）<strong>随机分发到显卡上不同的 SM 里去并行执行</strong>。这是 GPU 能够实现成千上万核心超大规模并行的根本物理支柱！
+        </li>
+    </ul>
+    <div class="mt-3 pt-2 border-t border-rose-500/20 text-xs opacity-75">
+        🚀 <strong>Infra 架构师的负载均衡思维：</strong><br>
+        既然 Block 无法跨 SM 拆分，如果你的物理显卡有 100 个 SM，而你在启动核函数时只开了 2 个超大的 Block（比如里面塞满 1024 个线程），那完了！此时硬件调度器撑死只能把这两个 Block 分给 2 个 SM 去跑，剩下 98 个 SM 只能在一旁干瞪眼吃瓜，整张卡的硬件利用率直接暴跌到 2%！记住：<strong>Block 的总个数一定要远远大于物理 SM 的数量</strong>，才能让 Grid 把算力均匀地铺满全芯片！
+    </div>
+</div>  
 
 ## 4. 为什么懂 SM 才能写出好代码？（木桶效应与占用率）
 
@@ -1751,9 +2018,22 @@ SM 的物理限制直接决定了你代码的性能上限。一个 SM 能同时�
 
 现代 GPU 的计算核心（ALU）运算速度极其恐怖，但把数据从主板显存搬运到计算核心的速度，却远远跟不上计算的速度。
 
-> [!danger] 🔴 核心痛点：算力闲置
-> 
-> 如果你不懂内存模型，写出来的代码就会让成千上万的计算核心在原地“饿肚子”傻等数据。**优化 CUDA 程序，90% 的精力都是在优化“如何让数据喂得更快”**，这也是拉开新手和顶级架构师差距的核心分水岭。
+<div class="my-4 border-l-4 border-rose-500 bg-rose-500/10 p-4 rounded-r">
+    <strong class="text-rose-500 block mb-1">🔴 核心痛点：算力闲置（Memory-Bound 的梦魇）</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        在高端显卡上，真正制约算子性能的往往不是硬件乘法器的计算速度，而是<strong>数据的搬运效率</strong>！
+    </p>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        如果你不懂 GPU 的多层存储模型，写出来的代码就会暴露出极低的“计算访存比”，导致成千上万个计算核心（ALU）在原地“饿肚子”傻傻等待数据从片外显存里爬进来。
+    </p>
+    <div class="my-3 text-center bg-rose-500/5 py-2 rounded border border-rose-500/10 font-bold text-rose-500 text-sm">
+        💡 优化 CUDA 程序，90% 的精力都是在优化“如何让数据喂得更快”！
+    </div>
+    <div class="mt-3 pt-2 border-t border-rose-500/20 text-xs opacity-75">
+        🚀 <strong>顶级架构师的降维打击：算子融合（Kernel Fusion）</strong><br>
+        大模型核心算子（如 Multi-Head Attention）如果拆成一堆细碎的 <code>Add</code>, <code>Scale</code>, <code>Softmax</code> 单独调用，由于每次都要反复读写板载显存（DRAM），算力会全部死在路上。顶级架构师会写出定制化的融合算子，让数据进入片上高级缓存（Shared Memory）后，不出片芯片直接在里面把整套逻辑高频算完。这就是拉开新手和老鸟技术差距的核心分水岭！
+    </div>
+</div>
 
 ## 2. 内存层次总览
 
@@ -1904,11 +2184,26 @@ float val = data[(threadIdx.x + blockIdx.x * blockDim.x) * stride];
 
 ```
 
-> [!tip] 🚛 合并访问的本质
-> 
-> 如果这 32 个兄弟要读取的内存地址是**连续对齐**的，硬件就会召唤 **1 辆大卡车**，一次性把 32 个人的数据全拉回来（这叫 100% 合并访问）。
-> 
-> 如果这 32 个人要读取的地址是**乱七八糟、极度分散**的，硬件就不得不召唤 **32 辆小货车**分别去拉货，你的显存带宽瞬间暴跌 32 倍！
+<div class="my-4 border-l-4 border-cyan-500 bg-cyan-500/10 p-4 rounded-r">
+    <strong class="text-cyan-500 block mb-1">💡 性能起飞：合并访问的硬件本质（Coalesced Access）</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        全局内存（Global Memory）的带宽极大，但硬件由于采用缓存行（Cache Line）机制，每次出货都是成块成块出的：
+    </p>
+    <ul class="text-sm opacity-85 mt-2 m-0 p-0 list-none space-y-2">
+        <li>
+            🚛 <strong>高效并网（1 辆大卡车）</strong>：<br>
+            如果一个 Warp 里的 32 个线程要读取的内存地址在空间上是<strong>连续且对齐</strong>的（比如线程 <code>T0</code> 读 <code>A[0]</code>，<code>T1</code> 读 <code>A[1]</code>...），硬件就会直接召唤 <strong>1 辆合并大卡车</strong>（执行 1 次合并显存请求），一口气把 32 个人的数据全拉回来，效率直接拉满！
+        </li>
+        <li>
+            🛵 <strong>效率灾难（32 辆小货车）</strong>：<br>
+            如果代码写乱了，这 32 个人要读取的地址是<strong>乱七八糟、极度分散</strong>的（例如 <code>T0</code> 读 <code>A[100]</code>，<code>T1</code> 读 <code>A[9000]</code>），硬件就不得不被迫召唤 <strong>32 辆相互独立的小货车</strong>（触发 32 次显存事务轮询）分别去拉货。总线直接被塞到瘫痪，你的实际显存带宽利用率瞬间暴跌 32 倍！
+        </li>
+    </ul>
+    <div class="mt-3 pt-2 border-t border-cyan-500/20 text-xs opacity-75">
+        🚀 <strong>Infra 架构师的降维打击：跨距循环与行列倒转</strong><br>
+        在写转置矩阵或者处理二维数组时，初学者很容易写出按列读取的代码（由于物理存储按行排，按列读会导致跨距极其巨大，彻底变成 32 辆小货车）。记住一句话：<strong>一定要让最内层的循环变量与线程 ID（<code>threadIdx.x</code>）直接挂钩</strong>，确保物理寻址在时间步上时刻连续。这就等于在硬件层面永远握住了那辆合并大卡车的方向盘！
+    </div>
+</div>
 
 ### 3.3 访问模式对性能的影响
 
@@ -2052,11 +2347,29 @@ graph TD
     style Banks fill:#f8f9fa,stroke:#ced4da,stroke-dasharray: 5 5
 ```
 
-> [!danger] 🔴 什么是 Bank Conflict？
-> 
-> 如果 Warp 里的 32 个兄弟，每个人都去不同的窗口办理业务，大家可以**同时办理（无冲突）**。
-> 
-> 但如果 `T0` 想访问地址 `0`（在 Bank 0），而 `T1` 此时恰好想访问地址 `32`（也在 Bank 0），此时 **Bank 0 窗口发生拥堵**！硬件只能让 `T1` 等 `T0` 办完再办，并发变成了**串行（这叫 2-Way Conflict）**。
+<div class="my-4 border-l-4 border-rose-500 bg-rose-500/10 p-4 rounded-r">
+    <strong class="text-rose-500 block mb-1">🔴 性能杀手：什么是共享内存的 Bank Conflict（银行冲突）？</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        共享内存（Shared Memory）在物理硬件上被平均分成了 32 个可以独立读写的存储模块，称为 <strong>Banks</strong>，正好对应一个 Warp 里的 32 个线程。
+    </p>
+    <ul class="text-sm opacity-85 mt-2 m-0 p-0 list-none space-y-2">
+        <li>
+            🟢 <strong>完美并发（无冲突）</strong>：<br>
+            如果一个 Warp 里的 32 个兄弟，在同一时刻访问的都是不同的 Bank 窗口，那么硬件可以<strong>同时并发出货（0 延迟等待）</strong>。
+        </li>
+        <li>
+            💥 <strong>拥堵退化（发生冲突）</strong>：<br>
+            由于地址映射规则是每隔 32 个元素轮巡一次。如果 <code>T0</code> 想访问地址 <code>0</code>（在 Bank 0），而 <code>T1</code> 恰好也想访问地址 <code>32</code>（物理上也属于 Bank 0），此时 <strong>Bank 0 窗口发生硬件级拥堵</strong>！
+        </li>
+    </ul>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        硬件由于无法同时输出两份数据，只能强行让 <code>T1</code> 挂起等待 <code>T0</code> 办完，原本的 32 路并发在局部瞬间退化成了<strong>物理串行排队（这被称为 2-Way Conflict）</strong>。
+    </p>
+    <div class="mt-3 pt-2 border-t border-rose-500/20 text-xs opacity-75">
+        🚀 <strong>Infra 架构师的绝杀避坑黑科技：Padding（内存垫片）</strong><br>
+        在工业界写二维矩阵乘法（GEMM）算子时，为了彻底破除这种由于列访问导致的 Bank 冲突，高手们通常会使用 <strong>Padding 战术</strong>。例如原本声明 <code>__shared__ float tile[16][32]</code>，故意把列大小多开一个位置变成 <code>tile[16][32 + 1]</code>。这一行小小的垫片，利用错位原理，直接在物理上把所有原本垂直撞车的线程错开到了不同的 Bank 窗口，零成本换取带宽直接翻倍！
+    </div>
+</div>
 
 ### 4.3 避免 Bank Conflict 的技巧 (Padding)
 
@@ -2127,8 +2440,19 @@ nvcc --maxrregcount=32 mykernel.cu
 
 ```
 
-> [!tip] 💡 核心认知：厨师的手掌心
-> 如果把计算核心比作厨师，寄存器就是厨师的双手。把食材（数据）放在手里处理，不需要走路，速度堪比光速。
+<div class="my-4 border-l-4 border-cyan-500 bg-cyan-500/10 p-4 rounded-r">
+    <strong class="text-cyan-500 block mb-1">💡 核心认知：寄存器就是厨师的双手</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        如果把 GPU 的计算核心（ALU）比作厨房里大展身手的厨师，那么<strong>寄存器（Register）就是厨师的双手</strong>。
+    </p>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        把食材（数据）直接抓在手里处理，不需要走动，也不需要转头去砧板或冰箱拿取，<strong>其读写速度堪比光速（0 个时钟周期延迟）</strong>！
+    </p>
+    <div class="mt-3 pt-2 border-t border-cyan-500/20 text-xs opacity-75">
+        🚀 <strong>Infra 架构师的算力账本：</strong><br>
+        虽然寄存器速度快到飞起，但硬件给它的空间极其吝啬。在英伟达架构中，每个 SM 的寄存器总量是固定的。如果你在核函数里声明了太多的局部变量，导致“厨师手太小抓不下”，硬件就会被迫把多出来的数据踢到片外的局部内存（Local Memory）中。写好算子的第一步，就是精打细算地用好厨师的这双手！
+    </div>
+</div>
 
 * **物理位置**：片上（On-Chip），直接长在 SM 计算单元旁边。
 * **速度**：全显卡最快（没有之一！），延迟约为 1 个时钟周期。
@@ -2144,9 +2468,22 @@ nvcc --maxrregcount=32 mykernel.cu
 
 不要被它的名字骗了！“局部内存”其实一点都不局部！
 
-> [!danger] 💀 惊天骗局：局部内存的物理真相
-> 局部内存的“局部（Local）”仅仅是指它的**作用域（只有当前线程能用）**，而绝不是指它的物理位置！
-> **在物理硬件上，局部内存就是纯纯的片外全局显存（Global Memory）！**
+<div class="my-4 border-l-4 border-rose-500 bg-rose-500/10 p-4 rounded-r">
+    <strong class="text-rose-500 block mb-1">💀 惊天骗局：局部内存（Local Memory）的物理真相</strong>
+    <p class="text-sm opacity-85 m-0 font-medium text-rose-400">
+        局部内存的“局部（Local）”仅仅是指它的<strong>作用域（Scope）</strong>，而绝不是指它的物理位置！
+    </p>
+    <div class="my-3 text-center bg-rose-500/5 py-2 rounded border border-rose-500/10 font-bold text-rose-500 text-sm">
+        ⚠️ 在物理硬件上，局部内存就是纯纯的片外全局显存（Global Memory）！
+    </div>
+    <p class="text-sm opacity-85 m-0">
+        它的物理拓扑根本不在 GPU 核心的芯片内部（非片上高速缓存），而是和全局内存共用同一根物理总线、同一块板载显存芯片（DRAM）。这意味着，它的访问延迟和全局内存一模一样，<strong>速度慢得令人发指！</strong>
+    </p>
+    <div class="mt-3 pt-2 border-t border-rose-500/20 text-xs opacity-75">
+        🛠️ <strong>Infra 架构师的降维打击：</strong><br>
+        Local Memory 在底层其实是 NVCC 编译器的<strong>“寄存器溢出（Register Spilling）安全网”</strong>。当你在核函数里声明了一个无法在编译期确定索引的局部数组，或者局部变量太多把硬件寄存器（Registers）撑爆时，编译器就会无奈地把这部分数据踢进 Local Memory 续命。写高性能算子时，必须时刻警惕并尽量避免触发它！
+    </div>
+</div>
 
 * **物理位置**：片外（Off-Chip），离计算核心十万八千里。
 * **速度**：和全局显存一样慢！一次读取需要耗费 400~800 个时钟周期。
@@ -2228,9 +2565,23 @@ __global__ void __launch_bounds__(256, 4) myKernel() { ... }
 ---
 # 揭秘 CUDA 最大的文字游戏：局部内存的物理本质
 
-> [!danger] 🚨 核心真相
-> * **逻辑上（软件层面）**：它是局部的。因为这块内存**只有当前那一个线程自己能读写**，别的线程谁也看不了它，生命周期跟线程同生共死。
-> * **物理上（硬件层面）**：它是全局的。它和全局内存（Global Memory）**共用一根总线，共用一整块显存芯片，速度同样慢得令人发指！**
+<div class="my-4 border-l-4 border-rose-500 bg-rose-500/10 p-4 rounded-r">
+    <strong class="text-rose-500 block mb-1">🚨 核心真相：别被 Local Memory 的名字骗了！</strong>
+    <ul class="text-sm opacity-85 m-0 p-0 list-none space-y-3">
+        <li>
+            💻 <strong>逻辑上（软件层面）—— 它是局部的</strong>：<br>
+            在作用域上，这块内存<strong>只有当前那一个线程（Thread）自己能够读写</strong>，其他线程谁也无法越界窥探它，生命周期与线程同生共死。
+        </li>
+        <li>
+            🔌 <strong>物理上（硬件层面）—— 它是全局的</strong>：<br>
+            在芯片拓扑上，它根本没有独立的硬件高速片上缓存，而是和全局内存（Global Memory）<strong>共用一根物理总线，共用一整块板载显存芯片（DRAM）</strong>。这意味着它的访问延迟和全局内存一样高，速度同样慢得令人发指！
+        </li>
+    </ul>
+    <div class="mt-3 pt-2 border-t border-rose-500/20 text-xs opacity-75">
+        💡 <strong>Infra 架构师深度避坑：</strong><br>
+        Local Memory 在硬件上的本质其实就是<strong>“寄存器溢出垃圾区”</strong>。当你在核函数里声明了一个超大的局部数组，或者代码分支太复杂导致硬件寄存器不够用（Register Spilling）时，NVCC 编译器就会无奈地把这部分数据踢进 Local Memory。写高性能算子时，务必通过限制局部变量数量或使用共享内存（Shared Memory）来阻止这种物理退化！
+    </div>
+</div>
 
 ## 1. 为什么英伟达要把它放在那么慢的地方？
 
@@ -2292,9 +2643,19 @@ graph LR
 
 ## 1. 核心大局观：什么是常量内存？
 
-> [!tip] 💡 核心定义
-> 常量内存是一块固定大小（**全卡锁死 64 KB**）、**对 GPU 核函数只读**的专用内存。
-> 它在物理上和全局内存一样，都位于片外的 DRAM（显存颗粒）上。但是，它在 SM 片上拥有自己**专属的只读缓存（Constant Cache）**。
+<div class="my-4 border-l-4 border-cyan-500 bg-cyan-500/10 p-4 rounded-r">
+    <strong class="text-cyan-500 block mb-1">💡 核心定义：什么是常量内存（Constant Memory）？</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        常量内存是一块固定大小（<strong>全卡锁死 64 KB</strong>）、<strong>对 GPU 核函数只读</strong>的专用内存空间。
+    </p>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        它在物理位置上和全局内存一模一样，都位于芯片外的板载 DRAM（显存颗粒）上。但是，它在每个 SM（流式多处理器）内部，都拥有自己<strong>专属的片上只读缓存（Constant Cache）</strong>！
+    </p>
+    <div class="mt-3 pt-2 border-t border-cyan-500/20 text-xs opacity-75">
+        🚀 <strong>Infra 架构师的硬件拆解：</strong><br>
+        正因为这块专属 Constant Cache 的存在，当一个 Warp（32个线程）在同一时刻请求同一个常量内存地址时，硬件只需要执行 <strong>1 次</strong> 缓存读取，随后就能通过广播总线直接将数据秒传给剩下的 31 个线程。这种单时钟周期的广播威力，正是大模型或图像处理中卷积核（Kernel Weights）加速的物理核心！
+    </div>
+</div>
 
 ### 📢 黄金比喻：大堂经理拿大喇叭喊话
 * **普通全局内存**：32 个线程（Warp）走进去，每个人要不同的数据，硬件必须派车去不同的地方拉。
@@ -2326,11 +2687,22 @@ graph TD
     Miss --> Slow
 ````
 
-> [!danger] 🔴 致命雷区：当 32 个人要的数据不一样时...
-> 
-> 如果你的代码写跑偏了，导致 Warp 里的 32 个线程在同一时刻去读常量内存里**不同的物理地址**（比如 T0 读 C[0]，T1 读 C[1]...），那完了！
-> 
-> 常量内存的广播机制会**瞬间瘫痪**，32 次读取被迫退化成**物理上的彻底串行化（排队 32 次）**，它的速度会变得比普通的全局内存还要慢得多！
+<div class="my-4 border-l-4 border-rose-500 bg-rose-500/10 p-4 rounded-r">
+    <strong class="text-rose-500 block mb-1">🔴 致命雷区：当 32 个人要的数据不一样时...（广播冲突）</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        如果你的代码写跑偏了，导致同一个 Warp 里的 32 个线程在同一时刻去读取常量内存里<strong>不同的物理地址</strong>：
+    </p>
+    <div class="my-2 bg-rose-500/5 p-2 rounded font-mono text-xs border border-rose-500/10 text-center text-rose-400">
+        ❌ 错误寻址：线程 T0 读 C[0]、线程 T1 读 C[1]、线程 T2 读 C[2] ... 
+    </div>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        那完了！常量内存那引以为傲的“单时钟周期全员广播”机制会<strong>瞬间瘫痪</strong>。硬件为了确保数据正确性，会强行把这 1 次并发读取拆解并退化为<strong>物理上的彻底串行化操作（即 32 次排队轮询读取）</strong>！
+    </p>
+    <div class="mt-3 pt-2 border-t border-rose-500/20 text-xs opacity-75">
+        ⚠️ <strong>Infra 性能警示：</strong><br>
+        一旦发生串行化排队，常量内存的实际吞吐性能会暴跌到谷底，速度甚至变得比未对齐的全局内存（Global Memory）还要慢得多。因此，常量内存只适合存储全 Warp 共享的“绝对常量”（如卷积核权重、网络超参数），绝不能当成普通数组用线程 ID（<code>threadIdx.x</code>）去建立映射寻址！
+    </div>
+</div>
 
 ## 3. 工业界标准起手式：代码怎么写？
 
@@ -2389,9 +2761,19 @@ int main() {
 
 ## 1. 什么是统一内存？
 
-> [!tip] 💡 核心定义
-> 统一内存是一种**虚拟内存管理机制**。它允许 CPU（Host）和 GPU（Device）共同使用同一个内存指针来访问同一块数据。
-> 在代码里，你不再需要分心去管理 `h_A`（主机指针）和 `d_A`（设备指针），只需要声明一个 `managed_A` 即可。
+<div class="my-4 border-l-4 border-cyan-500 bg-cyan-500/10 p-4 rounded-r">
+    <strong class="text-cyan-500 block mb-1">💡 核心定义：什么是统一内存（Unified Memory）？</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        统一内存是一种<strong>虚拟内存管理机制</strong>（Unified Virtual Memory, UVM）。
+    </p>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        它允许 CPU（Host）和 GPU（Device）共同使用<strong>同一个内存指针</strong>来访问同一块物理数据。
+    </p>
+    <div class="mt-3 pt-2 border-t border-cyan-500/20 text-sm opacity-90">
+        🛠️ <strong>指针大瘦身：</strong><br>
+        在传统 CUDA 代码里，你必须小心翼翼地维护 <code>h_A</code>（主机指针）和 <code>d_A</code>（设备指针），并频繁在它们之间手动搬运数据。而在统一内存机制下，你不再需要分心去管理这两套繁琐的指针，<strong>只需要通过 <code>cudaMallocManaged()</code> 声明一个 <code>ptr</code> 即可全场通用</strong>！
+    </div>
+</div>
 
 ### 🚚 传统模式 vs 统一内存模式
 
@@ -2482,10 +2864,28 @@ cudaFree(managed_A);
 
 看到这里，你可能会想：“既然统一内存这么爽，那以后谁还写普通的 `cudaMalloc` 呀？”
 
-> [!danger] 🔴 资深架构师的冷思考：统一内存在工业界的利与弊
-> 
-> - **它的代价**：在 Kernel 刚启动的时候，由于数据还在 CPU 内存里，GPU 会疯狂触发 **Page Fault（缺页中断）**。这就好比汽车刚发动时疯狂熄火，直到驱动把数据陆陆续续搬完后，速度才会提上来。这种“零星搬运”的开销，有时比你一次性 `cudaMemcpy` 还要慢。
->     
+<div class="my-4 border-l-4 border-rose-500 bg-rose-500/10 p-4 rounded-r">
+    <strong class="text-rose-500 block mb-1">🔴 资深架构师的冷思考：统一内存在工业界的利与弊</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        统一内存（Unified Memory）虽然省去了繁琐的手动拷贝，但其底层代价极其高昂：
+    </p>
+    <ul class="text-sm opacity-85 mt-2 m-0 p-0 list-none space-y-2">
+        <li>
+            💥 <strong>核心代价：Page Fault（缺页中断）风暴</strong><br>
+            在 Kernel 刚启动的时候，由于物理数据实际还在 CPU 内存（Host）里，GPU 只要一访问指针就会疯狂触发 <strong>Page Fault</strong>。这就好比汽车刚发动时由于油路不畅疯狂熄火，直到驱动通过 PCIe 总线把页面陆陆续续搬完后，算子的吞吐速度才会提上来。
+        </li>
+        <li>
+            🐢 <strong>性能劣化</strong>：<br>
+            这种依托于操作系统的“零星碎步搬运”开销，由于伴随着大量硬件级的中断握手，其综合延迟有时比你老老实实一次性执行 <code>cudaMemcpy</code> 还要慢上几个数量级！
+        </li>
+    </ul>
+    <div class="mt-3 pt-2 border-t border-rose-500/20 text-xs opacity-75">
+        🚀 <strong>工业界的高级破局黑科技：</strong><br>
+        大厂写生产级 Infra 代码时，如果一定要用统一内存，绝对不会任由它裸奔，而是会在 Kernel 启动前强行加入<strong>异步预热（Data Prefetching）</strong>哨兵：<br>
+        <code class="bg-base-200 px-1 rounded text-rose-400">cudaMemPrefetchAsync(ptr, size, device_id, stream);</code><br>
+        直接命令驱动在后台以大块连续的 DMA 模式把数据提前“空投”到 GPU。在 Kernel 触及数据前就把 Page Fault 風暴当场掐死在摇篮里！
+    </div>
+</div>  
 
 ### 🛡️ 工业界终极补救：内存预提示 (Prefetching)
 
@@ -2536,7 +2936,24 @@ myAlgorithmKernel<<<blocks_per_grid, THREADS_PER_BLOCK>>>(d_in, d_out, N);
 
 ## 2. 核心铁律：万空莫开的“错误检查机制”
 
-> [!danger] 💀 CUDA 的最大隐患：异步无声崩溃 CPU 调用 GPU 核函数是**异步**的（CPU 喊完号子就走，根本不知道 GPU 在后面有没有吐血身亡）。 如果核函数内部越界了或者显存爆了，GPU 会默默崩溃，而你的 CPU 会毫无察觉地继续往下跑，最终输出一堆完全错误的垃圾零值。
+<div class="my-4 border-l-4 border-rose-500 bg-rose-500/10 p-4 rounded-r">
+    <strong class="text-rose-500 block mb-1">💀 致命陷阱：CUDA 的最大隐患（异步无声崩溃）</strong>
+    <p class="text-sm opacity-85 m-0 font-medium">
+        必须深刻理解硬件间的协同代价：<strong>CPU 调用 GPU 核函数是完全“异步”的</strong>！
+    </p>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        CPU 喊完启动号子（Kernel Launch）后拔腿就走，根本不知道 GPU 在后面有没有因为代码逻辑问题吐血身亡。如果核函数内部发生了<strong>非法内存访问（Illegal Memory Access）</strong>、算子越界或者显存顶爆，GPU 会在硬件层面默默崩溃。
+    </p>
+    <p class="text-sm opacity-85 mt-2 m-0">
+        而你的 CPU 依旧会毫无察觉地继续往下抢跑，直到最后从显存里考回数据时，才会给你吐出一堆完全错误的、死寂的垃圾零值。
+    </p>
+    <div class="mt-3 pt-2 border-t border-rose-500/20 text-xs opacity-75">
+        🛠️ <strong>Infra 绝杀调试哨兵：</strong><br>
+        开发调试阶段想抓出这个幽灵，切记在核函数启动后强行插入这行防御哨兵：<br>
+        <code class="bg-base-200 px-1 rounded text-rose-400">CUDA_CHECK(cudaDeviceSynchronize());</code><br>
+        或者在终端临时注入环境变量：<code class="bg-base-200 px-1 rounded text-rose-400">export CUDA_LAUNCH_BLOCKING=1</code>。将全线强行扭转为<strong>同步阻塞模式</strong>，让 GPU 在崩溃的瞬间立刻逼停 CPU，精准定位到罪魁祸首的代码行！
+    </div>
+</div>
 
 ### ✅ 工业界标准防护：定义错误检查宏 (Macro)
 
