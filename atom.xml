@@ -5,7 +5,7 @@
   <link href="https://xystart.github.io/" rel="alternate" type="text/html"/>
   <link href="https://xystart.github.io/atom.xml" rel="self" type="application/atom+xml"/>
   <id>https://xystart.github.io/</id>
-  <updated>2026-06-21T03:02:50.957Z</updated>
+  <updated>2026-06-21T03:38:56.915Z</updated>
   <language>en</language>
   <entry>
     <title>Pytorch</title>
@@ -2845,7 +2845,7 @@ optimizer = optim.SGD([
 </blockquote>
 <h2>三、 实战监控：剖析 nvidia-smi 面板信息</h2>
 <p>执行 <code>nvidia-smi</code> 命令后，你会看到一个终端面板。我们将这个面板拆解为【头部信息】、【GPU 状态矩阵】和【进程监控】三个部分。</p>
-<p>![[Pasted image 20260520210105.png]]</p>
+<p>![CUDA编译流图](/Pasted image 20260520210105.png)</p>
 <h3>3.1 头部信息（环境版本诊断）</h3>
 <p>面板第一行是环境配置的关键，决定了你的代码能不能跑通：</p>
 <ul>
@@ -3833,7 +3833,7 @@ __host__ __device__ float myAbs(float x) {
 </ul>
 <h2>十二、 CUDA 进阶：三大逻辑层级与网络排布</h2>
 <p>当 Host 启动一个核函数时，它会瞬间在 GPU 内部召唤出成千上万个线程。为了管理这群“人海”，CUDA 建立了一套严密的三级行政组织架构：</p>
-<p>![[Pasted image 20260527153541.png]]</p>
+<p>![](/Pasted image 20260527153541.png)</p>
 <ul>
 <li>
 <p><strong>① 线程（Thread）—— 最小的基层士兵</strong></p>
@@ -3970,13 +3970,23 @@ int index = z * (WIDTH * HEIGHT) + y * WIDTH + x;
 </li>
 </ul>
 </blockquote>
+<p>&lt;!-- &gt; [!warning] 🟡 铁律二：Block 的 Z 轴大小特殊限制</p>
 <blockquote>
-<p>[!warning] 🟡 铁律二：Block 的 Z 轴大小特殊限制</p>
 <p>英伟达规定，Block 的 <code>.x</code> 和 <code>.y</code> 轴最大可以设到 1024，但 <strong><code>.z</code> 轴最大只能设到 64</strong>。</p>
 <ul>
-<li>观察你的 3D 例子：<code>.z = 4</code>。完全合法！</li>
+<li>观察你的 3D 例子：<code>.z = 4</code>。完全合法！
+--&gt;</li>
 </ul>
 </blockquote>
+<p>&lt;div class="my-4 border-l-4 border-amber-500 bg-amber-500/10 p-4 rounded-r"&gt;
+&lt;strong class="text-amber-500 block mb-1"&gt;⚠️ 铁律二：Block 的 Z 轴大小特殊限制&lt;/strong&gt;
+&lt;p class="text-sm opacity-80 m-0"&gt;
+英伟达规定，Block 的 &lt;code&gt;.x&lt;/code&gt; 和 &lt;code&gt;.y&lt;/code&gt; 轴最大可以设到 1024，但 &lt;strong class="text-amber-500"&gt;.z 轴最大只能设到 64&lt;/strong&gt;。
+&lt;/p&gt;
+&lt;ul class="text-sm opacity-80 mt-2 list-none p-0"&gt;
+&lt;li&gt;- 观察你的 3D 例子：&lt;code&gt;.z = 4&lt;/code&gt;。完全合法！&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;</p>
 <h3>12.2 硬件限制</h3>
 <table>
 <thead>

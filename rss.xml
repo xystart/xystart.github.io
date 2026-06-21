@@ -2817,7 +2817,7 @@ optimizer = optim.SGD([
 &lt;/blockquote&gt;
 &lt;h2&gt;三、 实战监控：剖析 nvidia-smi 面板信息&lt;/h2&gt;
 &lt;p&gt;执行 &lt;code&gt;nvidia-smi&lt;/code&gt; 命令后，你会看到一个终端面板。我们将这个面板拆解为【头部信息】、【GPU 状态矩阵】和【进程监控】三个部分。&lt;/p&gt;
-&lt;p&gt;![[Pasted image 20260520210105.png]]&lt;/p&gt;
+&lt;p&gt;![CUDA编译流图](/Pasted image 20260520210105.png)&lt;/p&gt;
 &lt;h3&gt;3.1 头部信息（环境版本诊断）&lt;/h3&gt;
 &lt;p&gt;面板第一行是环境配置的关键，决定了你的代码能不能跑通：&lt;/p&gt;
 &lt;ul&gt;
@@ -3805,7 +3805,7 @@ __host__ __device__ float myAbs(float x) {
 &lt;/ul&gt;
 &lt;h2&gt;十二、 CUDA 进阶：三大逻辑层级与网络排布&lt;/h2&gt;
 &lt;p&gt;当 Host 启动一个核函数时，它会瞬间在 GPU 内部召唤出成千上万个线程。为了管理这群“人海”，CUDA 建立了一套严密的三级行政组织架构：&lt;/p&gt;
-&lt;p&gt;![[Pasted image 20260527153541.png]]&lt;/p&gt;
+&lt;p&gt;![](/Pasted image 20260527153541.png)&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;① 线程（Thread）—— 最小的基层士兵&lt;/strong&gt;&lt;/p&gt;
@@ -3942,13 +3942,23 @@ int index = z * (WIDTH * HEIGHT) + y * WIDTH + x;
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;/blockquote&gt;
+&lt;p&gt;&amp;lt;!-- &amp;gt; [!warning] 🟡 铁律二：Block 的 Z 轴大小特殊限制&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;[!warning] 🟡 铁律二：Block 的 Z 轴大小特殊限制&lt;/p&gt;
 &lt;p&gt;英伟达规定，Block 的 &lt;code&gt;.x&lt;/code&gt; 和 &lt;code&gt;.y&lt;/code&gt; 轴最大可以设到 1024，但 &lt;strong&gt;&lt;code&gt;.z&lt;/code&gt; 轴最大只能设到 64&lt;/strong&gt;。&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;观察你的 3D 例子：&lt;code&gt;.z = 4&lt;/code&gt;。完全合法！&lt;/li&gt;
+&lt;li&gt;观察你的 3D 例子：&lt;code&gt;.z = 4&lt;/code&gt;。完全合法！
+--&amp;gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/blockquote&gt;
+&lt;p&gt;&amp;lt;div class=&quot;my-4 border-l-4 border-amber-500 bg-amber-500/10 p-4 rounded-r&quot;&amp;gt;
+&amp;lt;strong class=&quot;text-amber-500 block mb-1&quot;&amp;gt;⚠️ 铁律二：Block 的 Z 轴大小特殊限制&amp;lt;/strong&amp;gt;
+&amp;lt;p class=&quot;text-sm opacity-80 m-0&quot;&amp;gt;
+英伟达规定，Block 的 &amp;lt;code&amp;gt;.x&amp;lt;/code&amp;gt; 和 &amp;lt;code&amp;gt;.y&amp;lt;/code&amp;gt; 轴最大可以设到 1024，但 &amp;lt;strong class=&quot;text-amber-500&quot;&amp;gt;.z 轴最大只能设到 64&amp;lt;/strong&amp;gt;。
+&amp;lt;/p&amp;gt;
+&amp;lt;ul class=&quot;text-sm opacity-80 mt-2 list-none p-0&quot;&amp;gt;
+&amp;lt;li&amp;gt;- 观察你的 3D 例子：&amp;lt;code&amp;gt;.z = 4&amp;lt;/code&amp;gt;。完全合法！&amp;lt;/li&amp;gt;
+&amp;lt;/ul&amp;gt;
+&amp;lt;/div&amp;gt;&lt;/p&gt;
 &lt;h3&gt;12.2 硬件限制&lt;/h3&gt;
 &lt;table&gt;
 &lt;thead&gt;
