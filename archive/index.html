@@ -1823,7 +1823,22 @@ Powered by
 			box-shadow: 0 0 0 2px var(--primary);
 			border: none;
 		}
-	</style><!--]--><!--]--><!--astro:end--></astro-island> <!-- Pio 看板娘组件 - 仅在进入视口时加载 -->  <!-- increase the page height during page transition to prevent the scrolling animation from jumping --> <div id="page-height-extend" class="hidden h-[300vh]" data-astro-cid-sckkx6r4 style="--configHue: 240;--page-width: 90rem;--bannerOffset: 15vh;--banner-height-home: 65vh;--banner-height: 35vh;"></div>  <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.we6hLS72.js"></script> <!-- 代码块折叠功能 --> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_1_lang.DGJQrGZe.js"></script> <!-- 主题切换综合性能优化器（包含代码块优化、重型元素优化、性能诊断） --> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_2_lang._R4ib5TO.js"></script></body></html> <!--
+	</style><!--]--><!--]--><!--astro:end--></astro-island> <!-- Pio 看板娘组件 - 仅在进入视口时加载 -->  <!-- increase the page height during page transition to prevent the scrolling animation from jumping --> <div id="page-height-extend" class="hidden h-[300vh]" data-astro-cid-sckkx6r4 style="--configHue: 240;--page-width: 90rem;--bannerOffset: 15vh;--banner-height-home: 65vh;--banner-height: 35vh;"></div> <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script> <script>
+		// 监听 Swup 页面切换或普通加载，确保每次进文章都能成功渲染
+		function initMermaid() {
+			if (typeof mermaid !== 'undefined') {
+			mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+			// 强刷未渲染的 mermaid 代码块
+			mermaid.run({
+				querySelector: '.language-mermaid',
+			});
+			}
+		}
+		// 首次加载执行
+		document.addEventListener('DOMContentLoaded', initMermaid);
+		// 如果你的博客带页面无刷新过渡（Swup/ViewTransitions），加上这一行
+		document.addEventListener('swup:contentReplaced', initMermaid);
+		</script> </body> </html>  <script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.we6hLS72.js"></script> <!-- 代码块折叠功能 --> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_1_lang.DGJQrGZe.js"></script> <!-- 主题切换综合性能优化器（包含代码块优化、重型元素优化、性能诊断） --> <script type="module" src="/_astro/Layout.astro_astro_type_script_index_2_lang._R4ib5TO.js"></script> <!--
   Banner 和网格布局样式已提取到 src/styles/banner.css
   该文件通过 src/styles/main.css 导入
 -->
